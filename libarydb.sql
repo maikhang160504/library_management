@@ -1,0 +1,147 @@
+-- Tạo cơ sở dữ liệu
+CREATE DATABASE IF NOT EXISTS LibraryDB;
+USE LibraryDB;
+
+-- Tạo bảng Tác Giả
+CREATE TABLE tac_gia (
+    ma_tac_gia INT PRIMARY KEY AUTO_INCREMENT,
+    ten_tac_gia VARCHAR(255) NOT NULL
+) ENGINE=InnoDB;
+
+-- Tạo bảng Thể Loại
+CREATE TABLE the_loai (
+    ma_the_loai INT PRIMARY KEY AUTO_INCREMENT,
+    ten_the_loai VARCHAR(255) NOT NULL
+) ENGINE=InnoDB;
+
+-- Tạo bảng Sách
+CREATE TABLE sach (
+    ma_sach INT PRIMARY KEY AUTO_INCREMENT,
+    ma_tac_gia INT,
+    ma_the_loai INT,
+    ten_sach VARCHAR(255) NOT NULL,
+    nam_xuat_ban YEAR NOT NULL,
+    nha_xuat_ban VARCHAR(255),
+    so_luong INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (ma_tac_gia) REFERENCES tac_gia(ma_tac_gia) ON DELETE CASCADE,
+    FOREIGN KEY (ma_the_loai) REFERENCES the_loai(ma_the_loai) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Tạo bảng Độc Giả
+CREATE TABLE doc_gia (
+    ma_doc_gia INT PRIMARY KEY AUTO_INCREMENT,
+    ten_doc_gia VARCHAR(255) NOT NULL,
+    ngay_sinh DATE NOT NULL,
+    so_dien_thoai VARCHAR(15) UNIQUE NOT NULL
+) ENGINE=InnoDB;
+
+-- Tạo bảng Phiếu Mượn
+CREATE TABLE phieu_muon (
+    ma_phieu_muon INT PRIMARY KEY AUTO_INCREMENT,
+    ma_doc_gia INT,
+    ngay_muon DATE NOT NULL,
+    ngay_tra DATE NOT NULL,
+    trang_thai ENUM('Đang mượn', 'Đã trả') NOT NULL DEFAULT 'Đang mượn',
+    FOREIGN KEY (ma_doc_gia) REFERENCES doc_gia(ma_doc_gia) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Tạo bảng Chi Tiết Phiếu Mượn
+CREATE TABLE chi_tiet_phieu_muon (
+    ma_ctpm INT PRIMARY KEY AUTO_INCREMENT,
+    ma_phieu_muon INT,
+    ma_sach INT,
+    so_luong INT NOT NULL CHECK (so_luong > 0),
+    FOREIGN KEY (ma_phieu_muon) REFERENCES phieu_muon(ma_phieu_muon) ON DELETE CASCADE,
+    FOREIGN KEY (ma_sach) REFERENCES sach(ma_sach) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Tạo bảng Phiếu Trả
+CREATE TABLE phieu_tra (
+    ma_phieu_tra INT PRIMARY KEY AUTO_INCREMENT,
+    ma_ctpm INT,
+    ngay_tra_sach DATE NOT NULL,
+    tien_phat DECIMAL(10,2) DEFAULT 0,
+    FOREIGN KEY (ma_ctpm) REFERENCES chi_tiet_phieu_muon(ma_ctpm) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ========================== TÍNH NĂNG MYSQL ==========================
+
+-- 📌 FUNCTION: Kiểm tra số lượng sách còn lại trong thư viện
+DELIMITER //
+CREATE FUNCTION SoLuongSachConLai(maSach INT) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE so_luong_con INT;
+    SELECT so_luong INTO so_luong_con FROM sach WHERE ma_sach = maSach;
+    RETURN so_luong_con;
+END //
+DELIMITER ;
+
+-- 📌 TRIGGER: Tự động tính tiền phạt khi trả sách muộn (2,000 VND/ngày)
+DELIMITER //
+CREATE TRIGGER TinhTienPhat
+BEFORE INSERT ON phieu_tra
+FOR EACH ROW
+BEGIN
+    DECLARE ngay_muon DATE;
+    DECLARE so_ngay_muon INT;
+    
+    -- Lấy ngày mượn từ bảng phiếu mượn
+    SELECT ngay_muon INTO ngay_muon FROM phieu_muon
+    JOIN chi_tiet_phieu_muon ON phieu_muon.ma_phieu_muon = chi_tiet_phieu_muon.ma_phieu_muon
+    WHERE chi_tiet_phieu_muon.ma_ctpm = NEW.ma_ctpm;
+
+    -- Tính số ngày trễ hạn
+    SET so_ngay_muon = DATEDIFF(NEW.ngay_tra_sach, ngay_muon);
+    
+    -- Nếu trả muộn hơn 7 ngày, tính tiền phạt
+    IF so_ngay_muon > 7 THEN
+        SET NEW.tien_phat = (so_ngay_muon - 7) * 2000;
+    ELSE
+        SET NEW.tien_phat = 0;
+    END IF;
+END //
+DELIMITER ;
+
+-- 📌 STORED PROCEDURE: Lấy danh sách phiếu mượn chưa trả
+DELIMITER //
+CREATE PROCEDURE LayPhieuMuonChuaTra()
+BEGIN
+    SELECT * FROM phieu_muon WHERE trang_thai = 'Đang mượn';
+END //
+DELIMITER ;
+
+-- 📌 THỐNG KÊ: Số lượng sách mượn trong tháng hiện tại
+DELIMITER //
+CREATE PROCEDURE ThongKeSachMuonThang()
+BEGIN
+    SELECT COUNT(*) AS SoSachMuon FROM chi_tiet_phieu_muon
+    JOIN phieu_muon ON chi_tiet_phieu_muon.ma_phieu_muon = phieu_muon.ma_phieu_muon
+    WHERE MONTH(phieu_muon.ngay_muon) = MONTH(CURDATE()) AND YEAR(phieu_muon.ngay_muon) = YEAR(CURDATE());
+END //
+DELIMITER ;
+
+-- 📌 THỐNG KÊ: Số độc giả mượn sách trong năm hiện tại
+DELIMITER //
+CREATE PROCEDURE ThongKeDocGiaMuonNam()
+BEGIN
+    SELECT COUNT(DISTINCT ma_doc_gia) AS SoDocGiaMuon FROM phieu_muon
+    WHERE YEAR(ngay_muon) = YEAR(CURDATE());
+END //
+DELIMITER ;
+
+-- ========================== DỮ LIỆU MẪU ==========================
+INSERT INTO tac_gia (ten_tac_gia) VALUES ('Nguyễn Nhật Ánh'), ('J.K. Rowling');
+INSERT INTO the_loai (ten_the_loai) VALUES ('Tiểu thuyết'), ('Khoa học viễn tưởng');
+INSERT INTO sach (ma_tac_gia, ma_the_loai, ten_sach, nam_xuat_ban, nha_xuat_ban, so_luong) 
+VALUES 
+    (1, 1, 'Cho Tôi Xin Một Vé Đi Tuổi Thơ', 2008, 'NXB Trẻ', 10),
+    (2, 2, 'Harry Potter và Hòn Đá Phù Thủy', 1997, 'Bloomsbury', 15);
+
+INSERT INTO doc_gia (ten_doc_gia, ngay_sinh, so_dien_thoai) 
+VALUES ('Nguyễn Văn A', '2000-05-10', '0987654321');
+
+INSERT INTO phieu_muon (ma_doc_gia, ngay_muon, ngay_tra, trang_thai) 
+VALUES (1, '2025-03-01', '2025-03-10', 'Đang mượn');
+
+INSERT INTO chi_tiet_phieu_muon (ma_phieu_muon, ma_sach, so_luong) 
+VALUES (1, 1, 2);
