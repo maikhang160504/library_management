@@ -1,0 +1,15 @@
+/* Thêm khoảng cách giữa các phần tử */
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+/* Làm cho footer luôn ở dưới cùng */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
