@@ -22,23 +22,55 @@ function callControllerMethod($controllerMethod, $params = [])
     call_user_func_array([$controller, $method], $params);
 }
 
-// Auth Routes
-$router->get('/login', function() {
-    callControllerMethod('App\Controllers\AuthController@login');
-});
-$router->post('/login', function() {
-    callControllerMethod('App\Controllers\AuthController@login');
-});
-$router->get('/logout', function() {
-    callControllerMethod('App\Controllers\AuthController@logout');
-});
-
 // Book Routes
-$router->get('/', function() {
+$router->get('/', function () {
     callControllerMethod('App\Controllers\BookController@index');
 });
-$router->get('/books/(\d+)', function($id) {
+
+// Route cho xem chi tiết sách
+$router->get('/books/(\d+)', function ($id) {
     callControllerMethod('App\Controllers\BookController@show', [$id]);
 });
 
+// Route cho quản lý mượn sách
+$router->get('/borrows', function () {
+    callControllerMethod('App\Controllers\BorrowController@index');
+});
+
+$router->get('/borrows/create', function () {
+    callControllerMethod('App\Controllers\BorrowController@create');
+});
+
+$router->post('/borrows/store', function () {
+    callControllerMethod('App\Controllers\BorrowController@store');
+});
+
+// Route cho quản lý trả sách
+$router->get('/returns', function () {
+    callControllerMethod('App\Controllers\ReturnController@index');
+});
+
+$router->get('/returns/return', function () {
+    callControllerMethod('App\Controllers\ReturnController@return');
+});
+$router->get('/reports', function () {
+    callControllerMethod('App\Controllers\ReportController@index');
+});
+$router->get('/reports/monthly-borrow-stats', function () {
+    callControllerMethod('App\Controllers\ReportController@monthlyBorrowStats');
+});
+
+$router->get('/reports/yearly-reader-stats', function () {
+    callControllerMethod('App\Controllers\ReportController@yearlyReaderStats');
+});
+
+$router->get('/reports/most-borrowed-books', function () {
+        callControllerMethod('App\Controllers\ReportController@mostBorrowedBooks');
+});
+$router->get('/reports/top-readers', function () {
+    callControllerMethod('App\Controllers\ReportController@topReaders');
+});
+$router->get('/reports/borrow-return-report', function () {
+    callControllerMethod('App\Controllers\ReportController@borrowReturnReport');
+});
 $router->run();

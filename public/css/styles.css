@@ -1,4 +1,14 @@
-/* Thêm khoảng cách giữa các phần tử */
+/* Hiệu ứng hover cho các liên kết */
+.hover-effect {
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.hover-effect:hover {
+    color: #ffc107 !important; /* Màu vàng */
+    transform: translateY(-2px);
+}
+
+/* Khoảng cách giữa các phần tử */
 .mb-4 {
     margin-bottom: 1.5rem;
 }
@@ -12,4 +22,40 @@ body {
 
 main {
     flex: 1;
+}
+
+/* Tùy chỉnh nút bấm */
+.btn-custom {
+    background-color: #ffc107;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #e0a800;
+}
+
+/* Tùy chỉnh card */
+.card-custom {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+}
+
+/* Tùy chỉnh bảng */
+.table-custom {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-custom th {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #f8f9fa;
 }

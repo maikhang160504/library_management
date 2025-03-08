@@ -5,7 +5,7 @@ ob_start();
 
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card">
+        <div class="card card-custom">
             <div class="card-body">
                 <h2 class="card-title text-center"><?php echo $book['ten_sach']; ?></h2>
                 <p class="card-text"><strong>Tác giả:</strong> <?php echo $book['ten_tac_gia']; ?></p>
@@ -13,7 +13,7 @@ ob_start();
                 <p class="card-text"><strong>Năm xuất bản:</strong> <?php echo $book['nam_xuat_ban']; ?></p>
                 <p class="card-text"><strong>Nhà xuất bản:</strong> <?php echo $book['nha_xuat_ban']; ?></p>
                 <p class="card-text"><strong>Số lượng còn lại:</strong> <?php echo $book['so_luong']; ?></p>
-                <a href="/" class="btn btn-primary w-100">Quay lại danh sách</a>
+                <a href="/" class="btn btn-custom w-100">Quay lại danh sách</a>
             </div>
         </div>
     </div>
@@ -21,5 +21,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../layout/main.php';
+include __DIR__ . '/../layouts/main.php';
 ?>

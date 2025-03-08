@@ -5,8 +5,8 @@ ob_start();
 
 <h2 class="text-center mb-4">Danh sách sách</h2>
 <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
+    <table class="table table-custom table-hover">
+        <thead>
             <tr>
                 <th>Mã sách</th>
                 <th>Tên sách</th>
@@ -25,7 +25,7 @@ ob_start();
                 <td><?php echo $book['ten_the_loai']; ?></td>
                 <td><?php echo $book['so_luong']; ?></td>
                 <td>
-                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-info">Xem chi tiết</a>
+                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-custom">Xem chi tiết</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -35,5 +35,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../layout/main.php';
+include __DIR__ . '/../layouts/main.php';
 ?>
