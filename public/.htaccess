@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{HTTP_HOST} ^localhost:8000$ [NC]
+RewriteRule ^(.*)$ http://library.localhost/$1 [R=301,L]
