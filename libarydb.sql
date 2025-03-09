@@ -145,3 +145,64 @@ VALUES (1, '2025-03-01', '2025-03-10', 'Đang mượn');
 
 INSERT INTO chi_tiet_phieu_muon (ma_phieu_muon, ma_sach, so_luong) 
 VALUES (1, 1, 2);
+
+
+INSERT INTO tac_gia (ten_tac_gia) VALUES
+('Nguyễn Nhật Ánh'),
+('J.K. Rowling'),
+('Yuval Noah Harari'),
+('Dale Carnegie'),
+('Fujiko F. Fujio'),
+('Gosho Aoyama'),
+('Robert T. Kiyosaki'),
+('Mai Nhật Khang'),
+('Robert C. Martin'),
+('Gabrielle Zevin');
+
+INSERT INTO the_loai (ten_the_loai) VALUES
+('Tiểu thuyết'),
+('Giả tưởng'),
+('Lịch sử'),
+('Kỹ năng sống'),
+('Truyện tranh'),
+('Trinh thám'),
+('Kinh doanh'),
+('Công nghệ'),
+('Khoa học viễn tưởng'),
+('Tiểu thuyết đương đại');
+
+INSERT INTO sach (ma_tac_gia, ma_the_loai, ten_sach, nam_xuat_ban, nha_xuat_ban, so_luong) VALUES
+(1, 1, 'Cho Tôi Xin Một Vé Đi Tuổi Thơ', 2008, 'NXB Trẻ', 10),
+(2, 2, 'Harry Potter và Hòn Đá Phù Thủy', 1997, 'Bloomsbury', 15),
+(3, 3, 'Sapiens: Lược Sử Loài Người', 2011, 'HarperCollins', 12),
+(4, 4, 'Đắc Nhân Tâm', 1936, 'Simon & Schuster', 20),
+(5, 5, 'Doraemon Tập 1', 1970, 'Shogakukan', 25),
+(6, 6, 'Thám Tử Lừng Danh Conan Tập 1', 1994, 'Shogakukan', 30),
+(7, 7, 'Cha Giàu Cha Nghèo', 1997, 'Plata Publishing', 18),
+(8, 8, 'Giáo Trình Cấu Trúc Dữ Liệu và Giải Thuật', 2010, 'NXB Giáo Dục', 10),
+(9, 9, 'Project Hail Mary', 2021, 'Ballantine Books', 9),
+(10, 10, 'Tomorrow, and Tomorrow, and Tomorrow', 2022, 'Knopf', 7);
+
+INSERT INTO sach (ma_tac_gia, ma_the_loai, ten_sach, nam_xuat_ban, nha_xuat_ban, so_luong) VALUES
+(11, 1, 'Nhà Giả Kim', 1988, 'HarperTorch', 20),
+(12, 10, 'Norwegian Wood', 1987, 'Kodansha', 15),
+(13, 6, 'Mật Mã Da Vinci', 2003, 'Doubleday', 18),
+(14, 9, '1984', 1949, 'Secker & Warburg', 25),
+(15, 1, 'Phía Tây Không Có Gì Lạ', 1929, 'Propyläen Verlag', 12),
+(16, 3, 'Lược Sử Thời Gian', 1988, 'Bantam Books', 22),
+(17, 10, 'Hoàng Tử Bé', 1943, 'Reynal & Hitchcock', 30),
+(18, 4, 'Think and Grow Rich', 1937, 'The Ralston Society', 17),
+(19, 4, 'Outliers: The Story of Success', 2008, 'Little, Brown and Company', 14),
+(20, 4, 'Atomic Habits', 2018, 'Avery', 19);
+
+INSERT INTO tac_gia (ten_tac_gia) VALUES
+('Paulo Coelho'),
+('Haruki Murakami'),
+('Dan Brown'),
+('George Orwell'),
+('Erich Maria Remarque'),
+('Stephen Hawking'),
+('Antoine de Saint-Exupéry'),
+('Napoleon Hill'),
+('Malcolm Gladwell'),
+('James Clear');
