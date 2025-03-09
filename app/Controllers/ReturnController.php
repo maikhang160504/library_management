@@ -29,7 +29,7 @@ class ReturnController extends Controller
             $ngay_tra_sach = date('Y-m-d'); // Ngày trả là ngày hiện tại
 
             if ($this->returnModel->returnBook($ma_ctpm, $ngay_tra_sach)) {
-                header('Location: /borrows');
+                header('Location: /returns/detail/' . $ma_ctpm);
                 exit();
             } else {
                 echo "Có lỗi xảy ra khi xác nhận trả sách!";
@@ -37,5 +37,15 @@ class ReturnController extends Controller
         } else {
             echo "Yêu cầu không hợp lệ!";
         }
+    }
+    public function show($ma_phieu_tra) {
+        $returnDetail = $this->returnModel->getReturnDetail($ma_phieu_tra);
+
+        if (!$returnDetail) {
+            echo "Không tìm thấy phiếu trả!";
+            return;
+        }
+
+        $this->view('returns/show', ['returnDetail' => $returnDetail]);
     }
 }

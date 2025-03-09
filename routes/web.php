@@ -41,6 +41,9 @@ $router->get('/borrows/create', function () {
     callControllerMethod('App\Controllers\BorrowController@create');
 });
 
+$router->get('/borrows/detail/(\d+)', function ($id) {
+    callControllerMethod('App\Controllers\BorrowController@show', [$id]);
+});
 $router->post('/borrows/store', function () {
     callControllerMethod('App\Controllers\BorrowController@store');
 });
@@ -53,6 +56,9 @@ $router->get('/returns', function () {
 $router->get('/returns/return', function () {
     callControllerMethod('App\Controllers\ReturnController@return');
 });
+$router->get('/returns/detail/(\d+)', function ($id) {
+    callControllerMethod('App\Controllers\ReturnController@show', [$id]);
+});
 $router->get('/reports', function () {
     callControllerMethod('App\Controllers\ReportController@index');
 });
@@ -63,12 +69,8 @@ $router->get('/reports/monthly-borrow-stats', function () {
 $router->get('/reports/yearly-reader-stats', function () {
     callControllerMethod('App\Controllers\ReportController@yearlyReaderStats');
 });
-
-$router->get('/reports/most-borrowed-books', function () {
-        callControllerMethod('App\Controllers\ReportController@mostBorrowedBooks');
-});
-$router->get('/reports/top-readers', function () {
-    callControllerMethod('App\Controllers\ReportController@topReaders');
+$router->get('/reports/top-readers-most-borrowed-book', function () {
+        callControllerMethod('App\Controllers\ReportController@topReaders_mostBorrowedBook');
 });
 $router->get('/reports/borrow-return-report', function () {
     callControllerMethod('App\Controllers\ReportController@borrowReturnReport');

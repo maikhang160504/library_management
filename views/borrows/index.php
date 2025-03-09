@@ -23,6 +23,7 @@ ob_start();
                 <th>Ngày trả</th>
                 <th>Trạng thái</th>
                 <th>Hành động</th>
+                <th>Chi tiết</th> <!-- Thêm cột mới cho nút xem chi tiết -->
             </tr>
         </thead>
         <tbody>
@@ -40,6 +41,12 @@ ob_start();
                         <span class="text-muted">Đã trả</span>
                     <?php endif; ?>
                 </td>
+                <td>
+                    <!-- Nút xem chi tiết -->
+                    <a href="/borrows/detail/<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-info btn-sm">
+                        <i class="fas fa-eye"></i> Xem chi tiết
+                    </a>
+                </td>
             </tr>
             <?php endforeach; ?>
         </tbody>
@@ -48,6 +55,7 @@ ob_start();
     <!-- Nút tạo phiếu mượn -->
     <a href="/borrows/create" class="btn btn-primary">Tạo phiếu mượn</a>
 </div>
+
 
 <?php
 $content = ob_get_clean();

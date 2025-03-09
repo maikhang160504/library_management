@@ -2,6 +2,8 @@
 $title = "Danh sách sách";
 ob_start();
 ?>
+<div class="container">
+
 
 <h2 class="text-center mb-4">Danh sách sách</h2>
 <div class="table-responsive">
@@ -32,7 +34,7 @@ ob_start();
         </tbody>
     </table>
 </div>
-
+</div>
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';
