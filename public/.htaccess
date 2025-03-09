@@ -1,5 +1,9 @@
 RewriteEngine On
 RewriteBase /
 
-RewriteCond %{HTTP_HOST} ^localhost:8000$ [NC]
-RewriteRule ^(.*)$ http://library.localhost/$1 [R=301,L]
+# Không áp dụng rewrite cho các file và thư mục thực tế
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Chuyển hướng tất cả request đến index.php, nhưng vẫn giữ tham số trên URL
+RewriteRule ^(.+)$ index.php?url=$1 [L,QSA]
