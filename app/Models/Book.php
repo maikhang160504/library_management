@@ -8,7 +8,7 @@ class Book extends Model
      protected $table = 'sach';
     
     public function getAllBooks() {
-        $query = "SELECT * FROM {$this->table}";
+        $query = "select * from sach as s join tac_gia as tg on tg.ma_tac_gia = s.ma_tac_gia join the_loai as tl on tl.ma_the_loai = s.ma_the_loai";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
