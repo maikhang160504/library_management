@@ -444,8 +444,12 @@ on ctpm.ma_phieu_muon = pm.ma_phieu_muon WHERE MONTH(ngay_muon) = MONTH(CURDATE(
     ELSEIF period_type = 'this_year' THEN
         SELECT COUNT(*) INTO total FROM phieu_muon as pm join chi_tiet_phieu_muon as ctpm 
 on ctpm.ma_phieu_muon = pm.ma_phieu_muon WHERE YEAR(ngay_muon) = YEAR(CURDATE());
-    
-DELIMITER $$
+    ELSE
+        -- Trả về 0 nếu giá trị `period_type` không hợp lệ
+        SET total = 0;
+    END IF;
+    RETURN total;
+END $$
 
 -- Cập nhật số lượng sách khi mượn
 CREATE TRIGGER `CapNhatSoLuongKhiMuon` 
@@ -506,5 +510,36 @@ BEGIN
         SET NEW.tien_phat = 0;
     END IF;
 END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE GetUpcomingReturns(IN days INT)
+BEGIN
+    -- Kiểm tra tham số đầu vào
+    IF days <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tham số "days" phải lớn hơn 0';
+    END IF;
+
+    -- Truy vấn chính
+    SELECT 
+        pm.ma_phieu_muon, 
+        pm.ma_doc_gia, 
+        dg.ten_doc_gia, 
+        s.ma_sach, 
+        s.ten_sach, 
+        pm.ngay_muon, 
+        pm.ngay_tra AS ngay_tra_du_kien,
+        pm.trang_thai
+    FROM phieu_muon pm
+    JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+    JOIN chi_tiet_phieu_muon ctpm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
+    JOIN sach s ON ctpm.ma_sach = s.ma_sach
+    WHERE pm.ngay_tra BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL days DAY)
+      AND pm.trang_thai = 'Đang Mượn'
+    ORDER BY pm.ngay_tra ASC;
+END $$
 
 DELIMITER ;
