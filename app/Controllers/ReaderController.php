@@ -11,7 +11,7 @@ class ReaderController extends Controller
 
     public function __construct()
     {
-        if(session_status()===PHP_SESSION_NONE){
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $this->readerModel = new Reader();
@@ -19,9 +19,23 @@ class ReaderController extends Controller
 
     public function index()
     {
-        $readers = $this->readerModel->getAllReaders();
-        $this->view('readers/index', ['readers' => $readers]);
+
+        $perPage = 10;
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $start = ($currentPage - 1) * $perPage;
+        $readers = $this->readerModel->getReadersWithPagination($start, $perPage);
+
+        $totalReaders = $this->readerModel->getTotalReaders();
+
+        $totalPages = ceil($totalReaders / $perPage);
+
+        $this->view('readers/index', [
+            'readers' => $readers,
+            'totalPages' => $totalPages,
+            'currentPage' => $currentPage
+        ]);
     }
+
 
 
     public function create()

@@ -80,8 +80,8 @@ ob_start();
                                 <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/edit" class="btn btn-sm btn-warning mx-2">
                                     <i class="fas fa-edit"></i> Sửa
                                 </a>
-                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/delete" class="btn btn-sm btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#delete" >
-                                    <i class="fas fa-trash-alt"></i> Xóa
+                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/delete" class="btn btn-sm btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#delete" data-bs-id="<?php echo $reader['ma_doc_gia']; ?>">
+                                    <i class=" fas fa-trash-alt"></i> Xóa
                                 </a>
                             </td>
                         </tr>
@@ -90,25 +90,48 @@ ob_start();
             </tbody>
         </table>
     </div>
+    <?php if ($totalPages > 1): ?>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?page=<?= $currentPage - 1 ?>">
+                        << /a>
+                </li>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= ($currentPage == $i) ? 'active' : '' ?>">
+                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+                <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?page=<?= $currentPage + 1 ?>">></a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
+
 </div>
 
 <!-- Modal -->
 <div class="modal fade" id="delete" tabindex="-1" aria-labelledby="delete" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Bạn có chắc muốn xóa thành viên này không?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-        <button type="button" class="btn btn-primary">Lưu thay đổi</button>
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc muốn xóa thành viên này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <form action="/readers/delete" method="POST" id="deleteForm">
+                    <input type="hidden" name="id" id="readerId">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
 
 <?php
 $content = ob_get_clean();

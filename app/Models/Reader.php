@@ -34,7 +34,7 @@ class Reader extends Model
         $query = "DELETE FROM {$this->table} WHERE ma_doc_gia = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute(); 
+        return $stmt->execute();
     }
 
     public function isReaderBorrowing($readerId)
@@ -59,7 +59,7 @@ class Reader extends Model
         $query = "UPDATE doc_gia SET ma_doc_gia =:ma_doc_gia, ten_doc_gia=: ten_doc_gia, ngay_sinh=:ngay_sinh, so_dien_thoai=:so_dien_thoai, email=:email WHERE ma_doc_gia=: $id";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':ma_doc_gia', $ma_doc_giaame);
+        $stmt->bindParam(':ma_doc_gia', $ma_doc_gia);
         $stmt->bindParam(':ten_doc_gia', $ten_doc_gia);
         $stmt->bindParam(':ngay_sinh', $ngay_sinh);
         $stmt->bindParam(':so_dien_thoai', $so_dien_thoai);
@@ -137,6 +137,24 @@ class Reader extends Model
 
         $stmt->execute();
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getTotalReaders()
+    {
+        $query = "SELECT COUNT(*) AS total FROM {$this->table}";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function getReadersWithPagination($start, $limit)
+    {
+        $query = "SELECT * FROM {$this->table} LIMIT :start, :limit";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':start', $start, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
