@@ -115,14 +115,8 @@ private function calculateTotalPages($total, $limit)
 public function updateQuantity() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ma_sach = $_POST['ma_sach'] ?? null;
-        $so_luong = $_POST['so_luong'] ?? null;
-        
-        // Validate dữ liệu: số lượng phải là số và >= 0
-        if (!$ma_sach || !is_numeric($so_luong) || $so_luong < 0) {
-            $_SESSION['error'] = "Dữ liệu không hợp lệ!";
-            header("Location: /books");
-            exit;
-        }
+        // Lấy số lượng mới từ ô nhập, có thể là chuỗi rỗng nếu không nhập gì
+        $new_quantity = $_POST['so_luong'] ?? '';
         
         // Lấy thông tin sách hiện tại
         $book = $this->bookModel->getBookById($ma_sach);
@@ -132,18 +126,25 @@ public function updateQuantity() {
             exit;
         }
         
-        // Nếu số lượng không thay đổi, không thực hiện cập nhật
-        if ($book['so_luong'] == $so_luong) {
-            $_SESSION['error'] = "Không có thay đổi số lượng cho sách: " . $book['ten_sach'];
+        // Nếu ô số lượng mới trống hoặc bằng số lượng cũ thì không cập nhật
+        if ($new_quantity === '' || $book['so_luong'] == $new_quantity) {
+            $_SESSION['error'] = "Không có thay đổi số lượng cho sách: \"{$book['ten_sach']}\"";
             header("Location: /books");
             exit;
         }
         
-        // Thực hiện cập nhật
-        $result = $this->bookModel->updateQuantity($ma_sach, $so_luong);
+        // Validate số lượng mới: kiểm tra có phải số và >= 0
+        if (!is_numeric($new_quantity) || $new_quantity < 0) {
+            $_SESSION['error'] = "Số lượng mới không hợp lệ!";
+            header("Location: /books");
+            exit;
+        }
+        
+        // Thực hiện cập nhật số lượng
+        $result = $this->bookModel->updateQuantity($ma_sach, $new_quantity);
         
         if ($result) {
-            $_SESSION['success'] = "Cập nhật số lượng cho sách: \"{$book['ten_sach']}\" thành công!";;
+            $_SESSION['success'] = "Cập nhật số lượng cho sách: \"{$book['ten_sach']}\" thành công!";
         } else {
             $_SESSION['error'] = "Có lỗi xảy ra khi cập nhật số lượng!";
         }
