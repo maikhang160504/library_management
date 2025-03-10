@@ -1,7 +1,7 @@
 <?php
 $title = "Thống kê Sách Mượn";
 ob_start();
-$filter = $_GET['filter'] ?? 'month'; // Mặc định là tháng này
+$filter = $_GET['filter'] ?? 'this_month'; // Mặc định là tháng này
 $filterText = [
     'today' => 'Hôm nay',
     'this_week' => 'Tuần này',
