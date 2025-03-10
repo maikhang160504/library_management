@@ -14,7 +14,7 @@ unset($_SESSION['errors'], $_SESSION['old']);
         <div class="col-md-6">
             <div class="card card-custom">
                 <div class="card-body">
-                    <h2 class="card-title text-center">Thêm sách vào thư viện</h2>
+                    <h2 class="card-title text-center">Thêm sách</h2>
 
                     <?php if (!empty($errors['general'])): ?>
                         <div class="alert alert-danger"><?= htmlspecialchars($errors['general']) ?></div>
