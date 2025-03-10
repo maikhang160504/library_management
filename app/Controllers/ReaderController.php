@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Core\Controller;
@@ -10,6 +11,9 @@ class ReaderController extends Controller
 
     public function __construct()
     {
+        if(session_status()===PHP_SESSION_NONE){
+            session_start();
+        }
         $this->readerModel = new Reader();
     }
 
@@ -47,23 +51,40 @@ class ReaderController extends Controller
 
     public function delete($id)
     {
+        if ($this->readerModel->isReaderBorrowing($id)) {
+            $_SESSION['error'] = "Không thể xóa độc giả vì họ đang mượn sách!";
+            header("Location: /readers");
+            exit;
+        }
         $this->readerModel->deleteReader($id);
-        header('Location: /readers');
+
+        $_SESSION['success'] = "Độc giả đã được xóa thành công.";
+        header("Location: /readers");
     }
+
 
     public function detail($id)
-{
-    $readerDetail = $this->readerModel->detailReader($id);
+    {
+        $readerDetail = $this->readerModel->detailReader($id);
 
-    if (!$readerDetail) {
-        echo "Không tìm thấy thông tin độc giả.";
-        return;
+        if (!$readerDetail) {
+            echo "Không tìm thấy thông tin độc giả.";
+            return;
+        }
+
+        $this->view('readers/detail', [
+            'reader' => $readerDetail['reader'],
+            'borrowHistory' => $readerDetail['borrowHistory'],
+        ]);
     }
 
-    $this->view('readers/detail', [
-        'reader' => $readerDetail['reader'],
-        'borrowHistory' => $readerDetail['borrowHistory']
-    ]);
-}
+    public function search()
+    {
+        $keyword = $_GET['keyword'] ?? '';
 
+        $readers = $this->readerModel->searchReaders($keyword);
+
+
+        $this->view('readers/index', ['readers' => $readers]);
+    }
 }

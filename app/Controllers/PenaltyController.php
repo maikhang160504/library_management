@@ -3,14 +3,19 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\Penalty;
+use App\Services\EmailService;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class PenaltyController extends Controller
 {
     private $penaltyModel;
+    private $emailService;
 
     public function __construct()
     {
         $this->penaltyModel = new Penalty();
+        $this->emailService = new EmailService();
     }
 
     public function index()
@@ -19,34 +24,12 @@ class PenaltyController extends Controller
         $this->view('penalties/index', ['penalties' => $penalties]);
     }
 
-    public function create()
+    public function search()
     {
-        $this->view('penalties/create');
+        $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
+        $penalties = $this->penaltyModel->getAllPenalties($keyword);
+        $this->view('penalties/index', ['penalties' => $penalties]);
     }
 
-    public function store()
-    {
-        $data = $_POST;
-        $this->penaltyModel->addPenalty($data); 
-        header('Location: /penalties');
-    }
-
-    public function edit($id)
-    {
-        $penalty = $this->penaltyModel->getPenaltyById($id); 
-        $this->view('penalties/edit', ['penalty' => $penalty]);
-    }
-
-    public function update($id)
-    {
-        $data = $_POST;
-        $this->penaltyModel->updatePenalty($id, $data);
-        header('Location: /penalties');
-    }
-
-    public function delete($id)
-    {
-        $this->penaltyModel->deletePenalty($id); 
-        header('Location: /penalties');
-    }
+    
 }

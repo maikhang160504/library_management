@@ -102,6 +102,11 @@ $router->get('/reports/borrow-return-report', function () {
     callControllerMethod('ReportController@borrowReturnReport');
 });
 
+$router->get('/reports/penalties', function () {
+    callControllerMethod('ReportController@penaltiesStats'); 
+});
+
+
 /**
  * ---------------------------
  * READER ROUTES
@@ -126,6 +131,15 @@ $router->get('/readers/(\d+)/delete', function ($id) {
     callControllerMethod('ReaderController@delete', [$id]);
 });
 
+$router->get('/readers/(\d+)/detail', function ($id) {
+    callControllerMethod('ReaderController@detail', [$id]);
+});
+
+$router->get('/readers/search', function () {
+    callControllerMethod('ReaderController@search');
+});
+
+
 /**
  * ---------------------------
  * PENALTY ROUTES
@@ -149,6 +163,19 @@ $router->post('/penalties/(\d+)/update', function ($id) {
 $router->get('/penalties/(\d+)/delete', function ($id) {
     callControllerMethod('PenaltyController@delete', [$id]);
 });
+
+$router->get('/penalties/(\d+)/detail', function ($id) {
+    callControllerMethod('PenaltyController@detail', [$id]);
+});
+
+$router->get('/penalty/sendEmail/(\d+)', function ($id) {
+    callControllerMethod('PenaltyController@sendReminderEmail', [$id]);
+});
+
+$router->get('/penalty/search', function () {
+    callControllerMethod('PenaltyController@search');
+});
+
 
 /**
  * ---------------------------

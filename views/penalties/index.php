@@ -8,85 +8,83 @@ ob_start();
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý phí phạt và gửi email nhắc nhở</title>
+    <title>Quản lý phí phạt</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Quản lý phí phạt và gửi email nhắc nhở</h2>
-    
-    <div class="mb-3">
-        <form method="GET" action="/penalty/search">
-            <div class="input-group">
-                <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã độc giả, tên, số tiền phạt" />
-                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-            </div>
-        </form>
-    </div>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Quản lý phí phạt </h2>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Mã độc giả</th>
-                    <th>Tên độc giả</th>
-                    <th>Số tiền phạt</th>
-                    <th>Ngày hết hạn</th>
-                    <th>Trạng thái email</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($penalties as $penalty): ?>
-                <tr>
-                    <td><?php echo $penalty['ma_doc_gia']?> </td>
-                    <td><?php echo $penalty['ten_doc_gia']?></td>
-                    <td><?php echo $penalty['ngay_tra_sach']?></td>
-                    <td><?php echo $penalty['tien_phat']?></td>
-                    <td><span class="badge bg-danger">Chưa gửi</span></td>
-                    <td>
-                        <a href="/penalty/detail/" class="btn btn-info btn-sm">Chi tiết</a>
-                        <button class="btn btn-warning btn-sm">Gửi Email</button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mb-3">
-        <button class="btn btn-primary">Gửi email nhắc nhở hàng loạt</button>
-    </div>
-
-</div>
-
-<!-- Modal chi tiết phí phạt -->
-<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="detailModalLabel">Chi tiết phí phạt</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Sách:</strong> Lập trình PHP</p>
-                <p><strong>Ngày mượn:</strong> 2025-02-15</p>
-                <p><strong>Ngày trả:</strong> 2025-03-05</p>
-                <p><strong>Số ngày quá hạn:</strong> 5 ngày</p>
-                <p><strong>Phí phạt:</strong> 50.000đ</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            </div>
+        <div class="mb-3">
+            <form method="GET" action="/penalty/search">
+                <div class="input-group">
+                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã độc giả, tên, số tiền phạt" />
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </div>
+            </form>
         </div>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <div>
+                <!-- Nút Quay lại -->
+                <a href="/penalties" class="btn btn-secondary mb-3">Quay lại danh sách đầy đủ</a>
+            </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Mã độc giả</th>
+                        <th>Tên độc giả</th>
+                        <th>Ngày hết hạn</th>
+                        <th>Số tiền phạt</th>
+                        <th>Trạng thái thanh toán</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if (empty($penalties)): ?>
+                    <tr>
+                        <td colspan="5" class="text-center">Không có kết quả tìm kiếm.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($penalties as $penalty): ?>
+                        <tr>
+                            <td><?php echo $penalty['ma_doc_gia'] ?> </td>
+                            <td><?php echo $penalty['ten_doc_gia'] ?></td>
+                            <td><?php echo $penalty['ngay_het_han'] ?></td>
+                            <td><?php echo $penalty['tien_phat'] ?></td>
+                            <td>
+                                <!-- Kiểm tra trạng thái thanh toán từ phiếu mượn -->
+                                <?php if ($penalty['trang_thai'] == 'Đã trả'): ?>
+                                    <span class="badge bg-success">Đã thanh toán</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger">Chưa thanh toán</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="/readers/<?php echo $penalty['ma_doc_gia']; ?>/detail" class="btn btn-info btn-sm">Xem chi tiết</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php endif;?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- <div class="mb-3">
+            <button class="btn btn-primary">Gửi email nhắc nhở hàng loạt</button>
+        </div> -->
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
 
 <?php

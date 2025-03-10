@@ -3,49 +3,113 @@ $title = "Danh sách Độc giả";
 ob_start();
 ?>
 <div class="container">
-<h2 class="text-center mb-4">Danh sách Độc giả</h2>
-<div class="mb-3">
-    <a href="/readers/create" class="btn btn-success">Thêm độc giả</a>
-</div>
+    <h2 class="text-center mb-4">Danh sách Độc giả</h2>
 
-<div class="mb-3">
-    <form method="GET" action="/readers/search">
-        <div class="input-group">
-            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã, tên, số điện thoại">
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+    <?php
+    // Hiển thị thông báo thành công
+    if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show text-start" role="alert">
+            <?= $_SESSION['success'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
         </div>
-    </form>
+        <?php unset($_SESSION['success']);  ?>
+
+    <?php endif; ?>
+
+    <?php
+    // Hiển thị thông báo lỗi
+    if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show text-start" role="alert">
+            <?= $_SESSION['error'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+
+    <?php endif; ?>
+
+
+    <div class="mb-3">
+        <a href="/readers/create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Thêm độc giả
+        </a>
+    </div>
+
+    <div class="mb-3">
+        <form method="GET" action="/readers/search">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã, tên, số điện thoại">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <!-- Nút Quay lại -->
+        <a href="/readers" class="btn btn-secondary mb-3">Quay lại danh sách đầy đủ</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom table-hover">
+            <thead>
+                <tr>
+                    <th>Mã độc giả</th>
+                    <th>Tên độc giả</th>
+                    <th>Số điện thoại</th>
+                    <th>Email</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($readers)): ?>
+                    <tr>
+                        <td colspan="5" class="text-center">Không có kết quả tìm kiếm.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($readers as $reader): ?>
+                        <tr>
+                            <td><?php echo $reader['ma_doc_gia']; ?></td>
+                            <td><?php echo $reader['ten_doc_gia']; ?></td>
+                            <td><?php echo $reader['so_dien_thoai']; ?></td>
+                            <td><?php echo $reader['email']; ?></td>
+                            <td>
+                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/detail" class="btn btn-sm btn-info mx-2">
+                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                </a>
+                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/edit" class="btn btn-sm btn-warning mx-2">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/delete" class="btn btn-sm btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#delete" >
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-custom table-hover">
-        <thead>
-            <tr>
-                <th>Mã độc giả</th>
-                <th>Tên độc giả</th>
-                <th>Số điện thoại</th>
-                <th>Email</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($readers as $reader): ?>
-            <tr>
-                <td><?php echo $reader['ma_doc_gia']; ?></td>
-                <td><?php echo $reader['ten_doc_gia']; ?></td>
-                <td><?php echo $reader['so_dien_thoai']; ?></td>
-                <td><?php echo $reader['email']; ?></td>
-                <td>
-                    <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/detail" class="btn btn-sm btn-info">Xem chi tiết</a>
-                    <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/edit" class="btn btn-sm btn-warning">Sửa</a>
-                    <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/delete" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa độc giả này không?');">Xóa</a>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+<!-- Modal -->
+<div class="modal fade" id="delete" tabindex="-1" aria-labelledby="delete" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bạn có chắc muốn xóa thành viên này không?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary">Lưu thay đổi</button>
+      </div>
+    </div>
+  </div>
 </div>
-</div>
+
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';
