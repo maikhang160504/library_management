@@ -4,17 +4,15 @@ ob_start();
 ?>
 
 <div class="container mt-4">
-    <div class="d-flex align-items-center justify-content-center position-relative my-4">
+    <div class="d-flex align-items-center justify-content-center position-relative my-4 no-print">
         <a href="/reports" class="btn btn-outline-secondary position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
-        <h2 class="text-center  text-primary no-print"><i class="bi bi-bar-chart-line"></i> Thống kê Sách Mượn trong Tháng</h2>
+        <h2 class="text-center  text-primary "><i class="bi bi-bar-chart-line"></i> Thống kê Sách Mượn trong Tháng</h2>
         <button class="btn btn-success position-absolute  end-0" onclick="printReport()">
             <i class="bi bi-printer"></i> In Báo Cáo
         </button>
     </div>
-
-    <!-- Tiêu đề in báo cáo -->
     <div class="d-none" id="printTitle"> 
         <h2 class="text-center">BÁO CÁO THỐNG KÊ SÁCH MƯỢN THÁNG <?php echo date('m/Y'); ?></h2>
     </div>
