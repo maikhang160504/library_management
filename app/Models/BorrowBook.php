@@ -81,11 +81,11 @@ class BorrowBook extends Model
     }
     public function getTotalBorrows($filter)
 {
-    $query = "SELECT total_borrows(:filter) AS total"; // Gọi function SQL
+    $query = "SELECT total_borrows(:filter) AS total"; 
     $stmt = $this->db->prepare($query);
     $stmt->bindParam(":filter", $filter, PDO::PARAM_STR);
     $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC)['total']; // Lấy giá trị tổng số lần mượn
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total']; 
 }
 
     public function getYearlyReaderStats()
@@ -181,4 +181,12 @@ class BorrowBook extends Model
         $borrowInfo['books'] = $books;
         return $borrowInfo;
     }
+    function getUpcomingReturns($days = 3) {
+        $query = "CALL GetUpcomingReturns(:days)";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':days', $days);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }

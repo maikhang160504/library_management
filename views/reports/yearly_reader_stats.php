@@ -1,5 +1,5 @@
 <?php
-$title = "Thống kê đọcgiả mượn sách trong năm";
+$title = "Thống kê độc giả mượn sách trong năm";
 ob_start();
 $year = date('Y'); // Lấy năm hiện tại
 ?>
@@ -9,32 +9,32 @@ $year = date('Y'); // Lấy năm hiện tại
         <a href="/reports" class="btn btn-outline-secondary px-4 py-2 position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
-        <h2 class="text-center mb-4 no-print">📊 Thống kê đọc giả Mượn Sách trong Năm <?php echo $year; ?></h2>
+        <h2 class="text-center mb-4 no-print">📊 Thống kê độc giả Mượn Sách trong Năm <?php echo $year; ?></h2>
         <button class="btn btn-success position-absolute end-0" onclick="printReport()">
             <i class="bi bi-printer"></i> In Báo Cáo
         </button>
     </div>
     <div class="d-none" id="printTitle"> 
-        <h2 class="text-center">BÁO CÁO THỐNG KÊ ĐỌC GIẢ MƯỢN SÁCH NĂM <?php echo date('Y'); ?></h2>
+        <h2 class="text-center">BÁO CÁO THỐNG KÊ ĐỘC GIẢ MƯỢN SÁCH NĂM <?php echo date('Y'); ?></h2>
     </div>
 
     <!-- Thông tin tổng quan -->
     <div class="card shadow-sm mb-4">
         <div class="card-body text-center">
-            <h5 class="card-title text-primary">📌 Tổng số đọc giả đã mượn sách</h5>
-            <p class="fs-3 fw-bold text-success"><?php echo $stats['SoDocGiaMuon']; ?> đọc giả</p>
+            <h5 class="card-title text-primary">📌 Tổng số độc giả đã mượn sách</h5>
+            <p class="fs-3 fw-bold text-success"><?php echo $stats['SoDocGiaMuon']; ?> độc giả</p>
         </div>
     </div>
 
     <!-- Danh sách đọcgiả mượn sách -->
     <div class="card shadow-sm">
         <div class="card-body">
-            <h5 class="card-title text-primary">📋 Chi tiết đọc giả Mượn Sách</h5>
+            <h5 class="card-title text-primary">📋 Chi tiết độc giả Mượn Sách</h5>
             <table class="table table-bordered table-hover text-center">
                 <thead class="table-dark">
                     <tr>
-                        <th>Mã đọc giả</th>
-                        <th class="text-start">Tên đọc giả</th>
+                        <th>Mã độc giả</th>
+                        <th class="text-start">Tên độc giả</th>
                         <th>Số lần mượn</th>
                         <th class="text-start">Thể loại sách mượn nhiều nhất</th>
                     </tr>
@@ -67,40 +67,34 @@ $year = date('Y'); // Lấy năm hiện tại
         max-height: 300px;
     }
     @media print {
-        body {
-            margin: 20mm 15mm;
-            font-size: 14px;
-        }
-        .container {
-            width: 100%;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table th, .table td {
-            border: 1px solid black !important;
-            padding: 8px !important;
-            font-size: 12px;
-        }
-        .btn {
-            display: none;
-        }
-        .no-print{
-            display: none !important;
-        }
-        #printTitle {
-            display: block !important;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        #readerChart{
-            max-height: 300px;
-        }
-     
+    .table {
+        width: 100%;
+        border-collapse: collapse;
     }
+    .table th, .table td {
+        border: 1px solid black !important;
+        padding: 10px !important;
+        font-size: 11px;
+    }
+    .btn, .no-print {
+        display: none !important;
+    }
+    #printTitle {
+        display: block !important;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    @page 
+    {
+        size: A4 landscape;
+        margin: 20mm;
+    }
+}
+
+     
+
 </style>
 
 <!-- Thêm thư viện Chart.js -->

@@ -1,10 +1,21 @@
 <?php
 $title = "Quản lí phiếu mượn Sách";
 ob_start();
+
+// Thiết lập phân trang
+$limit = 5; // Số phiếu mượn hiển thị trên mỗi trang
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Giả sử $totalRecords là tổng số phiếu mượn từ database
+$totalRecords = count($borrows); // Hoặc truy vấn SQL COUNT(*)
+$totalPages = ceil($totalRecords / $limit);
+
+// Lọc danh sách phiếu mượn theo trang hiện tại
+$borrowsPaginated = array_slice($borrows, $offset, $limit);
 ?>
 
 <div class="container">
-    <!-- Header với các nút quản lý -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Danh sách phiếu mượn</h2>
         <div>
@@ -13,7 +24,6 @@ ob_start();
         </div>
     </div>
 
-    <!-- Bảng danh sách phiếu mượn -->
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -23,11 +33,11 @@ ob_start();
                 <th>Ngày trả</th>
                 <th>Trạng thái</th>
                 <th>Hành động</th>
-                <th>Chi tiết</th> <!-- Thêm cột mới cho nút xem chi tiết -->
+                <th>Chi tiết</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($borrows as $borrow): ?>
+            <?php foreach ($borrowsPaginated as $borrow): ?>
             <tr>
                 <td><?php echo $borrow['ma_phieu_muon']; ?></td>
                 <td><?php echo $borrow['ma_doc_gia']; ?></td>
@@ -42,7 +52,6 @@ ob_start();
                     <?php endif; ?>
                 </td>
                 <td>
-                    <!-- Nút xem chi tiết -->
                     <a href="/borrows/detail/<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-info btn-sm">
                         <i class="fas fa-eye"></i> Xem chi tiết
                     </a>
@@ -52,28 +61,26 @@ ob_start();
         </tbody>
     </table>
 
-    <div class="mb-3 d-flex align-items-center">
-        <!-- Nút tạo phiếu mượn -->
-        <a href="/borrows/create" class="btn btn-primary">Tạo phiếu mượn</a>
-    <button type="button" class="btn btn-outline-primary me-3" onclick="xuatQR()">
-        <i class="fas fa-qrcode"></i> Xuất mã QR
-    </button>
-    <div id="qrCodeContainer"></div>
-</div>
+    <!-- Phân trang -->
+    <nav>
+        <ul class="pagination justify-content-end">
+            <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                <a class="page-link" href="?page=<?php echo $page - 1; ?>">Trước</a>
+            </li>
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                </li>
+            <?php endfor; ?>
+            <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
+                <a class="page-link" href="?page=<?php echo $page + 1; ?>">Sau</a>
+            </li>
+        </ul>
+    </nav>
+
+    <a href="/borrows/create" class="btn btn-primary">Tạo phiếu mượn</a>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-    function xuatQR() {
-        const qrContainer = document.getElementById("qrCodeContainer");
-        qrContainer.innerHTML = ""; // Xóa mã QR cũ (nếu có)
-        new QRCode(qrContainer, {
-            text: window.location.origin + "/borrows/create",
-            width: 128,
-            height: 128
-        });
-    }
-</script>
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';

@@ -101,6 +101,12 @@ $router->get('/reports/top-readers-most-borrowed-book', function () {
 $router->get('/reports/borrow-return-report', function () {
     callControllerMethod('ReportController@borrowReturnReport');
 });
+$router->get('/reports/penalties', function () {
+    callControllerMethod('ReportController@penaltyReport'); 
+});
+$router->get('/reports/upcoming-returns', function () {
+    callControllerMethod('ReportController@upcomingReturns');
+});
 
 /**
  * ---------------------------

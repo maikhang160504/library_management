@@ -66,5 +66,13 @@ class ReportController extends Controller
             'selectedYear' => $year
         ]);
     }
-    
+    public function penaltyReport(){
+        $this->view('reports/penalties');
+    }
+    public function upcomingReturns(){
+        $days = $_GET['days'] ?? 3;
+        // var_dump($days);
+        $upcomingReturns = $this->borrowModel->getUpcomingReturns($days);
+        $this->view('reports/upcoming_returns', ['upcomingReturns' => $upcomingReturns, 'days' => $days]);
+    }
 }

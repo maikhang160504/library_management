@@ -20,9 +20,10 @@ $filterText = [
             <i class="bi bi-printer"></i> In Báo Cáo
         </button>
     </div>
-    
+    <h2 class="print-title d-none" >BÁO CÁO THỐNG KÊ SÁCH MƯỢN <?= strtoupper($filterText); ?></h2>
+
     <!-- Bộ lọc thống kê -->
-    <div class="d-flex justify-content-center gap-2 mb-4">
+    <div class="d-flex justify-content-center gap-2 mb-4 no-print">
         <a href="?filter=today" class="btn <?= $filter == 'today' ? 'btn-primary' : 'btn-outline-primary' ?>">Hôm nay</a>
         <a href="?filter=this_week" class="btn <?= $filter == 'this_week' ? 'btn-primary' : 'btn-outline-primary' ?>">Tuần này</a>
         <a href="?filter=this_month" class="btn <?= $filter == 'this_month' ? 'btn-primary' : 'btn-outline-primary' ?>">Tháng này</a>
@@ -54,13 +55,13 @@ $filterText = [
                     </thead>
                     <tbody>
                         <?php foreach ($details as $book): ?>
-                        <tr>
-                            <td class="text-center"><?= $book['ma_sach'] ?></td>
-                            <td class="text-start fw-medium"><?= $book['ten_sach'] ?></td>
-                            <td class="text-start fst-italic"><?= $book['ten_tac_gia'] ?></td>
-                            <td class="text-start"><?= $book['ten_the_loai'] ?></td>
-                            <td class="text-center fs-5 text-primary"><strong><?= $book['so_lan_muon'] ?></strong></td>
-                        </tr>
+                            <tr>
+                                <td class="text-center"><?= $book['ma_sach'] ?></td>
+                                <td class="text-start fw-medium"><?= $book['ten_sach'] ?></td>
+                                <td class="text-start fst-italic"><?= $book['ten_tac_gia'] ?></td>
+                                <td class="text-start"><?= $book['ten_the_loai'] ?></td>
+                                <td class="text-center  text-primary"><strong><?= $book['so_lan_muon'] ?></strong></td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -77,23 +78,81 @@ $filterText = [
     </div>
 </div>
 
+
 <style>
-    #borrowChart{
-        max-height: 300px;
+    @media print {
+        @page {
+            size: A4 landscape;
+            margin: 15mm;
+        }
+
+        body {
+            font-size: 14px;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        table thead {
+            background-color: #343a40 !important;
+            color: white !important;
+        }
+
+        table td,
+        table th {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .display-5 {
+            font-size: 18px;
+        }
+        .print-title {
+        display: block !important;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
     }
 </style>
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         var ctx = document.getElementById('borrowChart').getContext('2d');
         var borrowChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: [<?php foreach ($details as $book) { echo '"' . addslashes($book['ten_sach']) . '",'; } ?>],
+                labels: [<?php foreach ($details as $book) {
+                                echo '"' . addslashes($book['ten_sach']) . '",';
+                            } ?>],
                 datasets: [{
                     label: 'Số lần mượn',
-                    data: [<?php foreach ($details as $book) { echo $book['so_lan_muon'] . ','; } ?>],
+                    data: [<?php foreach ($details as $book) {
+                                echo $book['so_lan_muon'] . ',';
+                            } ?>],
                     backgroundColor: 'rgba(54, 162, 235, 0.7)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
@@ -103,14 +162,22 @@ $filterText = [
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        display: false
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
                 }
             }
         });
     });
+
     function printReport() {
         window.print();
     }
