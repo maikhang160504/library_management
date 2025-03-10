@@ -52,10 +52,11 @@ unset($_SESSION['error']);
                 <td>
                     <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-custom">Xem chi tiết</a>
                     <button class="btn btn-success btn-sm update-quantity-btn" 
-                        data-id="<?php echo $book['ma_sach']; ?>" 
-                        data-current-quantity="<?php echo $book['so_luong']; ?>">
-                        Cập nhật số lượng
-                    </button>
+    data-id="<?php echo $book['ma_sach']; ?>" 
+    data-current-quantity="<?php echo $book['so_luong']; ?>"
+    data-name="<?= htmlspecialchars($book['ten_sach']) ?>">
+    Cập nhật số lượng
+</button>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -82,6 +83,7 @@ unset($_SESSION['error']);
     <?php endif; ?>
 </div>
 
+<!-- Modal cập nhật số lượng -->
 <div class="modal fade" id="updateQuantityModal" tabindex="-1" aria-labelledby="updateQuantityModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form id="updateQuantityForm" method="post" action="/books/updateQuantity">
@@ -91,10 +93,25 @@ unset($_SESSION['error']);
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
         </div>
         <div class="modal-body">
+          <!-- Mã sách ẩn -->
           <input type="hidden" name="ma_sach" id="modalMaSach" value="">
+          
+          <!-- Tên sách -->
           <div class="mb-3">
-            <label for="modalSoLuong" class="form-label">Số lượng mới</label>
-            <input type="number" class="form-control" name="so_luong" id="modalSoLuong" required>
+            <label for="modalBookName" class="form-label">Tên sách</label>
+            <input type="text" class="form-control" id="modalBookName" readonly>
+          </div>
+          
+          <!-- Số lượng cũ -->
+          <div class="mb-3">
+            <label for="modalOldQuantity" class="form-label">Số lượng cũ</label>
+            <input type="number" class="form-control" id="modalOldQuantity" readonly>
+          </div>
+          
+          <!-- Số lượng mới -->
+          <div class="mb-3">
+            <label for="modalNewQuantity" class="form-label">Số lượng mới</label>
+            <input type="number" class="form-control" name="so_luong" id="modalNewQuantity" placeholder="Nhập số lượng mới">
           </div>
         </div>
         <div class="modal-footer">
@@ -116,10 +133,14 @@ document.addEventListener("DOMContentLoaded", function() {
         btn.addEventListener('click', function() {
             const maSach = this.getAttribute('data-id');
             const soLuongHienTai = this.getAttribute('data-current-quantity');
+            const bookName = this.getAttribute('data-name');
             
             // Gán dữ liệu vào modal
             document.getElementById('modalMaSach').value = maSach;
-            document.getElementById('modalSoLuong').value = soLuongHienTai;
+            document.getElementById('modalBookName').value = bookName;
+            document.getElementById('modalOldQuantity').value = soLuongHienTai;
+            // Làm trống ô số lượng mới khi mở modal
+            document.getElementById('modalNewQuantity').value = '';
             
             // Hiển thị modal
             updateModal.show();
@@ -127,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';
