@@ -206,3 +206,35 @@ INSERT INTO tac_gia (ten_tac_gia) VALUES
 ('Napoleon Hill'),
 ('Malcolm Gladwell'),
 ('James Clear');
+
+CREATE TABLE phi_phat (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reader_id INT,
+    amount DECIMAL(10, 2),
+    reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO doc_gia (ten_doc_gia, ngay_sinh, so_dien_thoai)
+VALUES
+('Nguyen Van A', '2000-01-01', '0912345678'),
+('Tran Thi B', '1999-05-10', '0987654321'),
+('Le Van C', '2002-09-15', '0909090909'),
+('Pham Minh D', '1998-07-22', '0911002200'),
+('Hoang Thi E', '2001-03-14', '0933445566'),
+('Nguyen Van F', '1997-12-11', '0977334455'),
+('Le Thi G', '1996-06-30', '0966778899'),
+('Tran Van H', '2000-10-05', '0944223355'),
+('Phan Thi I', '2003-04-25', '0955667788'),
+('Dang Van J', '1995-11-18', '0922334455'),
+('Vu Thi K', '1999-09-09', '0933555777'),
+('Nguyen Van L', '1998-05-20', '0911223344'),
+('Le Thi M', '2001-01-30', '0944885566'),
+('Tran Van N', '2002-08-08', '0977555666'),
+('Pham Thi O', '1997-04-12', '0966445577'),
+('Hoang Van P', '2000-02-28', '0955778899'),
+('Nguyen Thi Q', '2003-03-03', '0911667788'),
+('Le Van R', '1996-07-07', '0922556677'),
+('Tran Thi S', '1995-12-25', '0933221144'),
+('Pham Van T', '2001-06-15', '0944778899');
