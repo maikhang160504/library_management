@@ -10,7 +10,7 @@ ob_start();
     <div class="row">
         <!-- Thống kê sách mượn trong tháng -->
         <div class="col-md-6 mb-4">
-            <a href="/reports/monthly-borrow-stats" class="text-decoration-none">
+            <a href="/reports/borrow-stats" class="text-decoration-none">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-body d-flex align-items-center">
                         <i class="fas fa-calendar-alt fa-3x text-primary me-3"></i>

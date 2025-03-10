@@ -71,30 +71,23 @@ class BorrowBook extends Model
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function getMonthlyBorrowStats()
+    public function getBorrowStats($filter)
     {
-        $query = "CALL ThongKeSachMuonThang()";
+        $query = "CALL GetBorrowStats(:filter)";
         $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-    public function getMonthlyBorrowStatsdetail()
-    {
-        $query = "SELECT s.ma_sach,s.ten_sach,t.ten_tac_gia,tl.ten_the_loai,COUNT(ctpm.ma_sach) AS so_lan_muon 
-        FROM phieu_muon pm 
-        JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon 
-        JOIN sach s ON ctpm.ma_sach = s.ma_sach 
-        JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
-        JOIN tac_gia t ON s.ma_tac_gia = t.ma_tac_gia
-        WHERE 
-            MONTH(pm.ngay_muon) = MONTH(CURRENT_DATE) 
-            AND YEAR(pm.ngay_muon) = YEAR(CURRENT_DATE)
-        GROUP BY s.ma_sach, s.ten_sach, t.ten_tac_gia
-        ORDER BY so_lan_muon DESC;";
-        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":filter", $filter);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getTotalBorrows($filter)
+{
+    $query = "SELECT total_borrows(:filter) AS total"; // Gọi function SQL
+    $stmt = $this->db->prepare($query);
+    $stmt->bindParam(":filter", $filter, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total']; // Lấy giá trị tổng số lần mượn
+}
+
     public function getYearlyReaderStats()
     {
         $query = "CALL ThongKeDocGiaMuonNam()";

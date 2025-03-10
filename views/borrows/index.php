@@ -36,7 +36,7 @@ ob_start();
                 <td><?php echo $borrow['trang_thai']; ?></td>
                 <td>
                     <?php if ($borrow['trang_thai'] === 'Đang mượn'): ?>
-                        <a href="/returns/return?ma_ctpm=<?php echo $borrow['ma_ctpm']; ?>" class="btn btn-success btn-sm">Trả sách</a>
+                        <a href="/returns/return?ma_phieu_muon=<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-success btn-sm">Trả sách</a>
                     <?php else: ?>
                         <span class="text-muted">Đã trả</span>
                     <?php endif; ?>
@@ -52,11 +52,28 @@ ob_start();
         </tbody>
     </table>
 
-    <!-- Nút tạo phiếu mượn -->
-    <a href="/borrows/create" class="btn btn-primary">Tạo phiếu mượn</a>
+    <div class="mb-3 d-flex align-items-center">
+        <!-- Nút tạo phiếu mượn -->
+        <a href="/borrows/create" class="btn btn-primary">Tạo phiếu mượn</a>
+    <button type="button" class="btn btn-outline-primary me-3" onclick="xuatQR()">
+        <i class="fas fa-qrcode"></i> Xuất mã QR
+    </button>
+    <div id="qrCodeContainer"></div>
+</div>
 </div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    function xuatQR() {
+        const qrContainer = document.getElementById("qrCodeContainer");
+        qrContainer.innerHTML = ""; // Xóa mã QR cũ (nếu có)
+        new QRCode(qrContainer, {
+            text: window.location.origin + "/borrows/create",
+            width: 128,
+            height: 128
+        });
+    }
+</script>
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';

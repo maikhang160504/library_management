@@ -8,7 +8,6 @@ ob_start();
     <a href="/borrows" class="btn btn-outline-secondary px-4 py-2 position-absolute start-0">
         <i class="bi bi-arrow-left-circle"></i> Quay lại
     </a>
-    <h2 class="mb-4">📊 Báo cáo thống kê</h2>
     <h2 class="mb-4 text-center">📖 Chi tiết Phiếu Mượn</h2>
 </div>
 

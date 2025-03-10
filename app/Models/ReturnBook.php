@@ -21,30 +21,46 @@ class ReturnBook extends Model {
     }
 
     // Xác nhận trả sách
-    public function returnBook($ma_ctpm, $ngay_tra_sach) {
+    public function returnBook($ma_phieu_muon, $ngay_tra_sach) {
+        // Lấy danh sách chi tiết phiếu mượn
+        $sql = "SELECT ma_ctpm, ma_sach, so_luong FROM chi_tiet_phieu_muon WHERE ma_phieu_muon = :ma_phieu_muon";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(":ma_phieu_muon", $ma_phieu_muon, PDO::PARAM_INT);
+        $stmt->execute();
+        $chiTietPhieuMuon = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        if (!$chiTietPhieuMuon) {
+            return false; // Không có chi tiết phiếu mượn nào
+        }
+    
         $this->db->beginTransaction();
         try {
-            // Thêm phiếu trả
-            $query = "INSERT INTO {$this->table} (ma_ctpm, ngay_tra_sach) VALUES (:ma_ctpm, :ngay_tra_sach)";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':ma_ctpm', $ma_ctpm);
-            $stmt->bindParam(':ngay_tra_sach', $ngay_tra_sach);
-            $stmt->execute();
-
+            foreach ($chiTietPhieuMuon as $chiTiet) {
+                $ma_ctpm = $chiTiet['ma_ctpm'];
+                $ma_sach = $chiTiet['ma_sach'];
+                $so_luong = $chiTiet['so_luong'];
+    
+                // Chèn vào bảng trả sách
+                $query = "INSERT INTO {$this->table} (ma_ctpm, ngay_tra_sach) VALUES (:ma_ctpm, :ngay_tra_sach)";
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(':ma_ctpm', $ma_ctpm, PDO::PARAM_INT);
+                $stmt->bindParam(':ngay_tra_sach', $ngay_tra_sach);
+                $stmt->execute();
+    
+                // Cập nhật số lượng sách
+                $query = "UPDATE sach SET so_luong = so_luong + :so_luong WHERE ma_sach = :ma_sach";
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(':so_luong', $so_luong, PDO::PARAM_INT);
+                $stmt->bindParam(':ma_sach', $ma_sach, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+    
             // Cập nhật trạng thái phiếu mượn
-            $query = "UPDATE phieu_muon SET trang_thai = 'Đã trả' 
-                      WHERE ma_phieu_muon = (SELECT ma_phieu_muon FROM chi_tiet_phieu_muon WHERE ma_ctpm = :ma_ctpm)";
+            $query = "UPDATE phieu_muon SET trang_thai = 'Đã trả' WHERE ma_phieu_muon = :ma_phieu_muon";
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':ma_ctpm', $ma_ctpm);
+            $stmt->bindParam(':ma_phieu_muon', $ma_phieu_muon, PDO::PARAM_INT);
             $stmt->execute();
-
-            // Tăng số lượng sách hiện có
-            $query = "UPDATE sach SET so_luong = so_luong + (SELECT so_luong FROM chi_tiet_phieu_muon WHERE ma_ctpm = :ma_ctpm) 
-                      WHERE ma_sach = (SELECT ma_sach FROM chi_tiet_phieu_muon WHERE ma_ctpm = :ma_ctpm)";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':ma_ctpm', $ma_ctpm);
-            $stmt->execute();
-
+    
             $this->db->commit();
             return true;
         } catch (PDOException $e) {
@@ -52,16 +68,17 @@ class ReturnBook extends Model {
             return false;
         }
     }
-    public function getReturnDetail($ma_phieu_tra) {
+    
+    public function getReturnDetail($ma_phieu_muon) {
         // Lấy thông tin phiếu trả
         $query = "SELECT pt.*, pm.ma_phieu_muon, pm.ngay_muon, pm.ngay_tra, dg.ten_doc_gia, dg.so_dien_thoai 
                   FROM phieu_tra pt
                   JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
                   JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
                   JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
-                  WHERE pt.ma_phieu_tra = :ma_phieu_tra";
+                  WHERE pm.ma_phieu_muon = :ma_phieu_muon";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':ma_phieu_tra', $ma_phieu_tra);
+        $stmt->bindParam(':ma_phieu_muon', $ma_phieu_muon);
         $stmt->execute();
         $returnInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 

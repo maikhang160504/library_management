@@ -20,12 +20,18 @@ class ReportController extends Controller
     }
 
     // Hiển thị thống kê sách mượn trong tháng
-    public function monthlyBorrowStats()
+    public function BorrowStats()
     {
-        $stats = $this->borrowModel->getMonthlyBorrowStats();
-        $details = $this->borrowModel->getMonthlyBorrowStatsdetail();
-        $this->view('reports/monthly_borrow_stats', ['stats' => $stats,'details'=> $details]);
-
+        
+        $filter = $_GET['filter'] ?? 'this_month';
+        // Lấy dữ liệu thống kê theo thời gian
+        $details = $this->borrowModel->getBorrowStats($filter);
+        $total_borrow = $this->borrowModel->getTotalBorrows($filter);
+        $this->view('reports/monthly_borrow_stats', [
+            'total_borrow' => $total_borrow,
+            'details' => $details,
+            'filter' => $filter
+        ]);
     }
 
     // Hiển thị thống kê độc giả mượn sách trong năm
@@ -51,10 +57,10 @@ class ReportController extends Controller
     {
         $month = $_GET['month'] ?? date('m'); // Mặc định là tháng hiện tại
         $year = $_GET['year'] ?? date('Y'); // Mặc định là năm hiện tại
-        $stats = $this->borrowModel->getMonthlyBorrowStats();
+        
         $reports = $this->borrowModel->getBorrowReturnReport($month, $year);
         $this->view('reports/borrow_return_report', [
-            'stats'=> $stats,
+           
             'reports' => $reports,
             'selectedMonth' => $month,
             'selectedYear' => $year

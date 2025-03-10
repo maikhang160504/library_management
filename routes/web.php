@@ -56,14 +56,14 @@ $router->get('/returns', function () {
 $router->get('/returns/return', function () {
     callControllerMethod('App\Controllers\ReturnController@return');
 });
-$router->get('/returns/detail/(\d+)', function ($id) {
-    callControllerMethod('App\Controllers\ReturnController@show', [$id]);
+$router->get('/returns/detail', function () {
+    callControllerMethod('App\Controllers\ReturnController@show');
 });
 $router->get('/reports', function () {
     callControllerMethod('App\Controllers\ReportController@index');
 });
-$router->get('/reports/monthly-borrow-stats', function () {
-    callControllerMethod('App\Controllers\ReportController@monthlyBorrowStats');
+$router->get('/reports/borrow-stats', function () {
+    callControllerMethod('App\Controllers\ReportController@BorrowStats');
 });
 
 $router->get('/reports/yearly-reader-stats', function () {

@@ -24,12 +24,12 @@ class ReturnController extends Controller
     // Xác nhận trả sách
     public function return()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ma_ctpm'])) {
-            $ma_ctpm = $_GET['ma_ctpm'];
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ma_phieu_muon'])) {
+            $ma_phieu_muon = $_GET['ma_phieu_muon'];
             $ngay_tra_sach = date('Y-m-d'); // Ngày trả là ngày hiện tại
 
-            if ($this->returnModel->returnBook($ma_ctpm, $ngay_tra_sach)) {
-                header('Location: /returns/detail/' . $ma_ctpm);
+            if ($this->returnModel->returnBook($ma_phieu_muon, $ngay_tra_sach)) {
+                header('Location: /returns/detail?ma_phieu_muon=' . $ma_phieu_muon);
                 exit();
             } else {
                 echo "Có lỗi xảy ra khi xác nhận trả sách!";
@@ -38,12 +38,15 @@ class ReturnController extends Controller
             echo "Yêu cầu không hợp lệ!";
         }
     }
-    public function show($ma_phieu_tra) {
-        $returnDetail = $this->returnModel->getReturnDetail($ma_phieu_tra);
-
-        if (!$returnDetail) {
-            echo "Không tìm thấy phiếu trả!";
-            return;
+    public function show() {
+        if ($_SERVER["REQUEST_METHOD"] === "GET"&& isset($_GET['ma_phieu_muon'])) {
+            $ma_phieu_muon = $_GET['ma_phieu_muon'];
+            $returnDetail = $this->returnModel->getReturnDetail($ma_phieu_muon);
+    
+            if (!$returnDetail) {
+                echo "Không tìm thấy phiếu trả!";
+                return;
+            }
         }
 
         $this->view('returns/show', ['returnDetail' => $returnDetail]);

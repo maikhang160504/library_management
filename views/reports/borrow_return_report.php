@@ -15,6 +15,26 @@ ob_start();
             <i class="bi bi-printer"></i> In Báo Cáo
         </button>
     </div>
+<!-- Bộ lọc tháng & năm -->
+<form action="/reports/borrow-return-report" method="GET" class="row g-2 align-items-center justify-content-center no-print">
+    <div class="col-auto">
+        <label for="month" class="form-label fw-bold">Tháng</label>
+        <select id="month" name="month" class="form-select">
+            <?php for ($m = 1; $m <= 12; $m++): ?>
+                <option value="<?php echo $m; ?>" <?php if ($m == $selectedMonth) echo "selected"; ?>>Tháng <?php echo $m; ?></option>
+            <?php endfor; ?>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <label for="year" class="form-label fw-bold">Năm</label>
+        <input type="number" id="year" name="year" class="form-control" min="2000" max="<?php echo date('Y'); ?>" value="<?php echo $selectedYear; ?>" required>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary mt-4"><i class="bi bi-funnel"></i> Lọc</button>
+    </div>
+</form>
 
 
     <!-- Danh sách sách được mượn -->
