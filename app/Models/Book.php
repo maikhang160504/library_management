@@ -29,4 +29,24 @@ class Book extends Model
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function addBook($data) {
+        try {
+            $sql = "CALL ThemSach(:ten_sach, :ten_tac_gia, :ten_the_loai, :nam_xuat_ban, :nha_xuat_ban, :so_luong)";
+            $stmt = $this->db->prepare($sql);
+
+            return $stmt->execute([
+                'ten_sach' => $data['ten_sach'],
+                'ten_tac_gia' => $data['ten_tac_gia'],
+                'ten_the_loai' => $data['ten_the_loai'],
+                'nam_xuat_ban' => $data['nam_xuat_ban'],
+                'nha_xuat_ban' => $data['nha_xuat_ban'],
+                'so_luong' => $data['so_luong']
+            ]);
+        } catch (\PDOException $e) {
+            // Log lỗi nếu cần
+            return false;
+        }
+    }
+
 }
