@@ -4,11 +4,16 @@ use Bramus\Router\Router;
 $router = new Router();
 
 /**
- * Hàm hỗ trợ để gọi controller và method từ chuỗi "Controller@method"
+ * Hàm hỗ trợ gọi controller và method từ chuỗi "Controller@method"
  */
 function callControllerMethod($controllerMethod, $params = [])
 {
     list($controllerClass, $method) = explode('@', $controllerMethod);
+
+    // Thêm namespace nếu chưa có
+    if (strpos($controllerClass, 'App\\Controllers\\') !== 0) {
+        $controllerClass = 'App\\Controllers\\' . $controllerClass;
+    }
 
     if (!class_exists($controllerClass)) {
         throw new Exception("Controller class {$controllerClass} not found.");
@@ -22,110 +27,132 @@ function callControllerMethod($controllerMethod, $params = [])
     call_user_func_array([$controller, $method], $params);
 }
 
-// Book Routes
+/**
+ * ---------------------------
+ * BOOK ROUTES
+ * ---------------------------
+ */
 $router->get('/', function () {
-    callControllerMethod('App\Controllers\BookController@index');
+    callControllerMethod('BookController@index');
 });
-
-// Route cho xem chi tiết sách
+$router->get('/books', function () {
+    callControllerMethod('BookController@index');
+});
+$router->get('/add', function () {
+    callControllerMethod('BookController@add');
+});
+$router->post('/books/store', function () {
+    callControllerMethod('BookController@store');
+});
 $router->get('/books/(\d+)', function ($id) {
-    callControllerMethod('App\Controllers\BookController@show', [$id]);
+    callControllerMethod('BookController@show', [$id]);
 });
 
-// Route cho quản lý mượn sách
+/**
+ * ---------------------------
+ * BORROW ROUTES
+ * ---------------------------
+ */
 $router->get('/borrows', function () {
-    callControllerMethod('App\Controllers\BorrowController@index');
+    callControllerMethod('BorrowController@index');
 });
-
 $router->get('/borrows/create', function () {
-    callControllerMethod('App\Controllers\BorrowController@create');
-});
-
-$router->get('/borrows/detail/(\d+)', function ($id) {
-    callControllerMethod('App\Controllers\BorrowController@show', [$id]);
+    callControllerMethod('BorrowController@create');
 });
 $router->post('/borrows/store', function () {
-    callControllerMethod('App\Controllers\BorrowController@store');
+    callControllerMethod('BorrowController@store');
+});
+$router->get('/borrows/detail/(\d+)', function ($id) {
+    callControllerMethod('BorrowController@show', [$id]);
 });
 
-// Route cho quản lý trả sách
+/**
+ * ---------------------------
+ * RETURN ROUTES
+ * ---------------------------
+ */
 $router->get('/returns', function () {
-    callControllerMethod('App\Controllers\ReturnController@index');
+    callControllerMethod('ReturnController@index');
 });
-
 $router->get('/returns/return', function () {
-    callControllerMethod('App\Controllers\ReturnController@return');
+    callControllerMethod('ReturnController@return');
 });
 $router->get('/returns/detail', function () {
     callControllerMethod('App\Controllers\ReturnController@show');
 });
+
+/**
+ * ---------------------------
+ * REPORT ROUTES
+ * ---------------------------
+ */
 $router->get('/reports', function () {
-    callControllerMethod('App\Controllers\ReportController@index');
+    callControllerMethod('ReportController@index');
 });
 $router->get('/reports/borrow-stats', function () {
     callControllerMethod('App\Controllers\ReportController@BorrowStats');
 });
-
 $router->get('/reports/yearly-reader-stats', function () {
-    callControllerMethod('App\Controllers\ReportController@yearlyReaderStats');
+    callControllerMethod('ReportController@yearlyReaderStats');
 });
 $router->get('/reports/top-readers-most-borrowed-book', function () {
-        callControllerMethod('App\Controllers\ReportController@topReaders_mostBorrowedBook');
+    callControllerMethod('ReportController@topReaders_mostBorrowedBook');
 });
 $router->get('/reports/borrow-return-report', function () {
-    callControllerMethod('App\Controllers\ReportController@borrowReturnReport');
+    callControllerMethod('ReportController@borrowReturnReport');
 });
 
-// Route cho quản lý độc giả (Readers)
+/**
+ * ---------------------------
+ * READER ROUTES
+ * ---------------------------
+ */
 $router->get('/readers', function () {
-    callControllerMethod('App\Controllers\ReaderController@index');
+    callControllerMethod('ReaderController@index');
 });
-
 $router->get('/readers/create', function () {
-    callControllerMethod('App\Controllers\ReaderController@create');
+    callControllerMethod('ReaderController@create');
 });
-
 $router->post('/readers/store', function () {
-    callControllerMethod('App\Controllers\ReaderController@store');
+    callControllerMethod('ReaderController@store');
 });
-
 $router->get('/readers/(\d+)/edit', function ($id) {
-    callControllerMethod('App\Controllers\ReaderController@edit', [$id]);
+    callControllerMethod('ReaderController@edit', [$id]);
 });
-
 $router->post('/readers/(\d+)/update', function ($id) {
-    callControllerMethod('App\Controllers\ReaderController@update', [$id]);
+    callControllerMethod('ReaderController@update', [$id]);
 });
-
 $router->get('/readers/(\d+)/delete', function ($id) {
-    callControllerMethod('App\Controllers\ReaderController@delete', [$id]);
+    callControllerMethod('ReaderController@delete', [$id]);
 });
 
-// Route cho quản lý phi phạt (Penalty)
+/**
+ * ---------------------------
+ * PENALTY ROUTES
+ * ---------------------------
+ */
 $router->get('/penalties', function () {
-    callControllerMethod('App\Controllers\PenaltyController@index');
+    callControllerMethod('PenaltyController@index');
 });
-
 $router->get('/penalties/create', function () {
-    callControllerMethod('App\Controllers\PenaltyController@create');
+    callControllerMethod('PenaltyController@create');
 });
-
 $router->post('/penalties/store', function () {
-    callControllerMethod('App\Controllers\PenaltyController@store');
+    callControllerMethod('PenaltyController@store');
 });
-
 $router->get('/penalties/(\d+)/edit', function ($id) {
-    callControllerMethod('App\Controllers\PenaltyController@edit', [$id]);
+    callControllerMethod('PenaltyController@edit', [$id]);
 });
-
 $router->post('/penalties/(\d+)/update', function ($id) {
-    callControllerMethod('App\Controllers\PenaltyController@update', [$id]);
+    callControllerMethod('PenaltyController@update', [$id]);
 });
-
 $router->get('/penalties/(\d+)/delete', function ($id) {
-    callControllerMethod('App\Controllers\PenaltyController@delete', [$id]);
+    callControllerMethod('PenaltyController@delete', [$id]);
 });
 
-
-
+/**
+ * ---------------------------
+ * CHẠY ROUTER
+ * ---------------------------
+ */
 $router->run();

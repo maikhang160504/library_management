@@ -1,7 +1,4 @@
 <?php
-
-use App\Models\Penalty;
-
 $title = "Danh sách phí phạt";
 ob_start();
 ?>
@@ -34,25 +31,32 @@ ob_start();
                     <th>Mã độc giả</th>
                     <th>Tên độc giả</th>
                     <th>Số tiền phạt</th>
-                    <th>Ngày hết hạn</th>
                     <th>Trạng thái email</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($penalties as $penalty): ?>
                 <tr>
-                    <td><?php echo $penalty['ma_doc_gia']?> </td>
-                    <td><?php echo $penalty['ten_doc_gia']?></td>
-                    <td><?php echo $penalty['ngay_tra_sach']?></td>
-                    <td><?php echo $penalty['tien_phat']?></td>
+                    <td>DG001</td>
+                    <td>Nguyễn Văn A</td>
+                    <td>50.000đ</td>
                     <td><span class="badge bg-danger">Chưa gửi</span></td>
                     <td>
-                        <a href="/penalty/detail/" class="btn btn-info btn-sm">Chi tiết</a>
+                        <a href="/penalty/detail/DG001" class="btn btn-info btn-sm">Chi tiết</a>
                         <button class="btn btn-warning btn-sm">Gửi Email</button>
                     </td>
                 </tr>
-                <?php endforeach; ?>
+                <tr>
+                    <td>DG002</td>
+                    <td>Trần Thị B</td>
+                    <td>30.000đ</td>
+                    <td><span class="badge bg-success">Đã gửi</span></td>
+                    <td>
+                        <a href="/penalty/detail/DG002" class="btn btn-info btn-sm">Chi tiết</a>
+                        <button class="btn btn-warning btn-sm">Gửi Email</button>
+                    </td>
+                </tr>
+                
             </tbody>
         </table>
     </div>

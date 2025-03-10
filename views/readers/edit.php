@@ -1,16 +1,16 @@
 <?php
-$title = "Thêm độc giả";
+$title = "Sửa độc giả";
 ob_start();
 ?>
 <div class="container">
 <div class="">
-    <h2 class="text-center mb-4">Thêm độc giả</h2>
+    <h2 class="text-center mb-4">Sửa độc giả</h2>
 
     <div class="mt-3 mb-3">
         <a href="/readers" class="btn btn-secondary"> <- Quay lại</a>
     </div>
 
-    <form method="POST" action="/readers/store">
+    <form method="POST" action="/readers/update">
 
         <div class="mb-3">
             <label for="ten_doc_gia" class="form-label">Tên độc giả</label>
@@ -32,7 +32,7 @@ ob_start();
             <input type="email" class="form-control" id="email" name="email" required placeholder="Nhập email">
         </div>
 
-        <button type="submit" class="btn btn-primary">Thêm độc giả</button>
+        <button type="submit" class="btn btn-primary">Sửa độc giả</button>
     </form>
 </div>
 </div>
