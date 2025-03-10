@@ -28,6 +28,8 @@
                     <ul class="list-inline mb-0">
                         <li class="list-inline-item"><a href="/" class="text-white text-decoration-none hover-effect">Trang chủ</a></li>
                         <li class="list-inline-item"><a href="/borrows" class="text-white text-decoration-none hover-effect">Quản lý Mượn/Trả Sách</a></li>
+                        <li class="list-inline-item"><a href="/readers" class="text-white text-decoration-none hover-effect">Quản lý độc giả</a></li>
+                        <li class="list-inline-item"><a href="/penalties" class="text-white text-decoration-none hover-effect">Phí phạt</a></li>
                         <li class="list-inline-item"><a href="/reports" class="text-white text-decoration-none hover-effect">Thống Kê</a></li>
                     </ul>
                 </nav>

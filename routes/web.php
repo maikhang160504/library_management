@@ -75,4 +75,57 @@ $router->get('/reports/top-readers-most-borrowed-book', function () {
 $router->get('/reports/borrow-return-report', function () {
     callControllerMethod('App\Controllers\ReportController@borrowReturnReport');
 });
+
+// Route cho quản lý độc giả (Readers)
+$router->get('/readers', function () {
+    callControllerMethod('App\Controllers\ReaderController@index');
+});
+
+$router->get('/readers/create', function () {
+    callControllerMethod('App\Controllers\ReaderController@create');
+});
+
+$router->post('/readers/store', function () {
+    callControllerMethod('App\Controllers\ReaderController@store');
+});
+
+$router->get('/readers/(\d+)/edit', function ($id) {
+    callControllerMethod('App\Controllers\ReaderController@edit', [$id]);
+});
+
+$router->post('/readers/(\d+)/update', function ($id) {
+    callControllerMethod('App\Controllers\ReaderController@update', [$id]);
+});
+
+$router->get('/readers/(\d+)/delete', function ($id) {
+    callControllerMethod('App\Controllers\ReaderController@delete', [$id]);
+});
+
+// Route cho quản lý phi phạt (Penalty)
+$router->get('/penalties', function () {
+    callControllerMethod('App\Controllers\PenaltyController@index');
+});
+
+$router->get('/penalties/create', function () {
+    callControllerMethod('App\Controllers\PenaltyController@create');
+});
+
+$router->post('/penalties/store', function () {
+    callControllerMethod('App\Controllers\PenaltyController@store');
+});
+
+$router->get('/penalties/(\d+)/edit', function ($id) {
+    callControllerMethod('App\Controllers\PenaltyController@edit', [$id]);
+});
+
+$router->post('/penalties/(\d+)/update', function ($id) {
+    callControllerMethod('App\Controllers\PenaltyController@update', [$id]);
+});
+
+$router->get('/penalties/(\d+)/delete', function ($id) {
+    callControllerMethod('App\Controllers\PenaltyController@delete', [$id]);
+});
+
+
+
 $router->run();
