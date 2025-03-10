@@ -101,6 +101,10 @@ $router->get('/readers/(\d+)/delete', function ($id) {
     callControllerMethod('App\Controllers\ReaderController@delete', [$id]);
 });
 
+$router->get('/readers/(\d+)/detail', function ($id) {
+    callControllerMethod('App\Controllers\ReaderController@detail', [$id]);
+});
+
 // Route cho quản lý phi phạt (Penalty)
 $router->get('/penalties', function () {
     callControllerMethod('App\Controllers\PenaltyController@index');

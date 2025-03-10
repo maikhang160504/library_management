@@ -19,6 +19,7 @@ class ReaderController extends Controller
         $this->view('readers/index', ['readers' => $readers]);
     }
 
+
     public function create()
     {
         $this->view('readers/create');
@@ -49,4 +50,20 @@ class ReaderController extends Controller
         $this->readerModel->deleteReader($id);
         header('Location: /readers');
     }
+
+    public function detail($id)
+{
+    $readerDetail = $this->readerModel->detailReader($id);
+
+    if (!$readerDetail) {
+        echo "Không tìm thấy thông tin độc giả.";
+        return;
+    }
+
+    $this->view('readers/detail', [
+        'reader' => $readerDetail['reader'],
+        'borrowHistory' => $readerDetail['borrowHistory']
+    ]);
+}
+
 }
