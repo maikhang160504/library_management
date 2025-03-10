@@ -19,8 +19,19 @@ class BookController extends Controller
     public function index()
     {
         
-        $books = $this->bookModel->getAllBooks();
-        $this->view('books/index', ['books' => $books]);
+        $limit = 5;
+    $page = $this->getPage();
+    $offset = $this->calculateOffset($page, $limit);
+
+    $books = $this->bookModel->getBooksPaginated($limit, $offset);
+    $totalBooks = $this->bookModel->countBooks();
+    $totalPages = $this->calculateTotalPages($totalBooks, $limit);
+
+    $this->view('books/index', [
+        'books' => $books,
+        'totalPages' => $totalPages,
+        'currentPage' => $page
+    ]);
     }
 
     public function show($id)
@@ -82,8 +93,64 @@ class BookController extends Controller
     private function redirectBackWithError($errors, $oldData) {
         $_SESSION['errors'] = $errors;
         $_SESSION['old'] = $oldData;
-        header('Location: /add');
+        header('Location: /books/add');
         exit;
     }  
+
+    private function getPage()
+{
+    return isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+}
+
+private function calculateOffset($page, $limit)
+{
+    return ($page - 1) * $limit;
+}
+
+private function calculateTotalPages($total, $limit)
+{
+    return ceil($total / $limit);
+}
+
+public function updateQuantity() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $ma_sach = $_POST['ma_sach'] ?? null;
+        // Lấy số lượng mới từ ô nhập, có thể là chuỗi rỗng nếu không nhập gì
+        $new_quantity = $_POST['so_luong'] ?? '';
+        
+        // Lấy thông tin sách hiện tại
+        $book = $this->bookModel->getBookById($ma_sach);
+        if (!$book) {
+            $_SESSION['error'] = "Không tìm thấy sách!";
+            header("Location: /books");
+            exit;
+        }
+        
+        // Nếu ô số lượng mới trống hoặc bằng số lượng cũ thì không cập nhật
+        if ($new_quantity === '' || $book['so_luong'] == $new_quantity) {
+            $_SESSION['error'] = "Không có thay đổi số lượng cho sách: \"{$book['ten_sach']}\"";
+            header("Location: /books");
+            exit;
+        }
+        
+        // Validate số lượng mới: kiểm tra có phải số và >= 0
+        if (!is_numeric($new_quantity) || $new_quantity < 0) {
+            $_SESSION['error'] = "Số lượng mới không hợp lệ!";
+            header("Location: /books");
+            exit;
+        }
+        
+        // Thực hiện cập nhật số lượng
+        $result = $this->bookModel->updateQuantity($ma_sach, $new_quantity);
+        
+        if ($result) {
+            $_SESSION['success'] = "Cập nhật số lượng cho sách: \"{$book['ten_sach']}\" thành công!";
+        } else {
+            $_SESSION['error'] = "Có lỗi xảy ra khi cập nhật số lượng!";
+        }
+        header("Location: /books");
+        exit;
+    }
+}
 
 }

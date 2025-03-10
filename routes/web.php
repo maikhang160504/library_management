@@ -38,16 +38,16 @@ $router->get('/', function () {
 $router->get('/books', function () {
     callControllerMethod('BookController@index');
 });
-$router->get('/add', function () {
+$router->get('/books/add', function () {
     callControllerMethod('BookController@add');
 });
 $router->post('/books/store', function () {
     callControllerMethod('BookController@store');
 });
-$router->get('/books/(\d+)', function ($id) {
+$router->get('/books/{id}', function ($id) {
     callControllerMethod('BookController@show', [$id]);
 });
-
+$router->post('/books/updateQuantity', 'App\Controllers\BookController@updateQuantity');
 /**
  * ---------------------------
  * BORROW ROUTES
@@ -100,6 +100,12 @@ $router->get('/reports/top-readers-most-borrowed-book', function () {
 });
 $router->get('/reports/borrow-return-report', function () {
     callControllerMethod('ReportController@borrowReturnReport');
+});
+$router->get('/reports/penalties', function () {
+    callControllerMethod('ReportController@penaltyReport'); 
+});
+$router->get('/reports/upcoming-returns', function () {
+    callControllerMethod('ReportController@upcomingReturns');
 });
 
 $router->get('/reports/penalties', function () {

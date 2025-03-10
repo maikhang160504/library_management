@@ -43,7 +43,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-auto">
+    <footer class="bg-dark text-white py-4 mt-auto no-print">
         <div class="container text-center">
             <p class="mb-0">&copy; 2023 Quản lý Thư viện. All rights reserved.</p>
         </div>

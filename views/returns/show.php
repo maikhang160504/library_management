@@ -4,7 +4,16 @@ ob_start();
 ?>
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">📄 Chi tiết Phiếu Trả</h2>
+<div class="d-flex align-items-center justify-content-center position-relative my-4">
+        <a href="/returns" class="btn btn-outline-secondary px-4 py-2 position-absolute start-0">
+            <i class="bi bi-arrow-left-circle"></i> Quay lại
+        </a>
+        <h2 class="mb-4 text-center">📄 Chi tiết Phiếu Trả</h2>
+        <button class="btn btn-success position-absolute end-0" onclick="printReport()">
+            <i class="bi bi-printer"></i> In Báo Cáo
+        </button>
+    </div>
+  
 
     <!-- Thông tin phiếu trả -->
     <div class="card shadow-sm mb-4">
@@ -18,7 +27,7 @@ ob_start();
                 <li class="list-group-item"><strong> Ngày mượn:</strong> <?php echo $returnDetail['ngay_muon']; ?></li>
                 <li class="list-group-item"><strong> Ngày trả dự kiến:</strong> <?php echo $returnDetail['ngay_tra']; ?></li>
                 <li class="list-group-item"><strong> Ngày trả thực tế:</strong> <?php echo $returnDetail['ngay_tra_sach']; ?></li>
-                <li class="list-group-item"><strong> Tiền phạt:</strong> <span class="badge bg-danger fs-5"><?php echo number_format($returnDetail['tien_phat'], 2); ?> VNĐ</span></li>
+                <li class="list-group-item"><strong> Tiền phạt:</strong> <span class="badge bg-danger fs-5"><?php echo number_format($returnDetail['tien_phat']); ?> VNĐ</span></li>
             </ul>
         </div>
     </div>
@@ -48,11 +57,6 @@ ob_start();
                 </tbody>
             </table>
         </div>
-    </div>
-
-    <!-- Nút quay lại -->
-    <div class="text-center mt-4">
-        <a href="/returns" class="btn btn-outline-secondary px-4 py-2"><i class="bi bi-arrow-left-circle"></i> Quay lại</a>
     </div>
 </div>
 

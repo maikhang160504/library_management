@@ -5,7 +5,7 @@ ob_start();
 
 <div class="container mt-4">
 
-<h2 class="mb-4">📊 Báo cáo thống kê</h2>
+    <h2 class="mb-4">📊 Báo cáo thống kê</h2>
 
     <div class="row">
         <!-- Thống kê sách mượn trong tháng -->
@@ -62,6 +62,19 @@ ob_start();
                         <div>
                             <h5 class="card-title">Báo cáo mượn - trả sách</h5>
                             <p class="card-text text-muted">Xem báo cáo chi tiết mượn - trả sách theo tháng/năm.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 mb-4">
+            <a href="/reports/upcoming-returns" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-calendar-alt fa-3x text-info me-3"></i> <!-- Icon mới -->
+                        <div>
+                            <h5 class="card-title">Thống kê độc giả sắp đến hạn trả sách</h5>
+                            <p class="card-text text-muted">Xem thống kê độc giả sắp đến hạn trả sách.</p>
                         </div>
                     </div>
                 </div>

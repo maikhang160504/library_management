@@ -98,6 +98,12 @@ ob_start();
             text-align: center;
             margin-bottom: 10px;
         }
+        @page {
+            size: A4 landscape;
+            /* Chế độ in ngang */
+            margin: 20mm;
+            /* Lề trang */
+        }
     }
 </style>
 
