@@ -38,16 +38,16 @@ $router->get('/', function () {
 $router->get('/books', function () {
     callControllerMethod('BookController@index');
 });
-$router->get('/add', function () {
+$router->get('/books/add', function () {
     callControllerMethod('BookController@add');
 });
 $router->post('/books/store', function () {
     callControllerMethod('BookController@store');
 });
-$router->get('/books/(\d+)', function ($id) {
+$router->get('/books/{id}', function ($id) {
     callControllerMethod('BookController@show', [$id]);
 });
-
+$router->post('/books/updateQuantity', 'App\Controllers\BookController@updateQuantity');
 /**
  * ---------------------------
  * BORROW ROUTES
