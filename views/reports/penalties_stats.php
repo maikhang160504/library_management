@@ -98,6 +98,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 <table class="table table-striped table-hover align-middle">
                     <thead class="table-dark text-center">
                         <tr>
+                            <th>Mã phiếu mượn</th>
                             <th>Mã Độc Giả</th>
                             <th class="text-start">Tên Độc Giả</th>
                             <th>Ngày hết hạn</th>
@@ -107,21 +108,33 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                     </thead>
                     <tbody>
                         <?php if (!empty($penalties)) : ?>
-                            <?php foreach ($penalties as $penalty): ?>
+                            <?php 
+                            // Group penalties by borrow ticket ID (ma_phieu_muon)
+                            $groupedPenalties = [];
+                            foreach ($penalties as $penalty) {
+                                $groupedPenalties[$penalty['ma_phieu_muon']][] = $penalty;
+                            }
+                            ?>
+                            <?php foreach ($groupedPenalties as $ticketId => $penaltyGroup): ?>
                                 <tr>
-                                    <td class="text-center"><?= $penalty['ma_doc_gia'] ?></td>
-                                    <td class="text-start fw-medium"><?= $penalty['ten_doc_gia'] ?></td>
-                                    <td class="text-center"><?= date('d/m/Y', strtotime($penalty['ngay_het_han'])) ?></td>
-                                    <td class="text-center"><?= date('d/m/Y', strtotime($penalty['ngay_tra_sach'])) ?></td>
-                                    <td class="text-center text-danger"><?= number_format($penalty['tien_phat'], 0, ',', '.') ?> VND</td>
+                                    <td class="text-center"><?= $ticketId ?></td>  
+                                    <td class="text-center"><?= $penaltyGroup[0]['ma_doc_gia'] ?></td>
+                                    <td class="text-start fw-medium"><?= $penaltyGroup[0]['ten_doc_gia'] ?></td>
+                                    <td class="text-center"><?= date('d/m/Y', strtotime($penaltyGroup[0]['ngay_het_han'])) ?></td>
+                                    <td class="text-center"><?= date('d/m/Y', strtotime($penaltyGroup[0]['ngay_tra_sach'])) ?></td>
+                                    <td class="text-center text-danger">
+                                        <?php 
+                                        $totalPenalty = array_sum(array_column($penaltyGroup, 'tien_phat'));
+                                        echo number_format($totalPenalty, 0, ',', '.') . ' VND'; 
+                                        ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="text-center text-muted">Không có dữ liệu tiền phạt.</td>
+                                <td colspan="6" class="text-center text-muted">Không có dữ liệu tiền phạt.</td> <!-- Adjusted colspan to 6 -->
                             </tr>
                         <?php endif; ?>
-
                     </tbody>
 
                 </table>
