@@ -140,21 +140,56 @@ class Reader extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getTotalReaders()
-    {
-        $query = "SELECT COUNT(*) AS total FROM {$this->table}";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchColumn();
+    // public function getTotalReaders()
+    // {
+    //     $query = "SELECT COUNT(*) AS total FROM {$this->table}";
+    //     $stmt = $this->db->prepare($query);
+    //     $stmt->execute();
+    //     return $stmt->fetchColumn();
+    // }
+
+    // public function getReadersWithPagination($start, $limit)
+    // {
+    //     $query = "SELECT * FROM {$this->table} LIMIT :start, :limit";
+    //     $stmt = $this->db->prepare($query);
+    //     $stmt->bindParam(':start', $start, PDO::PARAM_INT);
+    //     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    //     $stmt->execute();
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
+    public function getReadersWithPagination($start, $perPage, $keyword = '')
+{
+    if ($keyword) {
+        $query = "SELECT * FROM doc_gia WHERE ten_doc_gia LIKE :keyword OR so_dien_thoai LIKE :keyword LIMIT :start, :perPage";
+    } else {
+        $query = "SELECT * FROM doc_gia LIMIT :start, :perPage";
     }
 
-    public function getReadersWithPagination($start, $limit)
-    {
-        $query = "SELECT * FROM {$this->table} LIMIT :start, :limit";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':start', $start, PDO::PARAM_INT);
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $this->db->prepare($query);
+    if ($keyword) {
+        $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
     }
+    $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+    $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getTotalReaders($keyword = '')
+{
+    if ($keyword) {
+        $query = "SELECT COUNT(*) FROM doc_gia WHERE ten_doc_gia LIKE :keyword OR so_dien_thoai LIKE :keyword";
+    } else {
+        $query = "SELECT COUNT(*) FROM doc_gia";
+    }
+
+    $stmt = $this->db->prepare($query);
+    if ($keyword) {
+        $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
+    }
+    $stmt->execute();
+    return $stmt->fetchColumn();
+}
+
+
 }

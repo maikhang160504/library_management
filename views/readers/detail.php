@@ -17,7 +17,7 @@ $previousPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/'
 
     <!-- Thông tin cá nhân độc giả -->
     <div class="card mb-4">
-        <div class="card-header bg-light ">Thông tin cá nhân</div>
+        <div class="card-header bg-light  text-primary">Thông tin cá nhân</div>
         <div class="card-body">
             <p><strong>Mã độc giả:</strong> <?php echo $reader['ma_doc_gia']; ?></p>
             <p><strong>Tên độc giả:</strong> <?php echo $reader['ten_doc_gia']; ?></p>
@@ -29,7 +29,7 @@ $previousPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/'
 
     <!-- Lịch sử mượn sách -->
     <div class="card">
-        <div class="card-header bg-light">Lịch sử mượn sách</div>
+        <div class="card-header bg-light  text-primary">Lịch sử mượn sách</div>
         <div class="card-body">
             <table class="table table-hover">
                 <thead>

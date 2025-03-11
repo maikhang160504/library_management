@@ -92,13 +92,32 @@ class ReaderController extends Controller
         ]);
     }
 
+    // public function search()
+    // {
+    //     $keyword = $_GET['keyword'] ?? '';
+
+    //     $readers = $this->readerModel->searchReaders($keyword);
+
+
+    //     $this->view('readers/index', ['readers' => $readers]);
+    // }
     public function search()
-    {
-        $keyword = $_GET['keyword'] ?? '';
+{
+    $keyword = $_GET['keyword'] ?? '';
+    $perPage = 10;
+    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $start = ($currentPage - 1) * $perPage;
 
-        $readers = $this->readerModel->searchReaders($keyword);
+    $readers = $this->readerModel->getReadersWithPagination($start, $perPage, $keyword);
+    $totalReaders = $this->readerModel->getTotalReaders($keyword);
+    $totalPages = ceil($totalReaders / $perPage);
+
+    $this->view('readers/index', [
+        'readers' => $readers,
+        'totalPages' => $totalPages,
+        'currentPage' => $currentPage
+    ]);
+}
 
 
-        $this->view('readers/index', ['readers' => $readers]);
-    }
 }
