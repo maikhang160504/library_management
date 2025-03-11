@@ -34,7 +34,14 @@ $days = 7; // Mặc định 7 ngày tới
                 <option value="/reports/least-borrowed-books?export=excel">
                     Thống kê sách ít được mượn
                 </option>
+                <option value="/reports/penalties_stats?export=excel&filter=<?= $filter ?>">
+                    Thống kê phí phạt
+                </option>
+                <option value="/reports/black-list?export=blacklist">
+                    Danh sách Đen
+                </option>
             </select>
+
         </div>
         <button type="button" class="btn btn-success" id="exportBtn" disabled>
             <i class="bi bi-file-earmark-excel"></i> Xuất Excel
