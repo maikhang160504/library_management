@@ -165,5 +165,131 @@ class Book extends Model
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+public function getBooksPaging($limit, $offset)
+{
+    $sql = "
+        SELECT 
+            s.*, 
+            tl.ten_the_loai,
+            tg.ten_tac_gia
+        FROM {$this->table} s
+        LEFT JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+        LEFT JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+        LIMIT :limit OFFSET :offset
+    ";
 
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countAllBooks()
+{
+    $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+public function searchBooksPaging($query, $limit, $offset)
+{
+    $sql = "SELECT s.*, tg.ten_tac_gia, tl.ten_the_loai
+            FROM sach s
+            LEFT JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+            LEFT JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+            WHERE s.ten_sach LIKE :query
+            OR tg.ten_tac_gia LIKE :query
+            LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countSearch($query)
+{
+    $sql = "SELECT COUNT(*) as total
+            FROM sach s
+            LEFT JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+            WHERE s.ten_sach LIKE :query
+            OR tg.ten_tac_gia LIKE :query";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['query' => "%$query%"]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+public function getBooksByCategoryPaging($categoryId, $limit, $offset)
+{
+    $sql = "SELECT s.*, tg.ten_tac_gia, tl.ten_the_loai
+            FROM sach s
+            LEFT JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+            LEFT JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+            WHERE s.ma_the_loai = :categoryId
+            LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':categoryId', $categoryId, PDO::PARAM_INT);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countBooksByCategory($categoryId)
+{
+    $sql = "SELECT COUNT(*) as total
+            FROM sach
+            WHERE ma_the_loai = :categoryId";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':categoryId', $categoryId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+public function searchBooksInCategoryPaging($query, $categoryId, $limit, $offset)
+{
+    $sql = "SELECT s.*, tg.ten_tac_gia, tl.ten_the_loai
+            FROM sach s
+            LEFT JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+            LEFT JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+            WHERE s.ma_the_loai = :categoryId
+            AND (s.ten_sach LIKE :query OR tg.ten_tac_gia LIKE :query)
+            LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':categoryId', $categoryId, PDO::PARAM_INT);
+    $stmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countSearchInCategory($query, $categoryId)
+{
+    $sql = "SELECT COUNT(*) as total
+            FROM sach s
+            LEFT JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+            WHERE s.ma_the_loai = :categoryId
+            AND (s.ten_sach LIKE :query OR tg.ten_tac_gia LIKE :query)";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':categoryId', $categoryId, PDO::PARAM_INT);
+    $stmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
 }

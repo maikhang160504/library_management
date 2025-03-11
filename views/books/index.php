@@ -105,7 +105,29 @@ if (isset($selectedCategory) && $selectedCategory !== '') {
         </tbody>
     </table>
 </div>
+<div class="d-flex justify-content-center">
+    <nav>
+        <ul class="pagination">
+            <?php if ($currentPage > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $currentPage - 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">«</a>
+                </li>
+            <?php endif; ?>
 
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                    <a class="page-link" href="?page=<?= $i ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($currentPage < $totalPages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $currentPage + 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">»</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+</div>
 </div>
 
 <script>

@@ -17,36 +17,54 @@ class BookController extends Controller
     }
 
     public function index()
-{
-   
-    $searchQuery = ($_SERVER['REQUEST_METHOD'] === 'POST')
-        ? ($_POST['query'] ?? '')
-        : ($_GET['query'] ?? '');
-
-    $selectedCategory = ($_SERVER['REQUEST_METHOD'] === 'POST')
-        ? ($_POST['category'] ?? '')
-        : ($_GET['category'] ?? '');
-
-    // Xử lý kết hợp lọc + tìm kiếm
-    if (!empty($searchQuery) && !empty($selectedCategory)) {
-        $books = $this->bookModel->searchBooksInCategory($searchQuery, $selectedCategory);
-    } elseif (!empty($searchQuery)) {
-        $books = $this->bookModel->searchBooks($searchQuery);
-    } elseif (!empty($selectedCategory)) {
-        $books = $this->bookModel->getBooksByCategory($selectedCategory);
-    } else {
-        $books = $this->bookModel->getAllBooks();
+    {
+        $searchQuery = ($_SERVER['REQUEST_METHOD'] === 'POST')
+            ? ($_POST['query'] ?? '')
+            : ($_GET['query'] ?? '');
+    
+        $selectedCategory = ($_SERVER['REQUEST_METHOD'] === 'POST')
+            ? ($_POST['category'] ?? '')
+            : ($_GET['category'] ?? '');
+    
+        // 🟢 Xử lý phân trang
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 5; // số bản ghi mỗi trang
+        $offset = ($page - 1) * $limit;
+    
+        // 🟢 Tổng số sách để tính tổng số trang
+        $totalBooks = $this->bookModel->countAllBooks();
+        $totalPages = ceil($totalBooks / $limit);
+    
+        // 🟢 Truy vấn có phân trang + lọc/tìm kiếm nếu có
+        if (!empty($searchQuery) && !empty($selectedCategory)) {
+            // Phân trang cho tìm kiếm + lọc (viết hàm mới nếu cần)
+            $books = $this->bookModel->searchBooksInCategoryPaging($searchQuery, $selectedCategory, $limit, $offset);
+            $totalBooks = $this->bookModel->countSearchInCategory($searchQuery, $selectedCategory);
+        } elseif (!empty($searchQuery)) {
+            $books = $this->bookModel->searchBooksPaging($searchQuery, $limit, $offset);
+            $totalBooks = $this->bookModel->countSearch($searchQuery);
+        } elseif (!empty($selectedCategory)) {
+            $books = $this->bookModel->getBooksByCategoryPaging($selectedCategory, $limit, $offset);
+            $totalBooks = $this->bookModel->countBooksByCategory($selectedCategory);
+        } else {
+            $books = $this->bookModel->getBooksPaging($limit, $offset);
+        }
+    
+        // 🟢 Cập nhật lại totalPages sau khi lọc/tìm kiếm
+        $totalPages = ceil($totalBooks / $limit);
+    
+        $categories = $this->bookModel->getCategories();
+    
+        $this->view('books/index', [
+            'books' => $books,
+            'categories' => $categories,
+            'selectedCategory' => $selectedCategory,
+            'searchQuery' => $searchQuery,
+            'currentPage' => $page,
+            'totalPages' => $totalPages
+        ]);
     }
-
-    $categories = $this->bookModel->getCategories();
-
-    $this->view('books/index', [
-        'books' => $books,
-        'categories' => $categories,
-        'selectedCategory' => $selectedCategory,   // ✅ Trả lại chính xác đã chọn
-        'searchQuery' => $searchQuery               // ✅ Trả lại chính xác từ khóa
-    ]);
-}
+    
 
     public function show($id)
     {

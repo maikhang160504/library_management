@@ -44,6 +44,9 @@ ob_start();
     </div>
 </div>
 
+<script>
+    
+
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';
