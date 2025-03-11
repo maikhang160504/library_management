@@ -615,3 +615,19 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+DELIMITER $$
+CREATE FUNCTION tinh_tong_tien_phat(maDocGia INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE tongTien INT;
+    SELECT COALESCE(SUM(pt.tien_phat), 0) INTO tongTien 
+    FROM phieu_tra pt
+    JOIN chi_tiet_phieu_muon ctpm ON ctpm.ma_ctpm = pt.ma_ctpm
+    JOIN phieu_muon pm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
+    WHERE pm.ma_doc_gia = maDocGia;
+    RETURN tongTien;
+END $$
+DELIMITER ;

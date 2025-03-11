@@ -1,4 +1,8 @@
 <?php
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 $title = "Thống kê Sách Mượn";
 ob_start();
 $filter = $_GET['filter'] ?? 'this_month'; // Mặc định là tháng này
@@ -8,6 +12,43 @@ $filterText = [
     'this_month' => 'Tháng này',
     'this_year' => 'Năm nay'
 ][$filter];
+
+if (isset($_GET['export']) && $_GET['export'] === 'excel') {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setTitle("Thống kê Sách Mượn");
+
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+    // Tiêu đề
+    $sheet->setCellValue('A1', 'Mã sách');
+    $sheet->setCellValue('B1', 'Tên sách');
+    $sheet->setCellValue('C1', 'Tác giả');
+    $sheet->setCellValue('D1', 'Thể loại');
+    $sheet->setCellValue('E1', 'Số lần mượn');
+
+    $row = 2;
+    foreach ($details as $book) {
+        $sheet->setCellValue("A$row", $book['ma_sach']);
+        $sheet->setCellValue("B$row", $book['ten_sach']);
+        $sheet->setCellValue("C$row", $book['ten_tac_gia']);
+        $sheet->setCellValue("D$row", $book['ten_the_loai']);
+        $sheet->setCellValue("E$row", $book['so_lan_muon']);
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+    $filename = "ThongKeSachMuon".$filter.".xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+    $writer->save('php://output');
+    exit;
+}
 ?>
 
 <div class="container mt-4">
@@ -15,14 +56,13 @@ $filterText = [
         <a href="/reports" class="btn btn-outline-secondary position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
-        <h2 class="text-center text-primary "><i class="bi bi-bar-chart-line"></i> Thống kê Sách Mượn - <?= $filterText ?></h2>
-        <button class="btn btn-success position-absolute end-0" onclick="printReport()">
-            <i class="bi bi-printer"></i> In Báo Cáo
-        </button>
+        <h2 class="text-center text-primary"><i class="bi bi-bar-chart-line"></i> Thống kê Sách Mượn - <?= $filterText ?></h2>
+        <a href="?filter=<?= $filter ?>&export=excel" class="btn btn-success position-absolute end-0">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
     </div>
-    <h2 class="print-title d-none" >BÁO CÁO THỐNG KÊ SÁCH MƯỢN <?= strtoupper($filterText); ?></h2>
+    <h2 class="print-title d-none">BÁO CÁO THỐNG KÊ SÁCH MƯỢN <?= strtoupper($filterText); ?></h2>
 
-    <!-- Bộ lọc thống kê -->
     <div class="d-flex justify-content-center gap-2 mb-4 no-print">
         <a href="?filter=today" class="btn <?= $filter == 'today' ? 'btn-primary' : 'btn-outline-primary' ?>">Hôm nay</a>
         <a href="?filter=this_week" class="btn <?= $filter == 'this_week' ? 'btn-primary' : 'btn-outline-primary' ?>">Tuần này</a>
@@ -30,7 +70,6 @@ $filterText = [
         <a href="?filter=this_year" class="btn <?= $filter == 'this_year' ? 'btn-primary' : 'btn-outline-primary' ?>">Năm nay</a>
     </div>
 
-    <!-- Thông tin tổng quan -->
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-body text-center">
             <h5 class="card-title text-secondary"><i class="bi bi-journal-bookmark-fill"></i> Tổng số sách đã mượn</h5>
@@ -38,7 +77,6 @@ $filterText = [
         </div>
     </div>
 
-    <!-- Danh sách sách được mượn -->
     <div class="card shadow-sm border-0">
         <div class="card-body">
             <h5 class="card-title text-secondary"><i class="bi bi-book-half"></i> Chi tiết Sách Mượn</h5>
@@ -60,7 +98,7 @@ $filterText = [
                                 <td class="text-start fw-medium"><?= $book['ten_sach'] ?></td>
                                 <td class="text-start fst-italic"><?= $book['ten_tac_gia'] ?></td>
                                 <td class="text-start"><?= $book['ten_the_loai'] ?></td>
-                                <td class="text-center  text-primary"><strong><?= $book['so_lan_muon'] ?></strong></td>
+                                <td class="text-center text-primary"><strong><?= $book['so_lan_muon'] ?></strong></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -68,120 +106,7 @@ $filterText = [
             </div>
         </div>
     </div>
-
-    <!-- Biểu đồ thống kê -->
-    <div class="card shadow-sm mt-4 border-0 no-print">
-        <div class="card-body">
-            <h5 class="card-title text-secondary"><i class="bi bi-graph-up"></i> Biểu đồ Thống kê</h5>
-            <canvas id="borrowChart"></canvas>
-        </div>
-    </div>
 </div>
-
-
-<style>
-    @media print {
-        @page {
-            size: A4 landscape;
-            margin: 15mm;
-        }
-
-        body {
-            font-size: 14px;
-        }
-
-        .no-print {
-            display: none !important;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        table thead {
-            background-color: #343a40 !important;
-            color: white !important;
-        }
-
-        table td,
-        table th {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        .card {
-            border: none !important;
-            box-shadow: none !important;
-        }
-
-        .display-5 {
-            font-size: 18px;
-        }
-        .print-title {
-        display: block !important;
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    }
-</style>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var ctx = document.getElementById('borrowChart').getContext('2d');
-        var borrowChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [<?php foreach ($details as $book) {
-                                echo '"' . addslashes($book['ten_sach']) . '",';
-                            } ?>],
-                datasets: [{
-                    label: 'Số lần mượn',
-                    data: [<?php foreach ($details as $book) {
-                                echo $book['so_lan_muon'] . ',';
-                            } ?>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-    });
-
-    function printReport() {
-        window.print();
-    }
-</script>
 
 <?php
 $content = ob_get_clean();

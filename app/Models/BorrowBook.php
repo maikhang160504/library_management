@@ -10,7 +10,6 @@ class BorrowBook extends Model
 {
     protected $table = 'phieu_muon';
 
-    // Tạo phiếu mượn
     public function createBorrow($ma_doc_gia, $ngay_muon, $ngay_tra, $danh_sach_sach)
     {
         $this->db->beginTransaction();
@@ -44,12 +43,13 @@ class BorrowBook extends Model
             }
 
             $this->db->commit();
-            return true;
+            return ['ma_phieu_muon' => $ma_phieu_muon, 'success' => true];
         } catch (PDOException $e) {
             $this->db->rollBack();
             return false;
         }
     }
+
 
     // Lấy danh sách phiếu mượn chưa trả
     public function getUnreturnedBorrows()
@@ -61,10 +61,11 @@ class BorrowBook extends Model
     }
     public function getallBorrows()
     {
-        $query = "SELECT pm.ma_phieu_muon, pm.ma_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai,
+        $query = "SELECT pm.ma_phieu_muon, pm.ma_doc_gia,dg.ten_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai,
                     MIN(ctpm.ma_ctpm) AS ma_ctpm 
                     FROM phieu_muon pm
                     JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
+                    join doc_gia dg on pm.ma_doc_gia = dg.ma_doc_gia
                     GROUP BY pm.ma_phieu_muon, pm.ma_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai
                     ORDER BY pm.ma_phieu_muon DESC";
         $stmt = $this->db->prepare($query);
@@ -80,13 +81,13 @@ class BorrowBook extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function getTotalBorrows($filter)
-{
-    $query = "SELECT total_borrows(:filter) AS total"; 
-    $stmt = $this->db->prepare($query);
-    $stmt->bindParam(":filter", $filter, PDO::PARAM_STR);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC)['total']; 
-}
+    {
+        $query = "SELECT total_borrows(:filter) AS total";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":filter", $filter, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    }
 
     public function getYearlyReaderStats()
     {
@@ -181,12 +182,67 @@ class BorrowBook extends Model
         $borrowInfo['books'] = $books;
         return $borrowInfo;
     }
-    function getUpcomingReturns($days = 3) {
+    function getUpcomingReturns($days = 3)
+    {
         $query = "CALL GetUpcomingReturns(:days)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':days', $days);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
+    public function getBorrowsbyStatusandTenDocGia($trang_thai, $ten_doc_gia)
+    {
+        $status = '';
+        if ($trang_thai == 'all') {
+            $status = ' 1 = 1 ';
+        } else {
+            $status = ' pm.trang_thai = :trang_thai ';
+        }
+        $query = "SELECT pm.ma_phieu_muon, pm.ma_doc_gia,dg.ten_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai,
+                    MIN(ctpm.ma_ctpm) AS ma_ctpm 
+                    FROM phieu_muon pm
+                    JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
+                    join doc_gia dg on pm.ma_doc_gia = dg.ma_doc_gia
+                    WHERE $status
+                    and dg.ten_doc_gia like '%$ten_doc_gia%'
+                    GROUP BY pm.ma_phieu_muon, pm.ma_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai
+                    ORDER BY pm.ma_phieu_muon DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':trang_thai', $trang_thai);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getLeastBorrowedBooks($limit = 10)
+    {
+        $query = "
+            SELECT s.ma_sach, s.ten_sach, t.ten_tac_gia, COUNT(pm.ma_phieu_muon) AS so_luot_muon
+            FROM sach s
+            LEFT JOIN chi_tiet_phieu_muon ctp ON s.ma_sach = ctp.ma_sach
+            LEFT JOIN phieu_muon pm ON ctp.ma_phieu_muon = pm.ma_phieu_muon
+            LEFT JOIN tac_gia t ON s.ma_tac_gia = t.ma_tac_gia
+            GROUP BY s.ma_sach, s.ten_sach, t.ten_tac_gia
+            ORDER BY so_luot_muon ASC
+            LIMIT :limit
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getBlackList()
+    {
+        $query = "SELECT dg.ma_doc_gia, dg.ten_doc_gia, COUNT(pt.ma_ctpm) AS so_lan_bi_phat, tinh_tong_tien_phat(dg.ma_doc_gia) AS tong_tien_phat
+                    FROM doc_gia dg
+                    JOIN phieu_muon pm ON dg.ma_doc_gia = pm.ma_doc_gia
+                    JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
+                    JOIN phieu_tra pt ON ctpm.ma_ctpm = pt.ma_ctpm
+                    GROUP BY dg.ma_doc_gia, dg.ten_doc_gia
+                    HAVING COUNT(pt.ma_ctpm) >= 3 OR tinh_tong_tien_phat(dg.ma_doc_gia) > 400000
+                    ORDER BY tong_tien_phat DESC;";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

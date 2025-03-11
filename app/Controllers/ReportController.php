@@ -49,7 +49,7 @@ class ReportController extends Controller
     {
         $startDate = $_GET['startDate'] ?? date('Y-m-01'); // Mặc định là đầu tháng
         $endDate = $_GET['endDate'] ?? date('Y-m-t');
-        var_dump($startDate, $endDate);
+       
         $readers = $this->borrowModel->getTopReaders($startDate, $endDate);
         $books = $this->borrowModel->getMostBorrowedBooks($startDate, $endDate);
         $this->view('reports/top_readers_most_borrows_books', ['readers' => $readers, 'books' => $books, 'startDate' => $startDate, 'endDate' => $endDate]);
@@ -58,12 +58,12 @@ class ReportController extends Controller
     // Hiển thị báo cáo mượn - trả sách theo tháng/năm
     public function borrowReturnReport()
     {
+
         $month = $_GET['month'] ?? date('m'); // Mặc định là tháng hiện tại
         $year = $_GET['year'] ?? date('Y'); // Mặc định là năm hiện tại
 
         $reports = $this->borrowModel->getBorrowReturnReport($month, $year);
         $this->view('reports/borrow_return_report', [
-
             'reports' => $reports,
             'selectedMonth' => $month,
             'selectedYear' => $year
@@ -95,5 +95,24 @@ class ReportController extends Controller
         // var_dump($days);
         $upcomingReturns = $this->borrowModel->getUpcomingReturns($days);
         $this->view('reports/upcoming_returns', ['upcomingReturns' => $upcomingReturns, 'days' => $days]);
+    }
+    public function leastBorrowedBooks() {
+        $books = $this->borrowModel->getLeastBorrowedBooks();
+        $this->view('reports/least_borrowed_books', ['books' => $books]);
+    }
+    public function exportExcel()   {
+     
+        $filter = $_GET['filter'] ?? 'this_month';
+        $days = $_GET['days'] ?? 3;
+        
+        $startDate = $_GET['startDate'] ?? date('Y-m-01'); // Mặc định là đầu tháng
+        $endDate = $_GET['endDate'] ?? date('Y-m-t');
+        $month = $_GET['month'] ?? date('m'); // Mặc định là tháng hiện tại
+        $year = $_GET['year'] ?? date('Y'); // Mặc định là năm hiện tại
+        $this->view('reports/export_excel', ['filter' => $filter, 'days' => $days, 'startDate' => $startDate, 'endDate' => $endDate, 'month' => $month, 'year' => $year]);
+    }
+    public function blackList() {
+        $blacklist = $this->borrowModel->getBlackList();
+        $this->view('reports/black_list', ['blacklist' => $blacklist]);
     }
 }

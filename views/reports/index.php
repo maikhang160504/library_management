@@ -80,7 +80,46 @@ ob_start();
                 </div>
             </a>
         </div>
+        <div class="col-md-6 mb-4">
+            <a href="/reports/least-borrowed-books" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-book-open fa-3x text-warning me-3"></i> <!-- Icon mới -->
+                        <div>
+                            <h5 class="card-title">Thống kê Sách ít được mượn</h5>
+                            <p class="card-text text-muted">Xem danh sách các sách có số lượt mượn thấp nhất.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
 
+        <div class="col-md-6 mb-4">
+            <a href="/reports/black-list" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex align-items-center">
+                    <i class="bi bi-person-x fa-3x text-danger me-3"></i>
+                        <div>
+                            <h5 class="card-title">Danh sách đen</h5>
+                            <p class="card-text text-muted">Xem danh sách đen.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 mb-4">
+            <a href="/reports/export-excel" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="bi bi-file-earmark-excel fa-3x text-warning me-3"></i> 
+                        <div>
+                            <h5 class="card-title">Xuất Excel</h5>
+                            <p class="card-text text-muted">Export Excel.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
         <!-- Báo cáo phí phạt -->
         <div class="col-md-6 mb-4">
             <a href="/reports/penalties" class="text-decoration-none">

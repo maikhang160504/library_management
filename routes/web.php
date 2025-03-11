@@ -120,8 +120,15 @@ $router->get('/reports/upcoming-returns', function () {
 $router->get('/reports/penalties_stats', function () {
     callControllerMethod('ReportController@penaltiesStats'); 
 });
-
-
+$router->get('/reports/least-borrowed-books', function () {
+   callControllerMethod('ReportController@leastBorrowedBooks');  
+});
+$router->get('/reports/export-excel', function () {
+    callControllerMethod('ReportController@exportExcel');
+});
+$router->get('/reports/black-list', function () {
+    callControllerMethod('ReportController@blackList'); 
+});
 /**
  * ---------------------------
  * READER ROUTES

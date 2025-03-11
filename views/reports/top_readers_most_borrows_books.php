@@ -1,17 +1,68 @@
 <?php
 $title = "Thống kê Mượn Sách";
 ob_start();
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Tiêu đề cột
+    $sheet->setCellValue('A1', 'Mã độc giả');
+    $sheet->setCellValue('B1', 'Tên độc giả');
+    $sheet->setCellValue('C1', 'Số lượt mượn');
+    $sheet->setCellValue('E1', 'Mã sách');
+    $sheet->setCellValue('F1', 'Tên sách');
+    $sheet->setCellValue('G1', 'Số lượt mượn');
+
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+    // Đổ dữ liệu vào Excel
+    $row = 2;
+    foreach ($readers as $reader) {
+        $sheet->setCellValue('A' . $row, $reader['ma_doc_gia']);
+        $sheet->setCellValue('B' . $row, $reader['ten_doc_gia']);
+        $sheet->setCellValue('C' . $row, $reader['so_luot_muon']);
+        $row++;
+    }
+    $row = 2;
+    foreach ($books as $book) {
+        $sheet->setCellValue('E' . $row, $book['ma_sach']);
+        $sheet->setCellValue('F' . $row, $book['ten_sach']);
+        $sheet->setCellValue('G' . $row, $book['so_luot_muon']);
+        $row++;
+    }
+    
+    // Xuất file Excel
+    $filename = "ThongKeSachMuonTu" . ($_GET['startDate'] ?? '___') . "Den" . ($_GET['endDate'] ?? '___') . ".xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+    
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 ?>
 
 <div class="container mt-4">
     <!-- Tiêu đề & Nút quay lại -->
     <div class="d-flex align-items-center justify-content-center position-relative my-4">
-        <a href="/reports" class="btn btn-outline-secondary px-4 py-2 position-absolute start-0">
+        <a href="/reports" class="btn btn-outline-secondary  position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
         <h2 class=" text-center flex-grow-1">
-    📊 Thống kê Mượn Sách từ <?php echo isset($startDate) ? $startDate : '___'; ?> đến <?php echo isset($endDate) ? $endDate : '___'; ?>
-</h2>
+            📊 Thống kê Mượn Sách từ <?php echo isset($startDate) ? $startDate : '___'; ?> đến <?php echo isset($endDate) ? $endDate : '___'; ?>
+        </h2>
+        <a href="?export=excel&startDate=<?php echo $startDate; ?>&endDate=<?php echo $endDate; ?>" class="btn btn-success position-absolute end-0">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
     </div>
 
     <!-- Bộ lọc ngày bắt đầu & ngày kết thúc -->
@@ -82,23 +133,23 @@ ob_start();
 
 <!-- JavaScript: Xử lý lọc thống kê -->
 <script>
-document.getElementById("filterBtn").addEventListener("click", function() {
-    var startDate = document.getElementById("startDate").value;
-    var endDate = document.getElementById("endDate").value;
+    document.getElementById("filterBtn").addEventListener("click", function() {
+        var startDate = document.getElementById("startDate").value;
+        var endDate = document.getElementById("endDate").value;
 
-    if (!startDate || !endDate) {
-        alert("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!");
-        return;
-    }
+        if (!startDate || !endDate) {
+            alert("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!");
+            return;
+        }
 
-    if (startDate > endDate) {
-        alert("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
-        return;
-    }
+        if (startDate > endDate) {
+            alert("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
+            return;
+        }
 
-    var url = "/reports/top-readers-most-borrowed-book?startDate=" + startDate + "&endDate=" + endDate;
-    window.location.href = url;
-});
+        var url = "/reports/top-readers-most-borrowed-book?startDate=" + startDate + "&endDate=" + endDate;
+        window.location.href = url;
+    });
 </script>
 
 <?php

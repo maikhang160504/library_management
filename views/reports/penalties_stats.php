@@ -9,6 +9,55 @@ $filterText = [
     'this_year' => 'Năm nay'
 ][$filter] ?? 'Tháng này';
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Tiêu đề cột
+    $sheet->setCellValue('A1', 'Mã Độc Giả');
+    $sheet->setCellValue('B1', 'Họ Tên');
+    $sheet->setCellValue('C1', 'Ngày hết hạn');
+    $sheet->setCellValue('D1', 'Ngày trả sách');
+    $sheet->setCellValue('E1', 'Số tiền phạt');
+
+    // Định dạng tiêu đề
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+
+    // Đổ dữ liệu vào Excel
+    $row = 2;
+    $totalPenalty = 0;
+    if (!empty($penalties)) {
+        foreach ($penalties as $penalty) {
+            $sheet->setCellValue('A' . $row, $penalty['ma_doc_gia']);
+            $sheet->setCellValue('B' . $row, $penalty['ten_doc_gia']);
+            $sheet->setCellValue('C' . $row, date('d/m/Y', strtotime($penalty['ngay_het_han'])));
+            $sheet->setCellValue('D' . $row, date('d/m/Y', strtotime($penalty['ngay_tra_sach'])));
+            $sheet->setCellValue('E' . $row, $penalty['tien_phat']);
+            $totalPenalty += $penalty['tien_phat'];
+            $row++;
+        }
+    }
+
+    // Tổng tiền phạt
+    $sheet->setCellValue('D' . $row, 'Tổng cộng:');
+    $sheet->setCellValue('E' . $row, $totalPenalty);
+    $sheet->getStyle('D' . $row . ':E' . $row)->applyFromArray($headerStyle);
+
+    // Xuất file Excel
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="thong_ke_khoan_phat.xlsx"');  
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');  
+    exit;
+}
 ?>
 
 <div class="container mt-4">
@@ -16,11 +65,12 @@ $filterText = [
         <a href="/reports" class="btn btn-outline-secondary position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
-        <h2 class="text-center text-primary "><i class="bi bi-bar-chart-line"></i> Thống kê Khoản Phạt - <?= $filterText ?></h2>
-        <button class="btn btn-success position-absolute end-0" onclick="printReport()">
-            <i class="bi bi-printer"></i> In Báo Cáo
-        </button>
+        <h2 class="text-center text-primary"><i class="bi bi-bar-chart-line"></i> Thống kê Khoản Phạt - <?= $filterText ?></h2>
+        <a href="?export=excel&filter=<?= $filter ?>" class="btn btn-success position-absolute end-0">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
     </div>
+
 
     <!-- Bộ lọc thống kê -->
     <div class="d-flex justify-content-center gap-2 mb-4">
