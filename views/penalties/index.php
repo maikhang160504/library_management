@@ -18,26 +18,26 @@ ob_start();
 
 <body>
     <div class="container mt-5">
-        <h2 class="text-center mb-4">Quản lý phí phạt </h2>
+        <h2 class="text-center mb-4">Quản lý phí phạt</h2>
 
         <div class="mb-3">
             <form method="GET" action="/penalty/search">
                 <div class="input-group">
-                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã độc giả, tên, số tiền phạt" />
+                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã độc giả, mã phiếu mượn, số tiền phạt" />
                     <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                 </div>
             </form>
         </div>
 
-            <div>
-                <!-- Nút Quay lại -->
-                <a href="/penalties" class="btn btn-secondary mb-3">Quay lại danh sách đầy đủ</a>
-            </div>
+        <div>
+            <a href="/penalties" class="btn btn-secondary mb-3">Quay lại danh sách đầy đủ</a>
+        </div>
 
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
+                        <th>Mã phiếu mượn</th>
                         <th>Mã độc giả</th>
                         <th>Tên độc giả</th>
                         <th>Ngày hết hạn</th>
@@ -47,19 +47,34 @@ ob_start();
                     </tr>
                 </thead>
                 <tbody>
-                <?php if (empty($penalties)): ?>
+                <?php 
+                if (empty($penalties)): ?>
                     <tr>
-                        <td colspan="5" class="text-center">Không có kết quả tìm kiếm.</td>
+                        <td colspan="7" class="text-center">Không có kết quả tìm kiếm.</td>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($penalties as $penalty): ?>
+                <?php else: 
+                    $groupedPenalties = [];
+
+                    // Nhóm theo mã phiếu mượn
+                    foreach ($penalties as $penalty) {
+                        $ma_phieu_muon = $penalty['ma_phieu_muon'];
+
+                        if (!isset($groupedPenalties[$ma_phieu_muon])) {
+                            $groupedPenalties[$ma_phieu_muon] = $penalty;
+                        } else {
+                            $groupedPenalties[$ma_phieu_muon]['tien_phat'] += $penalty['tien_phat'];
+                        }
+                    }
+
+                    // Hiển thị chỉ một dòng cho mỗi mã phiếu mượn
+                    foreach ($groupedPenalties as $penalty): ?>
                         <tr>
+                            <td><?php echo $penalty['ma_phieu_muon'] ?> </td>
                             <td><?php echo $penalty['ma_doc_gia'] ?> </td>
                             <td><?php echo $penalty['ten_doc_gia'] ?></td>
                             <td><?php echo $penalty['ngay_het_han'] ?></td>
                             <td><?= number_format($penalty['tien_phat'], 0, ',', '.') ?> VND</td>
                             <td>
-                                <!-- Kiểm tra trạng thái thanh toán từ phiếu mượn -->
                                 <?php if ($penalty['trang_thai'] == 'Đã trả'): ?>
                                     <span class="badge bg-success">Đã thanh toán</span>
                                 <?php else: ?>
@@ -70,15 +85,11 @@ ob_start();
                                 <a href="/readers/detail/<?php echo $penalty['ma_doc_gia']; ?>" class="btn btn-info btn-sm">Xem chi tiết</a>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
-                    <?php endif;?>
+                    <?php endforeach;
+                endif;?>
                 </tbody>
             </table>
         </div>
-
-        <!-- <div class="mb-3">
-            <button class="btn btn-primary">Gửi email nhắc nhở hàng loạt</button>
-        </div> -->
 
     </div>
 

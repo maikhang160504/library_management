@@ -92,6 +92,38 @@ $filterText = [
     #penaltyChart {
         max-height: 300px;
     }
+    @media print {
+    .no-print {
+        display: none !important;
+    }
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+    }
+    .table th, .table td {
+        border: 1px solid black !important;
+        padding: 8px !important;
+        text-align: center !important;
+    }
+    .table thead {
+        background-color: #000 !important;
+        color: white !important;
+    }
+    body::before {
+        content: "Thống kê Khoản Phạt - <?= $filterText ?> - In lúc: " attr(data-print-time);
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    @page {
+        size: A4 landscape;
+        margin: 20mm;
+    }
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -135,8 +167,10 @@ $filterText = [
     });
 
     function printReport() {
-        window.print();
-    }
+    document.body.setAttribute('data-print-time', new Date().toLocaleString());
+    window.print();
+}
+
 </script>
 
 <?php
