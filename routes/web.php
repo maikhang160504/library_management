@@ -136,17 +136,18 @@ $router->get('/readers/create', function () {
 $router->post('/readers/store', function () {
     callControllerMethod('ReaderController@store');
 });
-$router->get('/readers/(\d+)/edit', function ($id) {
+$router->get('/readers/edit/(\d+)', function ($id) {
     callControllerMethod('ReaderController@edit', [$id]);
 });
-$router->post('/readers/(\d+)/update', function ($id) {
+
+$router->post('/readers/update/(\d+)', function ($id) {
     callControllerMethod('ReaderController@update', [$id]);
 });
-$router->get('/readers/(\d+)/delete', function ($id) {
+$router->post('/readers/delete/(\d+)', function ($id) {
     callControllerMethod('ReaderController@delete', [$id]);
 });
 
-$router->get('/readers/(\d+)/detail', function ($id) {
+$router->get('/readers/detail/(\d+)', function ($id) {
     callControllerMethod('ReaderController@detail', [$id]);
 });
 

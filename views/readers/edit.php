@@ -1,42 +1,69 @@
 <?php
 $title = "Sửa độc giả";
 ob_start();
+
+// Lấy dữ liệu cũ nếu có lỗi
+$oldData = $_SESSION['oldData'] ?? [];
+$errors = $_SESSION['errors'] ?? [];
+
+// Xóa lỗi sau khi hiển thị để không còn tồn tại sau reload
+unset($_SESSION['errors']);
+unset($_SESSION['oldData']);
 ?>
 <div class="container">
-    <div class="">
-        <h2 class="text-center mb-4">Sửa độc giả</h2>
-        <div class="mt-3 mb-3">
-            <a href="/readers" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
+    <h2 class="text-center mb-4">Sửa độc giả</h2>
+
+    <div class="mt-3 mb-3">
+        <a href="/readers" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Hiển thị lỗi nếu có -->
+    <?php if (!empty($_SESSION['errors'])): ?>
+        <div class="alert alert-danger">
+            <ul>
+                <?php foreach ($_SESSION['errors'] as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php unset($_SESSION['errors']); ?>
+    <?php endif; ?>
+    <form method="POST" action="/readers/update/<?= $reader['ma_doc_gia'] ?>" novalidate >
+
+        <div class="mb-3">
+            <label for="ten_doc_gia" class="form-label">Tên độc giả</label>
+            <input type="text" class="form-control <?= isset($errors['ten_doc_gia']) ? 'is-invalid' : '' ?>"
+                   id="ten_doc_gia" name="ten_doc_gia"
+                   value="<?= htmlspecialchars($oldData['ten_doc_gia'] ?? $reader['ten_doc_gia']) ?>"
+                   required placeholder="Nhập tên độc giả">
+
+            <div class="invalid-feedback"><?= $errors['ten_doc_gia'] ?? ''; ?></div>
         </div>
 
+        <div class="mb-3">
+            <label for="so_dien_thoai" class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control <?= isset($errors['so_dien_thoai']) ? 'is-invalid' : '' ?>"
+                   id="so_dien_thoai" name="so_dien_thoai"
+                   value="<?= htmlspecialchars($oldData['so_dien_thoai'] ?? $reader['so_dien_thoai']) ?>"
+                   required placeholder="Nhập số điện thoại">
 
-        <form method="POST" action="/readers/update">
+            <div class="invalid-feedback"><?= $errors['so_dien_thoai'] ?? ''; ?></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="ten_doc_gia" class="form-label">Tên độc giả</label>
-                <input type="text" class="form-control" id="ten_doc_gia" name="ten_doc_gia" required placeholder="Nhập tên độc giả">
-            </div>
+        <div class="mb-3">
+            <label for="ngay_sinh" class="form-label">Ngày sinh</label>
+            <input type="date" class="form-control <?= isset($errors['ngay_sinh']) ? 'is-invalid' : '' ?>"
+                   id="ngay_sinh" name="ngay_sinh"
+                   value="<?= htmlspecialchars($oldData['ngay_sinh'] ?? $reader['ngay_sinh']) ?>"
+                   required>
 
-            <div class="mb-3">
-                <label for="so_dien_thoai" class="form-label">Số điện thoại</label>
-                <input type="text" class="form-control" id="so_dien_thoai" name="so_dien_thoai" required placeholder="Nhập số điện thoại">
-            </div>
+            <div class="invalid-feedback"><?= $errors['ngay_sinh'] ?? ''; ?></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="ngay_sinh" class="form-label">Ngày sinh</label>
-                <input type="date" class="form-control" id="ngay_sinh" name="ngay_sinh" required placeholder="Ngày sinh">
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required placeholder="Nhập email">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Sửa độc giả</button>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+    </form>
 </div>
 <?php
 $content = ob_get_clean();

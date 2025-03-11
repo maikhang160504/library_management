@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use PDO;
+use PDOException;
 use App\Core\Model;
 
 class Reader extends Model
@@ -28,58 +29,66 @@ class Reader extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC); // Chỉ lấy 1 bản ghi
     }
 
-    // Xoá độc giả
     public function deleteReader($id)
     {
-        $query = "DELETE FROM {$this->table} WHERE ma_doc_gia = :id";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        try {
+            $query = "DELETE FROM doc_gia WHERE ma_doc_gia = :id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            return true;
+        } catch (PDOException $e) {
+            return $e->getMessage(); // Bắt lỗi trigger và trả về thông báo
+        }
     }
+
 
     public function isReaderBorrowing($readerId)
     {
-        $query = "
-        SELECT COUNT(*) 
-        FROM phieu_muon 
-        WHERE ma_doc_gia = :readerId AND trang_thai = 'Đang mượn'";
+        $query = "SELECT KiemTraDocGiaDangMuon(:readerId) AS isBorrowing";
         $stmt = $this->db->prepare($query);
         $stmt->bindValue(':readerId', $readerId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchColumn() > 0;
+        return $stmt->fetch(PDO::FETCH_ASSOC)['isBorrowing'];
     }
 
 
     public function updateReader($id, $data)
-    {
-        $ten_doc_gia = $data['ten_doc_gia'];
-        $ngay_sinh = $data['ngay_sinh'];
-        $so_dien_thoai = $data['so_dien_thoai'];
-        $email = $data['email'];
-        $query = "UPDATE doc_gia SET ma_doc_gia =:ma_doc_gia, ten_doc_gia=: ten_doc_gia, ngay_sinh=:ngay_sinh, so_dien_thoai=:so_dien_thoai, email=:email WHERE ma_doc_gia=: $id";
+{
+    try {
+        $sql = "CALL CapNhatDocGia(:ma_doc_gia, :ten_doc_gia, :ngay_sinh, :so_dien_thoai)";
+        $stmt = $this->db->prepare($sql);
 
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':ma_doc_gia', $ma_doc_gia);
-        $stmt->bindParam(':ten_doc_gia', $ten_doc_gia);
-        $stmt->bindParam(':ngay_sinh', $ngay_sinh);
-        $stmt->bindParam(':so_dien_thoai', $so_dien_thoai);
-        $stmt->bindParam(':email', $email);
+        $stmt->execute([
+            'ma_doc_gia' => $id,
+            'ten_doc_gia' => $data['ten_doc_gia'],
+            'ngay_sinh' => $data['ngay_sinh'],
+            'so_dien_thoai' => $data['so_dien_thoai']
+        ]);
 
-        return $stmt->execute();
+        return true;
+    } catch (\PDOException $e) {
+        return $e->getMessage(); // Trả về lỗi từ MySQL
     }
+}
+
 
     public function addReader($data)
     {
-        $query = "INSERT INTO {$this->table} (ten_doc_gia,ngay_sinh, so_dien_thoai, email) 
-                  VALUES (:ten_doc_gia, :ngay_sinh, :so_dien_thoai, :email )";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([
-            'ten_doc_gia' => $data['ten_doc_gia'],
-            'ngay_sinh' => $data['ngay_sinh'],
-            'so_dien_thoai' => $data['so_dien_thoai'],
-            'email' => $data['email'],
-        ]);
+        try {
+            $sql = "CALL ThemDocGia(:ten_doc_gia, :ngay_sinh, :so_dien_thoai)";
+            $stmt = $this->db->prepare($sql);
+
+            return $stmt->execute([
+                'ten_doc_gia' => $data['ten_doc_gia'],
+                'ngay_sinh' => $data['ngay_sinh'],
+                'so_dien_thoai' => $data['so_dien_thoai']
+            ]);
+        } catch (\PDOException $e) {
+            return false;
+        }
     }
+
 
     public function detailReader($id)
     {
@@ -140,23 +149,7 @@ class Reader extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // public function getTotalReaders()
-    // {
-    //     $query = "SELECT COUNT(*) AS total FROM {$this->table}";
-    //     $stmt = $this->db->prepare($query);
-    //     $stmt->execute();
-    //     return $stmt->fetchColumn();
-    // }
 
-    // public function getReadersWithPagination($start, $limit)
-    // {
-    //     $query = "SELECT * FROM {$this->table} LIMIT :start, :limit";
-    //     $stmt = $this->db->prepare($query);
-    //     $stmt->bindParam(':start', $start, PDO::PARAM_INT);
-    //     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-    //     $stmt->execute();
-    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    // }
     public function getReadersWithPagination($start, $perPage, $keyword = '')
     {
         if ($keyword) {
@@ -190,4 +183,13 @@ class Reader extends Model
         $stmt->execute();
         return $stmt->fetchColumn();
     }
+
+    public function checkPhoneExists($phone)
+{
+    $sql = "SELECT COUNT(*) FROM doc_gia WHERE so_dien_thoai = :so_dien_thoai";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['so_dien_thoai' => $phone]);
+    return $stmt->fetchColumn() > 0;
+}
+
 }

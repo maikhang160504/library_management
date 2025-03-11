@@ -57,8 +57,6 @@ CREATE TABLE `doc_gia` (
   `ten_doc_gia` varchar(255) NOT NULL,
   `ngay_sinh` date NOT NULL,
   `so_dien_thoai` varchar(15) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `email` varchar(255) NOT NULL,
   PRIMARY KEY (`ma_doc_gia`),
   UNIQUE KEY `so_dien_thoai` (`so_dien_thoai`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -541,5 +539,82 @@ BEGIN
       AND pm.trang_thai = 'Đang Mượn'
     ORDER BY pm.ngay_tra ASC;
 END $$
+
+DELIMITER ;
+
+
+
+
+
+
+-- Phần độc giả nghe
+
+DELIMITER //
+
+CREATE FUNCTION KiemTraDocGiaDangMuon(ma_doc_gia INT) RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE so_luong_muon INT;
+    
+    SELECT COUNT(*) INTO so_luong_muon
+    FROM phieu_muon
+    WHERE ma_doc_gia = ma_doc_gia AND trang_thai = 'Đang mượn';
+    
+    RETURN so_luong_muon > 0;
+END //
+
+DELIMITER ;
+
+-- không cho xóa khi đang mượn sách
+ 
+DELIMITER //
+
+CREATE TRIGGER CamXoaDocGiaNeuConMuonSach
+BEFORE DELETE ON doc_gia
+FOR EACH ROW
+BEGIN
+    IF (SELECT KiemTraDocGiaDangMuon(OLD.ma_doc_gia)) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Không thể xóa độc giả khi họ vẫn còn sách chưa trả';
+    END IF;
+END //
+
+DELIMITER ;
+
+-- thêm độc giả
+
+DELIMITER //
+
+CREATE PROCEDURE ThemDocGia(
+    IN ten_doc_gia VARCHAR(255),
+    IN ngay_sinh DATE,
+    IN so_dien_thoai VARCHAR(15)
+)
+BEGIN
+    INSERT INTO doc_gia (ten_doc_gia, ngay_sinh, so_dien_thoai)
+    VALUES (ten_doc_gia, ngay_sinh, so_dien_thoai);
+END //
+
+DELIMITER ;
+
+
+-- cập nhật độc giả
+drop procedure CapNhatDocGia;
+DELIMITER //
+
+CREATE PROCEDURE CapNhatDocGia(
+    IN p_ma_doc_gia INT,
+    IN p_ten_doc_gia VARCHAR(255),
+    IN p_ngay_sinh DATE,
+    IN p_so_dien_thoai VARCHAR(15)
+)
+BEGIN
+    -- Cập nhật thông tin độc giả
+    UPDATE doc_gia 
+    SET ten_doc_gia = p_ten_doc_gia, 
+        ngay_sinh = p_ngay_sinh, 
+        so_dien_thoai = p_so_dien_thoai
+    WHERE ma_doc_gia = p_ma_doc_gia;
+END //
 
 DELIMITER ;

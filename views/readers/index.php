@@ -51,13 +51,14 @@ ob_start();
     </div>
 
     <div class="table-responsive">
-        <table class="table table-custom table-hover">
+        <table class="table table-custom table-hover text-center align-middle">
             <thead>
                 <tr>
+                    <th>STT</th>
                     <th>Mã độc giả</th>
                     <th>Tên độc giả</th>
                     <th>Số điện thoại</th>
-                    <th>Email</th>
+                    <!-- <th>Email</th> -->
                     <th>Hành động</th>
                 </tr>
             </thead>
@@ -67,20 +68,22 @@ ob_start();
                         <td colspan="5" class="text-center">Không có kết quả tìm kiếm.</td>
                     </tr>
                 <?php else: ?>
+                    <?php $stt = 1; ?>
                     <?php foreach ($readers as $reader): ?>
                         <tr>
+                        <td><?= $stt++; ?></td>
                             <td><?php echo $reader['ma_doc_gia']; ?></td>
                             <td><?php echo $reader['ten_doc_gia']; ?></td>
                             <td><?php echo $reader['so_dien_thoai']; ?></td>
-                            <td><?php echo $reader['email']; ?></td>
+                            <!-- <td><?php echo $reader['email']; ?></td> -->
                             <td>
-                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/detail" class="btn btn-sm btn-info mx-2">
+                                <a href="/readers/detail/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-info mx-2">
                                     <i class="fas fa-eye"></i> Xem chi tiết
                                 </a>
-                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/edit" class="btn btn-sm btn-warning mx-2">
+                                <a href="/readers/edit/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-warning mx-2">
                                     <i class="fas fa-edit"></i> Sửa
                                 </a>
-                                <a href="/readers/<?php echo $reader['ma_doc_gia']; ?>/delete" class="btn btn-sm btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#delete" data-bs-id="<?php echo $reader['ma_doc_gia']; ?>">
+                                <a href="/readers/delete/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#delete" data-bs-id="<?php echo $reader['ma_doc_gia']; ?>">
                                     <i class=" fas fa-trash-alt"></i> Xóa
                                 </a>
                             </td>
@@ -126,13 +129,31 @@ ob_start();
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <form action="/readers/delete" method="POST" id="deleteForm">
                     <input type="hidden" name="id" id="readerId">
-                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    var deleteModal = document.getElementById("delete");
+    var deleteForm = document.getElementById("deleteForm");
+
+    deleteModal.addEventListener("show.bs.modal", function (event) {
+        var button = event.relatedTarget;
+        var readerId = button.getAttribute("data-bs-id");
+
+        // Gán ID vào input ẩn
+        document.getElementById("readerId").value = readerId;
+
+        // Chỉnh sửa action của form để gửi đúng route
+        deleteForm.action = "/readers/delete/" + readerId;
+    });
+});
+
+</script>
 
 <?php
 $content = ob_get_clean();
