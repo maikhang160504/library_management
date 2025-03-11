@@ -67,7 +67,7 @@ ob_start();
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="/readers/<?php echo $penalty['ma_doc_gia']; ?>/detail" class="btn btn-info btn-sm">Xem chi tiết</a>
+                                <a href="/readers/detail/<?php echo $penalty['ma_doc_gia']; ?>" class="btn btn-info btn-sm">Xem chi tiết</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

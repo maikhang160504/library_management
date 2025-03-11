@@ -18,7 +18,7 @@
 --
 -- Table structure for table `chi_tiet_phieu_muon`
 --
-
+USE librarydb;
 DROP TABLE IF EXISTS `chi_tiet_phieu_muon`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -57,8 +57,6 @@ CREATE TABLE `doc_gia` (
   `ten_doc_gia` varchar(255) NOT NULL,
   `ngay_sinh` date NOT NULL,
   `so_dien_thoai` varchar(15) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `email` varchar(255) NOT NULL,
   PRIMARY KEY (`ma_doc_gia`),
   UNIQUE KEY `so_dien_thoai` (`so_dien_thoai`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -70,7 +68,7 @@ CREATE TABLE `doc_gia` (
 
 LOCK TABLES `doc_gia` WRITE;
 /*!40000 ALTER TABLE `doc_gia` DISABLE KEYS */;
-INSERT INTO `doc_gia` VALUES (1,'Mai Nhật Khang','2004-12-05','0362385725','2025-03-08 12:54:48','');
+INSERT INTO `doc_gia` VALUES (1,'Mai Nhật Khang','2004-12-05','0362385725');
 /*!40000 ALTER TABLE `doc_gia` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -243,7 +241,7 @@ UNLOCK TABLES;
 
 -- Dump completed on 2025-03-10 22:05:29
 
--- drop procedure if exists ThemSach;
+drop procedure if exists ThemSach;
 DELIMITER $$
 
 CREATE PROCEDURE ThemSach(
@@ -279,7 +277,7 @@ END$$
 
 DELIMITER ;
 
------------
+--
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetBorrowStats`(IN time_filter VARCHAR(20))
 BEGIN
@@ -543,6 +541,81 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+
+
+-- Phần độc giả
+
+DELIMITER //
+
+CREATE FUNCTION KiemTraDocGiaDangMuon(ma_doc_gia INT) RETURNS TINYINT(1)
+DETERMINISTIC
+BEGIN
+    DECLARE so_luong_muon INT;
+    
+    SELECT COUNT(*) INTO so_luong_muon
+    FROM phieu_muon
+    WHERE phieu_muon.ma_doc_gia = ma_doc_gia AND trang_thai = 'Đang mượn';
+    
+    RETURN so_luong_muon > 0;
+END //
+
+DELIMITER ;
+
+-- Không cho xóa khi đang mượn sách
+
+DELIMITER //
+
+CREATE TRIGGER CamXoaDocGiaNeuConMuonSach
+BEFORE DELETE ON doc_gia
+FOR EACH ROW
+BEGIN
+    IF (SELECT KiemTraDocGiaDangMuon(OLD.ma_doc_gia)) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Không thể xóa độc giả khi họ vẫn còn sách chưa trả';
+    END IF;
+END //
+
+DELIMITER ;
+
+-- Thêm độc giả
+
+DELIMITER //
+
+CREATE PROCEDURE ThemDocGia(
+    IN ten_doc_gia VARCHAR(255),
+    IN ngay_sinh DATE,
+    IN so_dien_thoai VARCHAR(15)
+)
+BEGIN
+    INSERT INTO doc_gia (ten_doc_gia, ngay_sinh, so_dien_thoai)
+    VALUES (ten_doc_gia, ngay_sinh, so_dien_thoai);
+END //
+
+DELIMITER ;
+
+-- Cập nhật độc giả
+DELIMITER ;
+DROP PROCEDURE IF EXISTS CapNhatDocGia;
+DELIMITER //
+
+CREATE PROCEDURE CapNhatDocGia(
+    IN p_ma_doc_gia INT,
+    IN p_ten_doc_gia VARCHAR(255),
+    IN p_ngay_sinh DATE,
+    IN p_so_dien_thoai VARCHAR(15)
+)
+BEGIN
+    -- Cập nhật thông tin độc giả
+    UPDATE doc_gia 
+    SET ten_doc_gia = p_ten_doc_gia, 
+        ngay_sinh = p_ngay_sinh, 
+        so_dien_thoai = p_so_dien_thoai
+    WHERE ma_doc_gia = p_ma_doc_gia;
+END //
+
+DELIMITER ;
+
 
 DELIMITER $$
 CREATE FUNCTION tinh_tong_tien_phat(maDocGia INT) 

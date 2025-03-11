@@ -23,7 +23,6 @@ $previousPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/'
             <p><strong>Tên độc giả:</strong> <?php echo $reader['ten_doc_gia']; ?></p>
             <p><strong>Ngày sinh:</strong> <?php echo $reader['ngay_sinh']; ?></p>
             <p><strong>Số điện thoại:</strong> <?php echo $reader['so_dien_thoai']; ?></p>
-            <p><strong>Email:</strong> <?php echo $reader['email']; ?></p>
         </div>
     </div>
 
