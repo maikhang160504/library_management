@@ -1,10 +1,26 @@
 <?php
 $title = "Danh sách sách";
 ob_start();
-$success = $_SESSION['success'] ?? null;
-unset($_SESSION['success']);
-$error = $_SESSION['error'] ?? null;
-unset($_SESSION['error']);
+function flash($key) {
+    if (isset($_SESSION[$key])) {
+        $msg = $_SESSION[$key];
+        unset($_SESSION[$key]);
+        return $msg;
+    }
+    return null;
+}
+$success = flash('success');
+$error = flash('error');
+
+$selectedCategoryName = 'Lọc theo thể loại';
+if (isset($selectedCategory) && $selectedCategory !== '') {
+    foreach ($categories as $cate) {
+        if ($cate['ma_the_loai'] == $selectedCategory) {
+            $selectedCategoryName = $cate['ten_the_loai'];
+            break;
+        }
+    }
+}
 ?>
 <div class="container">
     <?php if (!empty($success)) : ?>
@@ -23,25 +39,57 @@ unset($_SESSION['error']);
 
 <!-- Header với các nút quản lý -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    
     <h2>Danh sách sách</h2>
-    <div>
-        <a href="/books/add" class="btn btn-primary me-2">Thêm sách</a>
+    <div class="d-flex justify-content-end ">
+        
+        <div class="pt-2 ms-2">
+            <a href="/books/add" class="btn btn-dark">Thêm sách</a>
+        </div>
+        <div class="dropdown pt-2 ms-3">
+            
+            <form method="POST" action="/books" id="filterSearchForm" class="mb-3 d-flex">
+            <button type="button" class="btn btn-secondary ms-2" id="resetFilterBtn">Xóa lọc</button>
+                <div class="btn-group me-2">
+                    <button class="btn btn-secondary dropdown-toggle ms-3" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <?= htmlspecialchars($selectedCategoryName) ?>
+                    </button>
+                    <ul class="dropdown-menu" style="max-height: 300px; overflow-y: auto;">
+                        <li><a class="dropdown-item" href="#" data-category="">Tất cả</a></li>
+                        <?php foreach ($categories as $cate): ?>
+                            <li>
+                                <a class="dropdown-item" href="#" data-category="<?= htmlspecialchars($cate['ma_the_loai']) ?>">
+                                    <?= htmlspecialchars($cate['ten_the_loai']) ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <input type="hidden" name="category" id="filterCategory" value="<?= htmlspecialchars($selectedCategory) ?>">
+                </div>
+                
+                <div class="flex-grow-1 ms-3">
+                    <input type="text" name="query" id="bookSearch" class="form-control shadow-none border-dark" 
+                        placeholder="Nhập từ khóa tìm kiếm..." 
+                        value="<?= htmlspecialchars($searchQuery) ?>">
+                </div>
+                
+            </form>
+        </div>
     </div>
 </div>
+
 <div class="table-responsive">
     <table class="table table-custom table-hover">
         <thead>
             <tr>
-                <th>Mã sách</th>
-                <th>Tên sách</th>
-                <th>Tác giả</th>
-                <th>Thể loại</th>
-                <th>Số lượng</th>
-                <th>Hành động</th>
+                <th style="width: 10%;">Mã sách</th>
+                <th style="width: 25%;">Tên sách</th>
+                <th style="width: 20%;">Tác giả</th>
+                <th style="width: 20%;">Thể loại</th>
+                <th style="width: 10%;">Số lượng</th>
+                <th style="width: 10%;">Hành động</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="books-table-body">
             <?php foreach ($books as $book): ?>
             <tr>
                 <td><?php echo $book['ma_sach']; ?></td>
@@ -50,13 +98,7 @@ unset($_SESSION['error']);
                 <td><?php echo $book['ten_the_loai']; ?></td>
                 <td><?php echo $book['so_luong']; ?></td>
                 <td>
-                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-custom">Xem chi tiết</a>
-                    <button class="btn btn-success btn-sm update-quantity-btn" 
-    data-id="<?php echo $book['ma_sach']; ?>" 
-    data-current-quantity="<?php echo $book['so_luong']; ?>"
-    data-name="<?= htmlspecialchars($book['ten_sach']) ?>">
-    Cập nhật số lượng
-</button>
+                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-dark">Chi tiết</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -64,88 +106,64 @@ unset($_SESSION['error']);
     </table>
 </div>
 
-    <?php if ($totalPages > 1): ?>
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
-                <a class="page-link" href="?page=<?= $currentPage - 1 ?>"><</a>
-            </li>
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <li class="page-item <?= ($currentPage == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
-            <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
-                <a class="page-link" href="?page=<?= $currentPage + 1 ?>">></a>
-            </li>
-        </ul>
-    </nav>
-    <?php endif; ?>
 </div>
 
-<!-- Modal cập nhật số lượng -->
-<div class="modal fade" id="updateQuantityModal" tabindex="-1" aria-labelledby="updateQuantityModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="updateQuantityForm" method="post" action="/books/updateQuantity">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="updateQuantityModalLabel">Cập nhật số lượng sách</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-        </div>
-        <div class="modal-body">
-          <!-- Mã sách ẩn -->
-          <input type="hidden" name="ma_sach" id="modalMaSach" value="">
-          
-          <!-- Tên sách -->
-          <div class="mb-3">
-            <label for="modalBookName" class="form-label">Tên sách</label>
-            <input type="text" class="form-control" id="modalBookName" readonly>
-          </div>
-          
-          <!-- Số lượng cũ -->
-          <div class="mb-3">
-            <label for="modalOldQuantity" class="form-label">Số lượng cũ</label>
-            <input type="number" class="form-control" id="modalOldQuantity" readonly>
-          </div>
-          
-          <!-- Số lượng mới -->
-          <div class="mb-3">
-            <label for="modalNewQuantity" class="form-label">Số lượng mới</label>
-            <input type="number" class="form-control" name="so_luong" id="modalNewQuantity" placeholder="Nhập số lượng mới">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="submit" class="btn btn-primary">Cập nhật</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Lấy tất cả các nút cập nhật
-    const updateBtns = document.querySelectorAll('.update-quantity-btn');
-    // Tạo modal từ Bootstrap
-    const updateModal = new bootstrap.Modal(document.getElementById('updateQuantityModal'));
-    
-    updateBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const maSach = this.getAttribute('data-id');
-            const soLuongHienTai = this.getAttribute('data-current-quantity');
-            const bookName = this.getAttribute('data-name');
-            
-            // Gán dữ liệu vào modal
-            document.getElementById('modalMaSach').value = maSach;
-            document.getElementById('modalBookName').value = bookName;
-            document.getElementById('modalOldQuantity').value = soLuongHienTai;
-            // Làm trống ô số lượng mới khi mở modal
-            document.getElementById('modalNewQuantity').value = '';
-            
-            // Hiển thị modal
-            updateModal.show();
-        });
+    setTimeout(function(){
+    const alertElement = document.querySelector('.alert');
+    if (alertElement) {
+        alertElement.remove();
+    }
+}, 2000);
+
+document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const categoryId = this.getAttribute('data-category');
+        document.getElementById('filterCategory').value = categoryId;
+        document.getElementById('categoryDropdown').innerText = this.textContent;
+
+        document.getElementById('filterSearchForm').submit();
     });
+});
+
+// Nếu muốn tự động search khi gõ
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+document.getElementById('bookSearch').addEventListener('keyup', debounce(function(e) {
+    const query = this.value.trim();
+    if (query.length >= 2 || query === "") {
+        sessionStorage.setItem('shouldFocus', 'true');
+        document.getElementById('filterSearchForm').submit();
+    }
+}, 300));
+
+// Nếu cần focus lại vào ô tìm kiếm
+window.addEventListener('DOMContentLoaded', function() {
+    if (sessionStorage.getItem('shouldFocus') === 'true') {
+        const searchInput = document.getElementById('bookSearch');
+        if (searchInput) {
+            searchInput.focus();
+            const val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+        }
+        sessionStorage.removeItem('shouldFocus');
+    }
+});
+document.getElementById('resetFilterBtn').addEventListener('click', function() {
+    document.getElementById('filterCategory').value = '';
+    document.getElementById('categoryDropdown').innerText = 'Lọc theo thể loại';
+
+    document.getElementById('bookSearch').value = '';
+
+    document.getElementById('filterSearchForm').submit();
 });
 </script>
 
@@ -153,3 +171,4 @@ document.addEventListener("DOMContentLoaded", function() {
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';
 ?>
+
