@@ -22,7 +22,14 @@ class BorrowController extends Controller
 
     public function index()
     {
-        $borrows = $this->borrowModel->getallBorrows();
+        // $search = isset($_GET['search']) ? $_GET['search'] : 'all';
+        // $status = isset($_GET['status']) ? $_GET['status'] : 'all';
+        // var_dump($status);
+        // if (!empty($search) || !empty($status)) {
+        //     $borrows = $this->borrowModel->getBorrowsbyStatusandTenDocGia($status, $search);
+        // }else {
+            $borrows = $this->borrowModel->getallBorrows();
+        
         $this->view('borrows/index', ['borrows' => $borrows]);
     }
     // Hiển thị form tạo phiếu mượn
@@ -55,10 +62,10 @@ class BorrowController extends Controller
                     return;
                 }
             }
-
+            $result = $this->borrowModel->createBorrow($ma_doc_gia, $ngay_muon, $ngay_tra, $danh_sach_sach);
             // Tạo phiếu mượn
-            if ($this->borrowModel->createBorrow($ma_doc_gia, $ngay_muon, $ngay_tra, $danh_sach_sach)) {
-                header('Location: /borrows');
+            if ($result['success']) {
+                header('Location: /borrows/detail/' . $result['ma_phieu_muon']);
                 exit();
             } else {
                 echo "Có lỗi xảy ra khi tạo phiếu mượn!";

@@ -2,28 +2,71 @@
 $title = "Thống kê độc giả sắp đến hạn trả sách";
 ob_start();
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 // Xử lý bộ lọc nhập số ngày (mặc định là 3 ngày)
 $days = isset($_GET['days']) ? (int) $_GET['days'] : 3;
 
-// Gọi Stored Procedure lấy danh sách độc giả sắp đến hạn trả sách
+// Xuất Excel nếu yêu cầu
+if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Tiêu đề cột
+    $sheet->setCellValue('A1', 'Mã Phiếu Mượn');
+    $sheet->setCellValue('B1', 'Mã Độc Giả');
+    $sheet->setCellValue('C1', 'Họ Tên');
+    $sheet->setCellValue('D1', 'Mã Sách');
+    $sheet->setCellValue('E1', 'Tên Sách');
+    $sheet->setCellValue('F1', 'Ngày Mượn');
+    $sheet->setCellValue('G1', 'Ngày Trả Dự Kiến');
+
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+    // Đổ dữ liệu vào Excel
+    $row = 2;
+    foreach ($upcomingReturns as $return) {
+        $sheet->setCellValue('A' . $row, $return['ma_phieu_muon']);
+        $sheet->setCellValue('B' . $row, $return['ma_doc_gia']);
+        $sheet->setCellValue('C' . $row, $return['ten_doc_gia']);
+        $sheet->setCellValue('D' . $row, $return['ma_sach']);
+        $sheet->setCellValue('E' . $row, $return['ten_sach']);
+        $sheet->setCellValue('F' . $row, $return['ngay_muon']);
+        $sheet->setCellValue('G' . $row, $return['ngay_tra_du_kien']);
+        $row++;
+    }
+
+    // Xuất file Excel
+    $filename = "DocGiaSapDenHanTraSach.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 ?>
 
 <div class="container mt-4">
     <!-- Tiêu đề và nút điều hướng -->
-    <div class="d-flex align-items-center justify-content-center position-relative my-4 no-print">
+    <div class="d-flex align-items-center justify-content-center position-relative my-4">
         <a href="/reports" class="btn btn-outline-secondary position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
         <h2 class="text-center text-primary">
             <i class="bi bi-calendar-event"></i> Thống kê Độc Giả Sắp Đến Hạn Trả Sách
         </h2>
-        <button class="btn btn-success position-absolute end-0" onclick="printReport()">
-            <i class="bi bi-printer"></i> In Báo Cáo
-        </button>
+        <a href="?export=excel&days=<?php echo $days; ?>" class="btn btn-success position-absolute end-0">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
     </div>
 
     <!-- Bộ lọc nhập số ngày -->
-    <form action="/reports/upcoming-returns" method="GET" class="no-print">
+    <form action="/reports/upcoming-returns" method="GET">
         <div class="row justify-content-center mb-3">
             <div class="col-auto">
                 <label for="days" class="form-label fw-bold">Số ngày sắp đến hạn:</label>
@@ -38,7 +81,7 @@ $days = isset($_GET['days']) ? (int) $_GET['days'] : 3;
     </form>
 
     <!-- Bảng danh sách độc giả sắp đến hạn trả sách -->
-    <div class="card shadow-sm border-0 print-table">
+    <div class="card shadow-sm border-0">
         <div class="card-body">
             <h5 class="card-title text-secondary"><i class="bi bi-list-check"></i> Danh sách độc giả</h5>
             <div class="table-responsive">
@@ -78,60 +121,6 @@ $days = isset($_GET['days']) ? (int) $_GET['days'] : 3;
         </div>
     </div>
 </div>
-
-<!-- CSS tùy chỉnh cho chế độ in -->
-<style>
-    @media print {
-        .no-print {
-            display: none !important;
-        }
-
-        .print-table {
-            width: 100%;
-        }
-
-        .table {
-            page-break-inside: auto;
-            font-size: 11px;
-        }
-
-        tr {
-            page-break-inside: avoid;
-        }
-
-        th,
-        td {
-            padding: 4px;
-        }
-
-        @page {
-            size: A4 landscape;
-            /* Chế độ in ngang */
-            margin: 20mm;
-            /* Lề trang */
-        }
-
-        /* Căn chỉnh theo khổ A4 */
-
-        /* Tiêu đề khi in */
-        .card.print-table::before {
-            content: "Thống kê Độc Giả Sắp Đến Hạn Trả Sách - In lúc: " attr(data-print-time);
-            display: block;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-    }
-</style>
-
-<!-- Script in báo cáo -->
-<script>
-    function printReport() {
-        document.body.setAttribute('data-print-time', new Date().toLocaleString());
-        window.print();
-    }
-</script>
 
 <?php
 $content = ob_get_clean();

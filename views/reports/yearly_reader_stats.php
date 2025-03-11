@@ -1,7 +1,47 @@
 <?php
 $title = "Thống kê độc giả mượn sách trong năm";
 ob_start();
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 $year = date('Y'); // Lấy năm hiện tại
+
+// Xuất Excel nếu yêu cầu
+if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Tiêu đề cột
+    $sheet->setCellValue('A1', 'Mã Độc Giả');
+    $sheet->setCellValue('B1', 'Tên Độc Giả');
+    $sheet->setCellValue('C1', 'Số Lần Mượn');
+    $sheet->setCellValue('D1', 'Thể Loại Mượn Nhiều Nhất');
+
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
+    // Đổ dữ liệu vào Excel
+    $row = 2;
+    foreach ($details as $reader) {
+        $sheet->setCellValue('A' . $row, $reader['ma_doc_gia']);
+        $sheet->setCellValue('B' . $row, $reader['ten_doc_gia']);
+        $sheet->setCellValue('C' . $row, $reader['so_lan_muon']);
+        $sheet->setCellValue('D' . $row, $reader['the_loai_muon_nhieu_nhat']);
+        $row++;
+    }
+
+    // Xuất file Excel
+    $filename = "ThongKeDocGiaMuonSach_$year.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 ?>
 
 <div class="container mt-4">
@@ -10,15 +50,11 @@ $year = date('Y'); // Lấy năm hiện tại
             <i class="bi bi-arrow-left-circle"></i> Quay lại
         </a>
         <h2 class="text-center mb-4 no-print">📊 Thống kê độc giả Mượn Sách trong Năm <?php echo $year; ?></h2>
-        <button class="btn btn-success position-absolute end-0" onclick="printReport()">
-            <i class="bi bi-printer"></i> In Báo Cáo
-        </button>
-    </div>
-    <div class="d-none" id="printTitle"> 
-        <h2 class="text-center">BÁO CÁO THỐNG KÊ ĐỘC GIẢ MƯỢN SÁCH NĂM <?php echo date('Y'); ?></h2>
+        <a href="?export=excel" class="btn btn-success position-absolute end-0">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
     </div>
 
-    <!-- Thông tin tổng quan -->
     <div class="card shadow-sm mb-4">
         <div class="card-body text-center">
             <h5 class="card-title text-primary">📌 Tổng số độc giả đã mượn sách</h5>
@@ -26,7 +62,6 @@ $year = date('Y'); // Lấy năm hiện tại
         </div>
     </div>
 
-    <!-- Danh sách đọcgiả mượn sách -->
     <div class="card shadow-sm">
         <div class="card-body">
             <h5 class="card-title text-primary">📋 Chi tiết độc giả Mượn Sách</h5>
@@ -52,82 +87,7 @@ $year = date('Y'); // Lấy năm hiện tại
             </table>
         </div>
     </div>
-
-    <!-- Biểu đồ thống kê -->
-    <div class="card shadow-sm mt-4 no-print">
-        <div class="card-body">
-            <h5 class="card-title text-primary">📈 Biểu đồ Thống kê</h5>
-            <canvas id="readerChart"></canvas>
-        </div>
-    </div>
 </div>
-
-<style>
-    #readerChart {
-        max-height: 300px;
-    }
-    @media print {
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .table th, .table td {
-        border: 1px solid black !important;
-        padding: 10px !important;
-        font-size: 11px;
-    }
-    .btn, .no-print {
-        display: none !important;
-    }
-    #printTitle {
-        display: block !important;
-        text-align: center;
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-    @page 
-    {
-        size: A4 landscape;
-        margin: 20mm;
-    }
-}
-
-     
-
-</style>
-
-<!-- Thêm thư viện Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    var ctx = document.getElementById('readerChart').getContext('2d');
-    var readerChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [<?php foreach ($details as $reader) { echo '"' . addslashes($reader['ten_doc_gia']) . '",'; } ?>],
-            datasets: [{
-                label: 'Số lần mượn',
-                data: [<?php foreach ($details as $reader) { echo $reader['so_lan_muon'] . ','; } ?>],
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-
-    function printReport() {
-        window.print();
-    }
-</script>
 
 <?php
 $content = ob_get_clean();
