@@ -1,13 +1,13 @@
 <?php
 $title = "Thống kê Khoản Phạt";
 ob_start();
-$filter = $_GET['filter'] ?? 'this_month'; 
+$filter = $_GET['filter'] ?? 'this_month';
 $filterText = [
     'today' => 'Hôm nay',
     'this_week' => 'Tuần này',
     'this_month' => 'Tháng này',
     'this_year' => 'Năm nay'
-][$filter] ?? 'Tháng này';  
+][$filter] ?? 'Tháng này';
 
 ?>
 
@@ -30,10 +30,12 @@ $filterText = [
         <a href="?filter=this_year" class="btn <?= $filter == 'this_year' ? 'btn-primary' : 'btn-outline-primary' ?>">Năm nay</a>
     </div>
 
+
     <!-- Thông tin tổng quan -->
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-body text-center">
             <h5 class="card-title text-secondary"><i class="bi bi-journal-bookmark-fill"></i> Tổng số tiền phạt</h5>
+            <?php $total_penalty = $total_penalty ?? 0; ?>
             <p class="display-5 fw-bold text-danger"><?= number_format($total_penalty, 0, ',', '.') ?> VND</p>
         </div>
     </div>
@@ -54,16 +56,24 @@ $filterText = [
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($penalties as $penalty): ?>
-                        <tr>
-                            <td class="text-center"><?= $penalty['ma_doc_gia'] ?></td>
-                            <td class="text-start fw-medium"><?= $penalty['ten_doc_gia'] ?></td>
-                            <td class="text-center"><?= date('d/m/Y', strtotime($penalty['ngay_het_han'])) ?></td>
-                            <td class="text-center"><?= date('d/m/Y', strtotime($penalty['ngay_tra_sach'])) ?></td>
-                            <td class="text-center text-danger"><?= number_format($penalty['tien_phat'], 0, ',', '.') ?> VND</td>
-                        </tr>
-                        <?php endforeach; ?>
+                        <?php if (!empty($penalties)) : ?>
+                            <?php foreach ($penalties as $penalty): ?>
+                                <tr>
+                                    <td class="text-center"><?= $penalty['ma_doc_gia'] ?></td>
+                                    <td class="text-start fw-medium"><?= $penalty['ten_doc_gia'] ?></td>
+                                    <td class="text-center"><?= date('d/m/Y', strtotime($penalty['ngay_het_han'])) ?></td>
+                                    <td class="text-center"><?= date('d/m/Y', strtotime($penalty['ngay_tra_sach'])) ?></td>
+                                    <td class="text-center text-danger"><?= number_format($penalty['tien_phat'], 0, ',', '.') ?> VND</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Không có dữ liệu tiền phạt.</td>
+                            </tr>
+                        <?php endif; ?>
+
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -86,15 +96,19 @@ $filterText = [
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         var ctx = document.getElementById('penaltyChart').getContext('2d');
         var penaltyChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: [<?php foreach ($penalties as $penalty) { echo '"' . addslashes($penalty['ten_doc_gia']) . '",'; } ?>],
+                labels: [<?php foreach ($penalties as $penalty) {
+                                echo '"' . addslashes($penalty['ten_doc_gia']) . '",';
+                            } ?>],
                 datasets: [{
                     label: 'Số tiền phạt',
-                    data: [<?php foreach ($penalties as $penalty) { echo $penalty['tien_phat'] . ','; } ?>],
+                    data: [<?php foreach ($penalties as $penalty) {
+                                echo $penalty['tien_phat'] . ',';
+                            } ?>],
                     backgroundColor: 'rgba(255, 99, 132, 0.7)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
@@ -104,10 +118,17 @@ $filterText = [
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        display: false
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 10000 } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 10000
+                        }
+                    }
                 }
             }
         });

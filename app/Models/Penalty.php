@@ -5,9 +5,11 @@ namespace App\Models;
 use PDO;
 use App\Core\Model;
 
-class Penalty extends Model {
+class Penalty extends Model
+{
 
-    public function getAllPenalties($keyword = null) {
+    public function getAllPenalties($keyword = null)
+    {
         $query = "
             SELECT 
                 dg.ma_doc_gia,
@@ -34,43 +36,50 @@ class Penalty extends Model {
         }
 
         $stmt->execute();
-        
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getPenaltiesByDate($date_filter = null) {
+    public function getPenaltiesByDate($date_filter = null)
+    {
         $query = "
             SELECT 
+                pt.ngay_tra_sach,             
                 dg.ma_doc_gia,
                 dg.ten_doc_gia,
-                pm.ngay_tra AS ngay_het_han,  -- Ngày hết hạn 
-                pt.ngay_tra_sach,             -- Ngày thực tế 
-                pt.tien_phat,                 -- Số tiền phạt 
-                pm.trang_thai                 -- Trạng thái (Đang mượn, Đã trả)
+                pm.ngay_tra AS ngay_het_han,  
+                pt.tien_phat,                 
+                pm.trang_thai                 
             FROM phieu_tra pt
             LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
             LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
             LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
-            WHERE pt.tien_phat > 0
-        ";
-    
-        // Thêm điều kiện lọc theo tháng/năm
+            WHERE pt.tien_phat > 0 ";
+
+        // Thêm điều kiện lọc theo thời gian
         if ($date_filter) {
-            if ($date_filter == 'this_month') {
-                $query .= " AND MONTH(pt.ngay_tra_sach) = MONTH(CURRENT_DATE()) AND YEAR(pt.ngay_tra_sach) = YEAR(CURRENT_DATE())";
-            } elseif ($date_filter == 'last_month') {
-                $query .= " AND MONTH(pt.ngay_tra_sach) = MONTH(CURRENT_DATE()) - 1 AND YEAR(pt.ngay_tra_sach) = YEAR(CURRENT_DATE())";
-            } elseif ($date_filter == 'this_year') {
+            if ($date_filter == 'today') { 
+                $query .= " AND DATE(pt.ngay_tra_sach) = CURRENT_DATE()"; 
+            } elseif ($date_filter == 'this_week') { 
+                $query .= " AND YEARWEEK(pt.ngay_tra_sach, 1) = YEARWEEK(CURRENT_DATE(), 1)";
+            } elseif ($date_filter == 'this_month') { 
+                $query .= " AND MONTH(pt.ngay_tra_sach) = MONTH(CURRENT_DATE()) 
+                            AND YEAR(pt.ngay_tra_sach) = YEAR(CURRENT_DATE())";
+            } elseif ($date_filter == 'last_month') { 
+                $query .= " AND pt.ngay_tra_sach >= LAST_DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)) + INTERVAL 1 DAY
+                            AND pt.ngay_tra_sach <= LAST_DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH))";
+            } elseif ($date_filter == 'this_year') { 
                 $query .= " AND YEAR(pt.ngay_tra_sach) = YEAR(CURRENT_DATE())";
-            } elseif ($date_filter == 'last_year') {
+            } elseif ($date_filter == 'last_year') { 
                 $query .= " AND YEAR(pt.ngay_tra_sach) = YEAR(CURRENT_DATE()) - 1";
             }
         }
-    
+
         $stmt = $this->db->prepare($query);
+
         $stmt->execute();
-        
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $penalties = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $penalties ?: [];
     }
-    
 }

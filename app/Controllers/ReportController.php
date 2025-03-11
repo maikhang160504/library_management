@@ -73,14 +73,8 @@ class ReportController extends Controller
     public function penaltiesStats()
     {
         $filter = $_GET['filter'] ?? 'this_month';
-
-
-        $penalties = $this->penaltyModel->getPenaltiesByDate($filter);
-
-        $total_penalty = 0;
-        foreach ($penalties as $penalty) {
-            $total_penalty += $penalty['tien_phat'];
-        }
+        $penalties = $this->penaltyModel->getPenaltiesByDate($filter) ?? [];
+        $total_penalty = !empty($penalties) ? array_sum(array_column($penalties, 'tien_phat')) : 0;
 
         $this->view('reports/penalties_stats', [
             'penalties' => $penalties,
@@ -88,10 +82,15 @@ class ReportController extends Controller
             'total_penalty' => $total_penalty
         ]);
     }
-    public function penaltyReport(){
-        $this->view('reports/penalties');
+
+
+    public function penaltyReport()
+    {
+        $this->view('reports/penalties_stats');
     }
-    public function upcomingReturns(){
+
+    public function upcomingReturns()
+    {
         $days = $_GET['days'] ?? 3;
         // var_dump($days);
         $upcomingReturns = $this->borrowModel->getUpcomingReturns($days);

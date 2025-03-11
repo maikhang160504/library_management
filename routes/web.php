@@ -102,13 +102,14 @@ $router->get('/reports/borrow-return-report', function () {
     callControllerMethod('ReportController@borrowReturnReport');
 });
 $router->get('/reports/penalties', function () {
-    callControllerMethod('ReportController@penaltyReport'); 
+    callControllerMethod('ReportController@penaltiesStats'); 
 });
+
 $router->get('/reports/upcoming-returns', function () {
     callControllerMethod('ReportController@upcomingReturns');
 });
 
-$router->get('/reports/penalties', function () {
+$router->get('/reports/penalties_stats', function () {
     callControllerMethod('ReportController@penaltiesStats'); 
 });
 

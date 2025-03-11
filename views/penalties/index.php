@@ -57,7 +57,7 @@ ob_start();
                             <td><?php echo $penalty['ma_doc_gia'] ?> </td>
                             <td><?php echo $penalty['ten_doc_gia'] ?></td>
                             <td><?php echo $penalty['ngay_het_han'] ?></td>
-                            <td><?php echo $penalty['tien_phat'] ?></td>
+                            <td><?= number_format($penalty['tien_phat'], 0, ',', '.') ?> VND</td>
                             <td>
                                 <!-- Kiểm tra trạng thái thanh toán từ phiếu mượn -->
                                 <?php if ($penalty['trang_thai'] == 'Đã trả'): ?>

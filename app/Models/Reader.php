@@ -158,38 +158,36 @@ class Reader extends Model
     //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
     // }
     public function getReadersWithPagination($start, $perPage, $keyword = '')
-{
-    if ($keyword) {
-        $query = "SELECT * FROM doc_gia WHERE ten_doc_gia LIKE :keyword OR so_dien_thoai LIKE :keyword LIMIT :start, :perPage";
-    } else {
-        $query = "SELECT * FROM doc_gia LIMIT :start, :perPage";
+    {
+        if ($keyword) {
+            $query = "SELECT * FROM doc_gia WHERE ten_doc_gia LIKE :keyword OR so_dien_thoai LIKE :keyword LIMIT :start, :perPage";
+        } else {
+            $query = "SELECT * FROM doc_gia LIMIT :start, :perPage";
+        }
+
+        $stmt = $this->db->prepare($query);
+        if ($keyword) {
+            $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+        $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    $stmt = $this->db->prepare($query);
-    if ($keyword) {
-        $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
+    public function getTotalReaders($keyword = '')
+    {
+        if ($keyword) {
+            $query = "SELECT COUNT(*) FROM doc_gia WHERE ten_doc_gia LIKE :keyword OR so_dien_thoai LIKE :keyword";
+        } else {
+            $query = "SELECT COUNT(*) FROM doc_gia";
+        }
+
+        $stmt = $this->db->prepare($query);
+        if ($keyword) {
+            $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
+        }
+        $stmt->execute();
+        return $stmt->fetchColumn();
     }
-    $stmt->bindValue(':start', $start, PDO::PARAM_INT);
-    $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-public function getTotalReaders($keyword = '')
-{
-    if ($keyword) {
-        $query = "SELECT COUNT(*) FROM doc_gia WHERE ten_doc_gia LIKE :keyword OR so_dien_thoai LIKE :keyword";
-    } else {
-        $query = "SELECT COUNT(*) FROM doc_gia";
-    }
-
-    $stmt = $this->db->prepare($query);
-    if ($keyword) {
-        $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
-    }
-    $stmt->execute();
-    return $stmt->fetchColumn();
-}
-
-
 }
