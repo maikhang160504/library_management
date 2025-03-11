@@ -35,9 +35,6 @@ function callControllerMethod($controllerMethod, $params = [])
 $router->get('/', function () {
     callControllerMethod('BookController@index');
 });
-$router->get('/books', function () {
-    callControllerMethod('BookController@index');
-});
 $router->get('/books/add', function () {
     callControllerMethod('BookController@add');
 });
@@ -47,7 +44,18 @@ $router->post('/books/store', function () {
 $router->get('/books/{id}', function ($id) {
     callControllerMethod('BookController@show', [$id]);
 });
-$router->post('/books/updateQuantity', 'App\Controllers\BookController@updateQuantity');
+$router->post('/books/update', function () {
+    callControllerMethod('BookController@update');
+});
+$router->get('/books/filter', function () {
+    callControllerMethod('BookController@filter');
+});
+$router->match('GET|POST', '/books', function () {
+    callControllerMethod('BookController@index');
+});
+$router->get('/books/search', function () {
+    callControllerMethod('BookController@search');
+});
 /**
  * ---------------------------
  * BORROW ROUTES

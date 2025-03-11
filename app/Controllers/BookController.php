@@ -17,22 +17,36 @@ class BookController extends Controller
     }
 
     public function index()
-    {
-        
-        $limit = 5;
-    $page = $this->getPage();
-    $offset = $this->calculateOffset($page, $limit);
+{
+   
+    $searchQuery = ($_SERVER['REQUEST_METHOD'] === 'POST')
+        ? ($_POST['query'] ?? '')
+        : ($_GET['query'] ?? '');
 
-    $books = $this->bookModel->getBooksPaginated($limit, $offset);
-    $totalBooks = $this->bookModel->countBooks();
-    $totalPages = $this->calculateTotalPages($totalBooks, $limit);
+    $selectedCategory = ($_SERVER['REQUEST_METHOD'] === 'POST')
+        ? ($_POST['category'] ?? '')
+        : ($_GET['category'] ?? '');
+
+    // Xử lý kết hợp lọc + tìm kiếm
+    if (!empty($searchQuery) && !empty($selectedCategory)) {
+        $books = $this->bookModel->searchBooksInCategory($searchQuery, $selectedCategory);
+    } elseif (!empty($searchQuery)) {
+        $books = $this->bookModel->searchBooks($searchQuery);
+    } elseif (!empty($selectedCategory)) {
+        $books = $this->bookModel->getBooksByCategory($selectedCategory);
+    } else {
+        $books = $this->bookModel->getAllBooks();
+    }
+
+    $categories = $this->bookModel->getCategories();
 
     $this->view('books/index', [
         'books' => $books,
-        'totalPages' => $totalPages,
-        'currentPage' => $page
+        'categories' => $categories,
+        'selectedCategory' => $selectedCategory,   // ✅ Trả lại chính xác đã chọn
+        'searchQuery' => $searchQuery               // ✅ Trả lại chính xác từ khóa
     ]);
-    }
+}
 
     public function show($id)
     {
@@ -45,7 +59,8 @@ class BookController extends Controller
         $this->view('books/add');
     }
 
-    public function store() {
+    public function store()
+    {
         $data = [
             'ten_sach' => trim($_POST['ten_sach'] ?? ''),
             'ten_tac_gia' => trim($_POST['ten_tac_gia'] ?? ''),
@@ -78,7 +93,6 @@ class BookController extends Controller
             $this->redirectBackWithError($errors, $data);
         }
 
-        // Thêm sách
         $result = $this->bookModel->addBook($data);
 
         if ($result) {
@@ -90,67 +104,64 @@ class BookController extends Controller
         exit;
     }
 
-    private function redirectBackWithError($errors, $oldData) {
+    private function redirectBackWithError($errors, $oldData)
+    {
         $_SESSION['errors'] = $errors;
         $_SESSION['old'] = $oldData;
         header('Location: /books/add');
         exit;
-    }  
+    }
 
-    private function getPage()
-{
-    return isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-}
+    public function update()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'ma_sach'      => $_POST['ma_sach'],
+                'ten_sach'     => $_POST['ten_sach'],
+                'ten_tac_gia'  => $_POST['ten_tac_gia'],
+                'ten_the_loai' => $_POST['ten_the_loai'],
+                'nam_xuat_ban' => $_POST['nam_xuat_ban'],
+                'nha_xuat_ban' => $_POST['nha_xuat_ban'],
+                'so_luong'     => $_POST['so_luong']
+            ];
 
-private function calculateOffset($page, $limit)
-{
-    return ($page - 1) * $limit;
-}
+            $result = $this->bookModel->updateBook($data);
 
-private function calculateTotalPages($total, $limit)
-{
-    return ceil($total / $limit);
-}
+            if ($result) {
+                $_SESSION['success'] = "Cập nhật sách thành công!";
+            } else {
+                $_SESSION['error'] = "Cập nhật sách thất bại!";
+            }
 
-public function updateQuantity() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $ma_sach = $_POST['ma_sach'] ?? null;
-        // Lấy số lượng mới từ ô nhập, có thể là chuỗi rỗng nếu không nhập gì
-        $new_quantity = $_POST['so_luong'] ?? '';
-        
-        // Lấy thông tin sách hiện tại
-        $book = $this->bookModel->getBookById($ma_sach);
-        if (!$book) {
-            $_SESSION['error'] = "Không tìm thấy sách!";
             header("Location: /books");
             exit;
         }
-        
-        // Nếu ô số lượng mới trống hoặc bằng số lượng cũ thì không cập nhật
-        if ($new_quantity === '' || $book['so_luong'] == $new_quantity) {
-            $_SESSION['error'] = "Không có thay đổi số lượng cho sách: \"{$book['ten_sach']}\"";
-            header("Location: /books");
-            exit;
-        }
-        
-        // Validate số lượng mới: kiểm tra có phải số và >= 0
-        if (!is_numeric($new_quantity) || $new_quantity < 0) {
-            $_SESSION['error'] = "Số lượng mới không hợp lệ!";
-            header("Location: /books");
-            exit;
-        }
-        
-        // Thực hiện cập nhật số lượng
-        $result = $this->bookModel->updateQuantity($ma_sach, $new_quantity);
-        
-        if ($result) {
-            $_SESSION['success'] = "Cập nhật số lượng cho sách: \"{$book['ten_sach']}\" thành công!";
+    }
+
+    public function filter()
+    {
+        $category = $_GET['category'] ?? '';
+
+        if (!empty($category)) {
+            $books = $this->bookModel->getBooksByCategory($category);
         } else {
-            $_SESSION['error'] = "Có lỗi xảy ra khi cập nhật số lượng!";
+            $books = $this->bookModel->getAllBooks();
         }
-        header("Location: /books");
+
+        header('Content-Type: application/json');
+        echo json_encode(['books' => $books]);
         exit;
     }
-}
 
+    public function search()
+    {
+        $query = $_GET['query'] ?? '';
+        $books = $this->bookModel->searchBooks($query);
+
+        header('Content-Type: application/json');
+        echo json_encode(['books' => $books]);
+        exit;
+    }
+
+    
 }
