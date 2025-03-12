@@ -12,6 +12,7 @@ class Penalty extends Model
     {
         $query = "
             SELECT 
+                pm.ma_phieu_muon,
                 dg.ma_doc_gia,
                 dg.ten_doc_gia,
                 pm.ngay_tra AS ngay_het_han,  -- Ngày hết hạn 
@@ -44,6 +45,7 @@ class Penalty extends Model
     {
         $query = "
             SELECT 
+                pm.ma_phieu_muon,
                 pt.ngay_tra_sach,             
                 dg.ma_doc_gia,
                 dg.ten_doc_gia,

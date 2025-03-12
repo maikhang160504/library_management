@@ -4,7 +4,7 @@ namespace App\Models;
 use PDO;
 use App\Core\Model;
 use Exception;
-
+use PDOException;
 class Book extends Model
 {
     protected $table = 'sach';
@@ -26,85 +26,82 @@ class Book extends Model
     }
 
     public function getBookById($id)
-    {
-        $sql = "SELECT * FROM {$this->table} s 
-                JOIN tac_gia tg ON tg.ma_tac_gia = s.ma_tac_gia 
-                JOIN the_loai tl ON tl.ma_the_loai = s.ma_the_loai 
-                WHERE s.ma_sach = :id";
+{
+    $sql = "SELECT 
+                s.ma_sach,
+                s.ma_tac_gia,       -- Nếu cần cập nhật tác giả, phải SELECT cột này
+                s.ma_the_loai,      -- Nếu cần cập nhật thể loại, cũng SELECT cột này
+                s.ten_sach,
+                s.nam_xuat_ban,
+                s.nha_xuat_ban,
+                s.so_luong,
+                tg.ten_tac_gia,
+                tl.ten_the_loai
+            FROM sach s
+            INNER JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+            INNER JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+            WHERE s.ma_sach = :id";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['id' => $id]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC); // Nếu không có dòng nào, fetch() trả về false
+}
+
+public function addBook($data)
+{
+    try {
+        $sql = "CALL ThemSach(
+            :ten_sach,
+            :ten_tac_gia,
+            :ten_the_loai,
+            :nam_xuat_ban,
+            :nha_xuat_ban,
+            :so_luong,
+            :ngay_them
+        )";
+
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $stmt->execute([
+            'ten_sach'      => $data['ten_sach'],
+            'ten_tac_gia'   => $data['ten_tac_gia'],
+            'ten_the_loai'  => $data['ten_the_loai'],
+            'nam_xuat_ban'  => $data['nam_xuat_ban'],
+            'nha_xuat_ban'  => $data['nha_xuat_ban'],
+            'so_luong'      => $data['so_luong'],
+            'ngay_them'     => $data['ngay_them']
+        ]);
+    } catch (\PDOException $e) {
+        error_log($e->getMessage()); // log lỗi cho debug
+        return false;
     }
+}
 
-    public function addBook($data)
-    {
-        try {
-            $sql = "CALL ThemSach(:ten_sach, :ten_tac_gia, :ten_the_loai, :nam_xuat_ban, :nha_xuat_ban, :so_luong)";
-            $stmt = $this->db->prepare($sql);
 
-            return $stmt->execute([
-                'ten_sach' => $data['ten_sach'],
-                'ten_tac_gia' => $data['ten_tac_gia'],
-                'ten_the_loai' => $data['ten_the_loai'],
-                'nam_xuat_ban' => $data['nam_xuat_ban'],
-                'nha_xuat_ban' => $data['nha_xuat_ban'],
-                'so_luong' => $data['so_luong']
-            ]);
-        } catch (\PDOException $e) {
-            return false;
-        }
+public function updateBook($data)
+{
+    try {
+        $sql = "CALL CapNhat(:ma_sach, :ten_sach, :nam_xuat_ban, :nha_xuat_ban, :so_luong, :ten_tac_gia, :ten_the_loai)";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->bindParam(':ma_sach', $data['ma_sach'], PDO::PARAM_INT);
+        $stmt->bindParam(':ten_sach', $data['ten_sach'], PDO::PARAM_STR);
+        $stmt->bindParam(':nam_xuat_ban', $data['nam_xuat_ban'], PDO::PARAM_INT);
+        $stmt->bindParam(':nha_xuat_ban', $data['nha_xuat_ban'], PDO::PARAM_STR);
+        $stmt->bindParam(':so_luong', $data['so_luong'], PDO::PARAM_INT);
+        $stmt->bindParam(':ten_tac_gia', $data['ten_tac_gia'], PDO::PARAM_STR);
+        $stmt->bindParam(':ten_the_loai', $data['ten_the_loai'], PDO::PARAM_STR);
+
+        return $stmt->execute();
+
+    } catch (PDOException $e) {
+        error_log($e->getMessage());
+        return false;
     }
+}
 
-    public function updateBook($data)
-    {
-        try {
-            $this->db->beginTransaction();
-
-            $sqlBook = "UPDATE {$this->table} 
-                        SET ten_sach = :ten_sach, 
-                            nam_xuat_ban = :nam_xuat_ban, 
-                            nha_xuat_ban = :nha_xuat_ban, 
-                            so_luong = :so_luong 
-                        WHERE ma_sach = :ma_sach";
-            $stmtBook = $this->db->prepare($sqlBook);
-            $stmtBook->execute([
-                'ten_sach'     => $data['ten_sach'],
-                'nam_xuat_ban' => $data['nam_xuat_ban'],
-                'nha_xuat_ban' => $data['nha_xuat_ban'],
-                'so_luong'     => $data['so_luong'],
-                'ma_sach'      => $data['ma_sach']
-            ]);
-
-            $book = $this->getBookById($data['ma_sach']);
-            if (!$book) {
-                throw new Exception("Không tìm thấy sách với mã: " . $data['ma_sach']);
-            }
-
-            $sqlAuthor = "UPDATE tac_gia 
-                          SET ten_tac_gia = :ten_tac_gia 
-                          WHERE ma_tac_gia = :ma_tac_gia";
-            $stmtAuthor = $this->db->prepare($sqlAuthor);
-            $stmtAuthor->execute([
-                'ten_tac_gia' => $data['ten_tac_gia'],
-                'ma_tac_gia'  => $book['ma_tac_gia']
-            ]);
-
-            $sqlCategory = "UPDATE the_loai 
-                            SET ten_the_loai = :ten_the_loai 
-                            WHERE ma_the_loai = :ma_the_loai";
-            $stmtCategory = $this->db->prepare($sqlCategory);
-            $stmtCategory->execute([
-                'ten_the_loai' => $data['ten_the_loai'],
-                'ma_the_loai'  => $book['ma_the_loai']
-            ]);
-
-            $this->db->commit();
-            return true;
-        } catch (\PDOException $e) {
-            $this->db->rollBack();
-            return false;
-        }
-    }
 
     public function getCategories()
     {
@@ -291,5 +288,26 @@ public function countSearchInCategory($query, $categoryId)
 
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+public function getStatisticsByDay() {
+    $sql = "CALL ThongKeChiTietTheoNgay()";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getStatisticsByMonth() {
+    $sql = "CALL ThongKeChiTietTheoThang()";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getStatisticsByYear() {
+    $sql = "CALL ThongKeChiTietTheoNam()";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 }

@@ -5,15 +5,17 @@ namespace App\Controllers;
 use App\Models\Penalty;
 use App\Core\Controller;
 use App\Models\BorrowBook;
-
+use App\Models\Book;
 class ReportController extends Controller
 {
+    private $bookModel;
     private $borrowModel;
     private $penaltyModel;
     public function __construct()
     {
         $this->borrowModel = new BorrowBook();
         $this->penaltyModel = new Penalty();
+        $this->bookModel = new Book();
     }
 
     // Hiển thị trang chính của báo cáo
@@ -104,15 +106,48 @@ class ReportController extends Controller
      
         $filter = $_GET['filter'] ?? 'this_month';
         $days = $_GET['days'] ?? 3;
-        
+        $type = isset($_POST['type']) ? $_POST['type'] : 'day';
         $startDate = $_GET['startDate'] ?? date('Y-m-01'); // Mặc định là đầu tháng
         $endDate = $_GET['endDate'] ?? date('Y-m-t');
         $month = $_GET['month'] ?? date('m'); // Mặc định là tháng hiện tại
         $year = $_GET['year'] ?? date('Y'); // Mặc định là năm hiện tại
-        $this->view('reports/export_excel', ['filter' => $filter, 'days' => $days, 'startDate' => $startDate, 'endDate' => $endDate, 'month' => $month, 'year' => $year]);
+        $this->view('reports/export_excel', ['filter' => $filter, 'days' => $days, 'startDate' => $startDate, 'endDate' => $endDate, 'month' => $month, 'year' => $year, 'type' => $type]);
     }
     public function blackList() {
         $blacklist = $this->borrowModel->getBlackList();
         $this->view('reports/black_list', ['blacklist' => $blacklist]);
     }
+    public function statisticsView()
+    {
+        $this->view('reports/statisticsView');
+    }
+    public function statistics ()
+{
+    // Lấy loại thống kê từ POST; nếu không có, mặc định là 'day'
+    $type = isset($_POST['type']) ? $_POST['type'] : 'day';
+
+    switch ($type) {
+        case 'month':
+            $booksDetail = $this->bookModel->getStatisticsByMonth();
+            break;
+        case 'year':
+            $booksDetail = $this->bookModel->getStatisticsByYear();
+            break;
+        default:
+            $booksDetail = $this->bookModel->getStatisticsByDay();
+    }
+
+    // Tính tổng số lượng sách (cộng các trường so_luong)
+    $total = 0;
+    foreach ($booksDetail as $book) {
+        $total += $book['so_luong'];
+    }
+
+    // Gọi view riêng cho thống kê (bạn có thể đặt tên là 'books/statistics')
+    $this->view('reports/statistics', [
+        'booksDetail' => $booksDetail,
+        'total'       => $total,
+        'type'        => $type
+    ]);
+}
 }

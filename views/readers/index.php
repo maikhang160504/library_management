@@ -58,7 +58,6 @@ ob_start();
                     <th>Mã độc giả</th>
                     <th>Tên độc giả</th>
                     <th>Số điện thoại</th>
-                    <!-- <th>Email</th> -->
                     <th>Hành động</th>
                 </tr>
             </thead>
