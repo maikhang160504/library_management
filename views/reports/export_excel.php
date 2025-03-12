@@ -40,6 +40,9 @@ $days = 7; // Mặc định 7 ngày tới
                 <option value="/reports/black-list?export=blacklist">
                     Danh sách Đen
                 </option>
+                <option value="/books/exportStatistics?type=<?= $type; ?>">
+                    Danh sách nhập sách theo ngày
+                </option>
             </select>
 
         </div>

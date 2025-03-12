@@ -21,6 +21,10 @@ if (isset($selectedCategory) && $selectedCategory !== '') {
         }
     }
 }
+// Nếu không có dữ liệu thống kê được truyền vào, thiết lập mặc định
+$type = isset($type) ? $type : 'day';  // mặc định theo ngày
+$stats = isset($stats) ? $stats : [];    // mảng thống kê
+$total = isset($total) ? $total : 0;      // tổng sách theo thống kê
 ?>
 <div class="container">
     <?php if (!empty($success)) : ?>
@@ -37,14 +41,15 @@ if (isset($selectedCategory) && $selectedCategory !== '') {
         </div>
     <?php endif; ?>
 
+    <!-- Phần thống kê -->
+
+
 <!-- Header với các nút quản lý -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Danh sách sách</h2>
     <div class="d-flex justify-content-end ">
         
-        <div class="pt-2 ms-2">
-            <a href="/books/add" class="btn btn-dark">Thêm sách</a>
-        </div>
+        
         <div class="dropdown pt-2 ms-3">
             
             <form method="POST" action="/books" id="filterSearchForm" class="mb-3 d-flex">
@@ -81,23 +86,23 @@ if (isset($selectedCategory) && $selectedCategory !== '') {
     <table class="table table-custom table-hover">
         <thead>
             <tr>
-                <th style="width: 10%;">Mã sách</th>
-                <th style="width: 25%;">Tên sách</th>
-                <th style="width: 20%;">Tác giả</th>
-                <th style="width: 20%;">Thể loại</th>
-                <th style="width: 10%;">Số lượng</th>
-                <th style="width: 10%;">Hành động</th>
+                <th style="width: 10%;" class="text-center">Mã sách</th>
+                <th style="width: 25%;" class="text-center">Tên sách</th>
+                <th style="width: 20%;" class="text-center">Tác giả</th>
+                <th style="width: 20%;" class="text-center">Thể loại</th>
+                <th style="width: 10%;" class="text-center">Số lượng</th>
+                <th style="width: 10%;" class="text-center">Hành động</th>
             </tr>
         </thead>
         <tbody id="books-table-body">
             <?php foreach ($books as $book): ?>
             <tr>
-                <td><?php echo $book['ma_sach']; ?></td>
-                <td><?php echo $book['ten_sach']; ?></td>
-                <td><?php echo $book['ten_tac_gia']; ?></td>
-                <td><?php echo $book['ten_the_loai']; ?></td>
-                <td><?php echo $book['so_luong']; ?></td>
-                <td>
+                <td class="text-center"><?php echo $book['ma_sach']; ?></td>
+                <td class="text-center"><?php echo $book['ten_sach']; ?></td>
+                <td class="text-center"><?php echo $book['ten_tac_gia']; ?></td>
+                <td class="text-center"><?php echo $book['ten_the_loai']; ?></td>
+                <td class="text-center"><?php echo $book['so_luong']; ?></td>
+                <td class="text-center">
                     <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-dark">Chi tiết</a>
                 </td>
             </tr>
@@ -105,7 +110,7 @@ if (isset($selectedCategory) && $selectedCategory !== '') {
         </tbody>
     </table>
 </div>
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-between">
     <nav>
         <ul class="pagination">
             <?php if ($currentPage > 1): ?>
@@ -127,7 +132,16 @@ if (isset($selectedCategory) && $selectedCategory !== '') {
             <?php endif; ?>
         </ul>
     </nav>
-</div>
+    <div class="pt-2 ms-2">
+            <a href="/books/add" class="btn btn-dark">Thêm sách</a>
+            <a href="/books/statisticsView" class="btn btn-dark">Thống kê</a>
+            <form action="/books/export" method="GET" class="d-inline-block">
+                <input type="hidden" name="query" value="<?= htmlspecialchars($searchQuery) ?>">
+                <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
+                <button type="submit" class="btn btn-success">Xuất Excel</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -186,6 +200,16 @@ document.getElementById('resetFilterBtn').addEventListener('click', function() {
     document.getElementById('bookSearch').value = '';
 
     document.getElementById('filterSearchForm').submit();
+});
+document.querySelectorAll('.dropdown-menu a').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const selectedType = this.getAttribute('data-type');
+
+        document.getElementById('statTypeInput').value = selectedType;
+
+        document.getElementById('statTypeForm').submit();
+    });
 });
 </script>
 

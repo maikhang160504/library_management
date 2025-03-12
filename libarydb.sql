@@ -241,41 +241,66 @@ UNLOCK TABLES;
 
 -- Dump completed on 2025-03-10 22:05:29
 
-drop procedure if exists ThemSach;
+DROP PROCEDURE IF EXISTS ThemSach;
 DELIMITER $$
 
-CREATE PROCEDURE ThemSach(
-    IN tenSach VARCHAR(255),
-    IN tenTacGia VARCHAR(255),
-    IN tenTheLoai VARCHAR(255),
-    IN namXuatBan INT,
-    IN nhaXuatBan VARCHAR(255),
-    IN soLuong INT
+CREATE PROCEDURE ThemSach (
+    IN p_tenSach VARCHAR(255),
+    IN p_tenTacGia VARCHAR(255),
+    IN p_tenTheLoai VARCHAR(255),
+    IN p_namXuatBan INT,
+    IN p_nhaXuatBan VARCHAR(255),
+    IN p_soLuong INT,
+    IN p_ngayThem DATE
 )
 BEGIN
-    DECLARE maTacGia INT;
-    DECLARE maTheLoai INT;
+    DECLARE v_maTacGia INT;
+    DECLARE v_maTheLoai INT;
 
-    -- Kiểm tra và thêm tác giả nếu chưa có
-    SELECT ma_tac_gia INTO maTacGia FROM tac_gia WHERE ten_tac_gia = tenTacGia;
-    IF maTacGia IS NULL THEN
-        INSERT INTO tac_gia (ten_tac_gia) VALUES (tenTacGia);
-        SET maTacGia = LAST_INSERT_ID();
+    -- Kiểm tra tác giả đã tồn tại chưa
+    SELECT ma_tac_gia INTO v_maTacGia
+    FROM tac_gia
+    WHERE ten_tac_gia = p_tenTacGia
+    LIMIT 1;
+
+    IF v_maTacGia IS NULL THEN
+        INSERT INTO tac_gia (ten_tac_gia) VALUES (p_tenTacGia);
+        SET v_maTacGia = LAST_INSERT_ID();
     END IF;
 
-    -- Kiểm tra và thêm thể loại nếu chưa có
-    SELECT ma_the_loai INTO maTheLoai FROM the_loai WHERE ten_the_loai = tenTheLoai;
-    IF maTheLoai IS NULL THEN
-        INSERT INTO the_loai (ten_the_loai) VALUES (tenTheLoai);
-        SET maTheLoai = LAST_INSERT_ID();
+    -- Kiểm tra thể loại đã tồn tại chưa
+    SELECT ma_the_loai INTO v_maTheLoai
+    FROM the_loai
+    WHERE ten_the_loai = p_tenTheLoai
+    LIMIT 1;
+
+    IF v_maTheLoai IS NULL THEN
+        INSERT INTO the_loai (ten_the_loai) VALUES (p_tenTheLoai);
+        SET v_maTheLoai = LAST_INSERT_ID();
     END IF;
 
-    -- Thêm sách
-    INSERT INTO sach (ten_sach, ma_tac_gia, ma_the_loai, nam_xuat_ban, nha_xuat_ban, so_luong)
-    VALUES (tenSach, maTacGia, maTheLoai, namXuatBan, nhaXuatBan, soLuong);
-END$$
+    -- Thêm sách mới, có cột ngay_them
+    INSERT INTO sach (
+        ma_tac_gia,
+        ma_the_loai,
+        ten_sach,
+        nam_xuat_ban,
+        nha_xuat_ban,
+        so_luong,
+        ngay_them
+    ) VALUES (
+        v_maTacGia,
+        v_maTheLoai,
+        p_tenSach,
+        p_namXuatBan,
+        p_nhaXuatBan,
+        p_soLuong,
+        p_ngayThem
+    );
+END $$
 
 DELIMITER ;
+
 
 --
 DELIMITER $$
@@ -629,5 +654,115 @@ BEGIN
     JOIN phieu_muon pm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
     WHERE pm.ma_doc_gia = maDocGia;
     RETURN tongTien;
+END $$
+DELIMITER ;
+
+ALTER TABLE sach
+ADD COLUMN ngay_them DATE NOT NULL DEFAULT (CURRENT_DATE);
+
+ALTER TABLE tac_gia ADD UNIQUE (ten_tac_gia);
+ALTER TABLE the_loai ADD UNIQUE (ten_the_loai);
+
+-- drop procedure if exists  CapNhat;
+DELIMITER $$
+CREATE PROCEDURE CapNhat (
+    IN p_ma_sach INT,
+    IN p_ten_sach VARCHAR(255),
+    IN p_nam_xuat_ban YEAR,
+    IN p_nha_xuat_ban VARCHAR(255),
+    IN p_so_luong INT,
+    IN p_ten_tac_gia VARCHAR(255),
+    IN p_ten_the_loai VARCHAR(255)
+)
+BEGIN
+    DECLARE v_ma_tac_gia INT;
+    DECLARE v_ma_the_loai INT;
+
+    SELECT ma_tac_gia INTO v_ma_tac_gia
+    FROM tac_gia
+    WHERE ten_tac_gia = p_ten_tac_gia
+    LIMIT 1;
+
+    IF v_ma_tac_gia IS NULL THEN
+        INSERT INTO tac_gia (ten_tac_gia) VALUES (p_ten_tac_gia);
+        SET v_ma_tac_gia = LAST_INSERT_ID();
+    END IF;
+
+    SELECT ma_the_loai INTO v_ma_the_loai
+    FROM the_loai
+    WHERE ten_the_loai = p_ten_the_loai
+    LIMIT 1;
+
+    IF v_ma_the_loai IS NULL THEN
+        INSERT INTO the_loai (ten_the_loai) VALUES (p_ten_the_loai);
+        SET v_ma_the_loai = LAST_INSERT_ID();
+    END IF;
+
+    UPDATE sach
+    SET ten_sach = p_ten_sach,
+        nam_xuat_ban = p_nam_xuat_ban,
+        nha_xuat_ban = p_nha_xuat_ban,
+        so_luong = p_so_luong,
+        ma_tac_gia = v_ma_tac_gia,
+        ma_the_loai = v_ma_the_loai
+    WHERE ma_sach = p_ma_sach;
+END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS ThongKeChiTietTheoNgay;
+DELIMITER $$
+
+CREATE PROCEDURE ThongKeChiTietTheoNgay()
+BEGIN
+    SELECT 
+        s.ma_sach,
+        s.ten_sach,
+        tg.ten_tac_gia,
+        tl.ten_the_loai,
+        s.so_luong,
+        DATE(s.ngay_them) AS period
+    FROM sach s
+    INNER JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+    INNER JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+    ORDER BY s.ngay_them DESC;
+END $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS ThongKeChiTietTheoThang;
+DELIMITER $$
+
+CREATE PROCEDURE ThongKeChiTietTheoThang()
+BEGIN
+	SELECT 
+        s.ma_sach,
+        s.ten_sach,
+        tg.ten_tac_gia,
+        tl.ten_the_loai,
+        s.so_luong,
+        DATE_FORMAT(ngay_them, '%Y-%m') AS period
+    FROM sach s
+    INNER JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+    INNER JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+    ORDER BY period DESC;
+END $$
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS ThongKeChiTietTheoNam;
+DELIMITER $$
+
+CREATE PROCEDURE ThongKeChiTietTheoNam()
+BEGIN
+    SELECT 
+        s.ma_sach,
+        s.ten_sach,
+        tg.ten_tac_gia,
+        tl.ten_the_loai,
+        s.so_luong,
+        YEAR(s.ngay_them) AS period
+    FROM sach s
+    INNER JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+    INNER JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+    ORDER BY period DESC;
 END $$
 DELIMITER ;

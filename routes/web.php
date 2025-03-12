@@ -35,13 +35,19 @@ function callControllerMethod($controllerMethod, $params = [])
 $router->get('/', function () {
     callControllerMethod('BookController@index');
 });
+$router->get('/books', function () {
+    callControllerMethod('BookController@index');
+});
+$router->get('/books/index', function () {
+    callControllerMethod('BookController@index');
+});
 $router->get('/books/add', function () {
     callControllerMethod('BookController@add');
 });
 $router->post('/books/store', function () {
     callControllerMethod('BookController@store');
 });
-$router->get('/books/{id}', function ($id) {
+$router->get('/books/(\d+)', function ($id) {
     callControllerMethod('BookController@show', [$id]);
 });
 $router->post('/books/update', function () {
@@ -55,6 +61,18 @@ $router->match('GET|POST', '/books', function () {
 });
 $router->get('/books/search', function () {
     callControllerMethod('BookController@search');
+});
+$router->get('/books/export', function() {
+    callControllerMethod('BookController@export');
+});
+$router->match('GET|POST','/reports/statistics', function() {
+    callControllerMethod('ReportController@statistics');
+});
+$router->get('/reports/statisticsView', function() {
+    callControllerMethod('ReportController@statistics');
+});
+$router->get('/books/exportStatistics', function() {
+    callControllerMethod('BookController@exportStatistics');
 });
 /**
  * ---------------------------
