@@ -42,13 +42,28 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     }
 
     $writer = new Xlsx($spreadsheet);
-    $filename = "ThongKeSachMuon".$filter.".xlsx";
+    $filename = "ThongKeSachMuon" . $filter . ".xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="' . $filename . '"');
     header('Cache-Control: max-age=0');
     $writer->save('php://output');
     exit;
 }
+$theLoaiData = [];
+foreach ($details as $book) {
+    $theLoai = $book['ten_the_loai'];
+    $soLanMuon = $book['so_lan_muon'];
+
+    if (isset($theLoaiData[$theLoai])) {
+        $theLoaiData[$theLoai] += $soLanMuon;
+    } else {
+        $theLoaiData[$theLoai] = $soLanMuon;
+    }
+}
+
+// Chuyển dữ liệu sang JSON để dùng trong JavaScript
+$labelsPie = json_encode(array_keys($theLoaiData));
+$dataPie = json_encode(array_values($theLoaiData));
 ?>
 
 <div class="container mt-4">
@@ -106,7 +121,49 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
             </div>
         </div>
     </div>
+    <div class="row mt-4">
+
+        <!-- Biểu đồ tròn (Phân bổ số lần mượn theo thể loại) -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-secondary"><i class="bi bi-pie-chart-fill"></i> Phân bổ Số lần mượn</h5>
+                    <canvas id="theLoaiChart" style="max-height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Biểu đồ tròn (Tỷ lệ mượn theo thể loại)
+    var ctxPie = document.getElementById('theLoaiChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: <?= $labelsPie ?>,  // Nhãn (Thể loại sách)
+            datasets: [{
+                label: 'Số lần mượn',
+                data: <?= $dataPie ?>,  // Dữ liệu số lần mượn theo thể loại
+                backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+});
+</script>
+
 
 
 <?php

@@ -1,13 +1,19 @@
 <?php
+
 namespace App\Models;
+
 use PDO;
 use PDOException;
 use App\Core\Model;
-class ReturnBook extends Model {
+use App\Models\Penalty;
+
+class ReturnBook extends Model
+{
     protected $table = 'phieu_tra';
 
     // Lấy tất cả các phiếu trả
-    public function getAllReturns() {
+    public function getAllReturns()
+    {
         $query = "SELECT pt.ma_phieu_tra, pm.ma_phieu_muon, ctpm.ma_ctpm, pm.ma_doc_gia, pm.ngay_muon, pm.ngay_tra as ngay_tra_du_kien, pt.ngay_tra_sach as ngay_tra_thuc_te
                     ,pt.tien_phat
                     FROM phieu_muon pm
@@ -22,32 +28,33 @@ class ReturnBook extends Model {
     }
 
     // Xác nhận trả sách
-    public function returnBook($ma_phieu_muon, $ngay_tra_sach) {
+    public function returnBook($ma_phieu_muon, $ngay_tra_sach)
+    {
         // Lấy danh sách chi tiết phiếu mượn
         $sql = "SELECT ma_ctpm, ma_sach, so_luong FROM chi_tiet_phieu_muon WHERE ma_phieu_muon = :ma_phieu_muon";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(":ma_phieu_muon", $ma_phieu_muon, PDO::PARAM_INT);
         $stmt->execute();
         $chiTietPhieuMuon = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
         if (!$chiTietPhieuMuon) {
             return false; // Không có chi tiết phiếu mượn nào
         }
-    
+
         $this->db->beginTransaction();
         try {
             foreach ($chiTietPhieuMuon as $chiTiet) {
                 $ma_ctpm = $chiTiet['ma_ctpm'];
                 $ma_sach = $chiTiet['ma_sach'];
                 $so_luong = $chiTiet['so_luong'];
-    
+
                 // Chèn vào bảng trả sách
                 $query = "INSERT INTO {$this->table} (ma_ctpm, ngay_tra_sach) VALUES (:ma_ctpm, :ngay_tra_sach)";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':ma_ctpm', $ma_ctpm, PDO::PARAM_INT);
                 $stmt->bindParam(':ngay_tra_sach', $ngay_tra_sach);
                 $stmt->execute();
-    
+
                 // Cập nhật số lượng sách
                 $query = "UPDATE sach SET so_luong = so_luong + :so_luong WHERE ma_sach = :ma_sach";
                 $stmt = $this->db->prepare($query);
@@ -55,13 +62,13 @@ class ReturnBook extends Model {
                 $stmt->bindParam(':ma_sach', $ma_sach, PDO::PARAM_INT);
                 $stmt->execute();
             }
-    
-            // Cập nhật trạng thái phiếu mượn
+
+            // Kiểm tra xem có bị phạt không
             $query = "UPDATE phieu_muon SET trang_thai = 'Đã trả' WHERE ma_phieu_muon = :ma_phieu_muon";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':ma_phieu_muon', $ma_phieu_muon, PDO::PARAM_INT);
             $stmt->execute();
-    
+
             $this->db->commit();
             return true;
         } catch (PDOException $e) {
@@ -69,8 +76,9 @@ class ReturnBook extends Model {
             return false;
         }
     }
-    
-    public function getReturnDetail($ma_phieu_muon) {
+
+    public function getReturnDetail($ma_phieu_muon)
+    {
         // Lấy thông tin phiếu trả
         $query = "SELECT pt.*, pm.ma_phieu_muon, pm.ngay_muon, pm.ngay_tra, dg.ten_doc_gia, dg.so_dien_thoai 
                   FROM phieu_tra pt

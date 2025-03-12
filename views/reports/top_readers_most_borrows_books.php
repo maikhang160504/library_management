@@ -129,6 +129,20 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
             </table>
         </div>
     </div>
+    <div class="card shadow-sm mt-4">
+    <div class="card-body">
+        <h5 class="card-title text-primary">📊 Biểu đồ Độc giả Mượn Nhiều Nhất</h5>
+        <canvas id="readersChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-body">
+        <h5 class="card-title text-primary">📊 Biểu đồ Sách Được Mượn Nhiều Nhất</h5>
+        <canvas id="booksChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
+
 </div>
 
 <!-- JavaScript: Xử lý lọc thống kê -->
@@ -150,6 +164,70 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
         var url = "/reports/top-readers-most-borrowed-book?startDate=" + startDate + "&endDate=" + endDate;
         window.location.href = url;
     });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Biểu đồ Độc giả
+    var readersCtx = document.getElementById('readersChart').getContext('2d');
+    var readersLabels = <?= json_encode(array_column($readers, 'ten_doc_gia')) ?>;
+    var readersData = <?= json_encode(array_column($readers, 'so_luot_muon')) ?>;
+
+    new Chart(readersCtx, {
+        type: 'bar',
+        data: {
+            labels: readersLabels,
+            datasets: [{
+                label: 'Số lượt mượn',
+                data: readersData,
+                backgroundColor: '#4CAF50',
+                borderColor: '#388E3C',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Số lượt mượn' }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Biểu đồ Sách
+    var booksCtx = document.getElementById('booksChart').getContext('2d');
+    var booksLabels = <?= json_encode(array_column($books, 'ten_sach')) ?>;
+    var booksData = <?= json_encode(array_column($books, 'so_luot_muon')) ?>;
+
+    new Chart(booksCtx, {
+        type: 'bar',
+        data: {
+            labels: booksLabels,
+            datasets: [{
+                label: 'Số lượt mượn',
+                data: booksData,
+                backgroundColor: '#2196F3',
+                borderColor: '#1976D2',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Số lượt mượn' }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+});
 </script>
 
 <?php

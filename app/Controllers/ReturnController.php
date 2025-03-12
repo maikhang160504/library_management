@@ -17,6 +17,7 @@ class ReturnController extends Controller
     // Hiển thị danh sách phiếu trả
     public function index()
     {
+        // $returnStatus = $this->returnModel->returnBook(15,'2025-03-18');
         $returns = $this->returnModel->getAllReturns();
         $this->view('returns/index', ['returns' => $returns]);
     }

@@ -13,17 +13,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         #sidebar {
             width: 60px;
             min-height: 100vh;
             transition: width 0.3s;
-            overflow: hidden;
+            overflow: auto;
             text-align: center;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
             background-color: #343a40;
+            z-index: 100;
         }
 
         #sidebar:hover {
@@ -72,6 +75,16 @@
         #sidebar:hover .nav-item i {
             transform: translateX(5px);
         }
+
+        /* Điều chỉnh cho content */
+        #content {
+            margin-left: 60px; /* Đảm bảo không bị che bởi sidebar */
+            transition: margin-left 0.3s;
+        }
+
+        #sidebar:hover ~ #content {
+            margin-left: 250px; /* Khi sidebar mở rộng, content sẽ di chuyển qua phải */
+        }
     </style>
 </head>
 
@@ -90,7 +103,6 @@
 
         <!-- Content Area -->
         <div class="flex-grow-1 p-4" id="content">
-
             <main>
                 <?php echo $content; ?>
             </main>

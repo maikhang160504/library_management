@@ -49,6 +49,22 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
     $writer->save('php://output');
     exit;
 }
+$readers = [];
+$bookCountsByReader = [];
+
+foreach ($upcomingReturns as $return) {
+    $readerName = $return['ten_doc_gia'];
+    if (!isset($bookCountsByReader[$readerName])) {
+        $bookCountsByReader[$readerName] = 0;
+    }
+    $bookCountsByReader[$readerName]++;
+}
+
+// Sắp xếp theo số lượng sách giảm dần
+arsort($bookCountsByReader);
+
+$readers = array_keys($bookCountsByReader);
+$bookCounts = array_values($bookCountsByReader);
 ?>
 
 <div class="container mt-4">
@@ -120,7 +136,53 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
             </div>
         </div>
     </div>
+    <div class="card shadow-sm border-0 mt-4">
+    <div class="card-body">
+        <h5 class="card-title text-secondary"><i class="bi bi-bar-chart"></i> Biểu đồ số lượng sách sắp đến hạn trả theo độc giả</h5>
+        <canvas id="barChart" class="my-3"></canvas>
+    </div>
 </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = <?= json_encode($readers) ?>;
+    const data = <?= json_encode($bookCounts) ?>;
+
+    const ctx = document.getElementById('barChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Số lượng sách đến hạn trả',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y', // Biểu đồ cột ngang
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số lượng sách'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Độc giả'
+                    }
+                }
+            }
+        }
+    });
+</script>
 
 <?php
 $content = ob_get_clean();

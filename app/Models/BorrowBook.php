@@ -231,19 +231,23 @@ class BorrowBook extends Model
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function getBlackList()
+    public function getBlackList($limit)
     {
-        $query = "SELECT dg.ma_doc_gia, dg.ten_doc_gia, COUNT(pt.ma_ctpm) AS so_lan_bi_phat, tinh_tong_tien_phat(dg.ma_doc_gia) AS tong_tien_phat
+        $query = "SELECT dg.ma_doc_gia, dg.ten_doc_gia, COUNT(CASE WHEN pt.tien_phat > 0 THEN 1 END) AS so_lan_bi_phat, 
+                    tinh_tong_tien_phat(dg.ma_doc_gia) AS tong_tien_phat
                     FROM doc_gia dg
                     JOIN phieu_muon pm ON dg.ma_doc_gia = pm.ma_doc_gia
                     JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
                     JOIN phieu_tra pt ON ctpm.ma_ctpm = pt.ma_ctpm
                     GROUP BY dg.ma_doc_gia, dg.ten_doc_gia
-                    HAVING COUNT(pt.ma_ctpm) >= 3 OR tinh_tong_tien_phat(dg.ma_doc_gia) > 400000
-                    ORDER BY tong_tien_phat DESC;";
+                    HAVING so_lan_bi_phat >= 2
+                    ORDER BY tong_tien_phat DESC";
+
+        if ($limit) {
+            $query .= " LIMIT $limit";
+        }
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
 }

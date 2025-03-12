@@ -5,6 +5,8 @@ ob_start();
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+
+// Xuất file Excel nếu có yêu cầu
 if (isset($_GET['export']) && $_GET['export'] == 'blacklist') {
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
@@ -35,21 +37,22 @@ if (isset($_GET['export']) && $_GET['export'] == 'blacklist') {
 ?>
 
 <div class="container my-4">
-    <div class="card shadow-sm mt-4 border-0">
+    <div class="card shadow-sm border-0">
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-center position-relative my-4">
                 <a href="/reports" class="btn btn-outline-secondary position-absolute start-0">
                     <i class="bi bi-arrow-left-circle"></i> Quay lại
                 </a>
                 <h2 class="text-center text-danger">
-                <i class="bi bi-exclamation-triangle-fill"></i> Danh Sách Đen
+                    <i class="bi bi-exclamation-triangle-fill"></i> Danh Sách Đen
                 </h2>
-                <a href="?export=excel&month=<?php echo $selectedMonth; ?>&year=<?php echo $selectedYear; ?>" class="btn btn-success position-absolute end-0">
-                <i class="bi bi-file-earmark-excel-fill"></i> Xuất Excel
+                <a href="?export=blacklist" class="btn btn-success position-absolute end-0">
+                    <i class="bi bi-file-earmark-excel-fill"></i> Xuất Excel
                 </a>
             </div>
-  
-            <div class="table-responsive">
+
+            <!-- Bảng danh sách trước -->
+            <div class="table-responsive mb-4">
                 <table class="table table-striped table-hover text-center align-middle">
                     <thead class="table-danger">
                         <tr>
@@ -76,11 +79,59 @@ if (isset($_GET['export']) && $_GET['export'] == 'blacklist') {
                     </tbody>
                 </table>
             </div>
+
+            <!-- Chọn số lượng hiển thị -->
+            <div class="mb-3">
+                <label for="limitSelect" class="fw-bold">Số lượng độc giả hiển thị:</label>
+                <select id="limitSelect" class="form-select w-auto d-inline-block">
+                    <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>Top 10</option>
+                    <option value="20" <?= $limit == 20 ? 'selected' : '' ?>>Top 20</option>
+                    <option value="all" <?= $limit == null ? 'selected' : '' ?>>Tất cả</option>
+                </select>
+            </div>
+
+            <!-- Biểu đồ sau -->
+            <canvas id="barChart" class="my-4"></canvas>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.getElementById('limitSelect').addEventListener('change', function () {
+    window.location.href = "?limit=" + this.value;
+});
+
+const labels = <?= json_encode(array_column($blacklist, 'ten_doc_gia')) ?>;
+const soLanBiPhat = <?= json_encode(array_column($blacklist, 'so_lan_bi_phat')) ?>;
+const tongTienPhat = <?= json_encode(array_column($blacklist, 'tong_tien_phat')) ?>;
+
+const ctx = document.getElementById('barChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Số lần bị phạt',
+            data: soLanBiPhat,
+            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        indexAxis: 'y',
+        scales: {
+            x: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../layouts/main.php'; ?>
+include __DIR__ . '/../layouts/main.php';
+?>

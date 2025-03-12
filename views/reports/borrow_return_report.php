@@ -163,90 +163,82 @@ ob_start();
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Lấy dữ liệu từ PHP
-    const reports = <?php echo json_encode($reports); ?>;
+    // Lấy dữ liệu từ PHP
+const reports = <?php echo json_encode($reports); ?>;
 
-    // Chuẩn bị dữ liệu cho biểu đồ cột (tổng tiền phạt theo mã sách)
-    const barLabels = reports.map(report => report.ma_sach); // Mã sách làm nhãn
-    const barData = reports.map(report => parseFloat(report.tien_phat) || 0); // Tiền phạt làm dữ liệu
+// ---- Biểu đồ cột: Số lần mượn của từng mã sách ----
+const bookCounts = {}; // Đếm số lần mượn theo mã sách
+reports.forEach(report => {
+    bookCounts[report.ma_sach] = (bookCounts[report.ma_sach] || 0) + 1;
+});
+const barLabels = Object.keys(bookCounts);
+const barData = Object.values(bookCounts);
 
-    // Vẽ biểu đồ cột
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: barLabels,
-            datasets: [{
-                label: 'Tiền phạt (đ)',
-                data: barData,
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Tiền phạt (đ)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Mã sách'
-                    }
-                }
-            }
+const barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx, {
+    type: 'bar',
+    data: {
+        labels: barLabels,
+        datasets: [{
+            label: 'Số lượt mượn',
+            data: barData,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Số lượt mượn' } },
+            x: { title: { display: true, text: 'Mã sách' } }
         }
-    });
+    }
+});
 
-    // Chuẩn bị dữ liệu cho biểu đồ tròn (tỷ lệ trạng thái)
-    const statusCounts = {};
-    reports.forEach(report => {
-        statusCounts[report.trang_thai] = (statusCounts[report.trang_thai] || 0) + 1;
-    });
-    const pieLabels = Object.keys(statusCounts);
-    const pieData = Object.values(statusCounts);
+// ---- Biểu đồ tròn: Tỷ lệ trạng thái phiếu mượn ----
+const statusCounts = { "Đúng hạn": 0, "Trả trễ": 0, "Chưa trả": 0 };
+reports.forEach(report => {
+    if (!report.ngay_tra_thuc_te) {
+        statusCounts["Chưa trả"]++;
+    } else if (report.ngay_tra_thuc_te > report.ngay_tra_du_kien) {
+        statusCounts["Trả trễ"]++;
+    } else {
+        statusCounts["Đúng hạn"]++;
+    }
+});
+const pieLabels = Object.keys(statusCounts);
+const pieData = Object.values(statusCounts);
 
-    // Vẽ biểu đồ tròn
-    const pieCtx = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(pieCtx, {
-        type: 'pie',
-        data: {
-            labels: pieLabels,
-            datasets: [{
-                label: 'Trạng thái',
-                data: pieData,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.6)',
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(255, 206, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Tỷ lệ trạng thái phiếu mượn'
-                }
-            }
+const pieCtx = document.getElementById('pieChart').getContext('2d');
+new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+        labels: pieLabels,
+        datasets: [{
+            label: 'Trạng thái',
+            data: pieData,
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.6)', // Đúng hạn (Màu xanh)
+                'rgba(255, 159, 64, 0.6)', // Trả trễ (Màu cam)
+                'rgba(255, 99, 132, 0.6)'  // Chưa trả (Màu đỏ)
+            ],
+            borderColor: [
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Tỷ lệ trạng thái trả sách' }
         }
-    });
+    }
+});
+
 </script>
 
 <?php

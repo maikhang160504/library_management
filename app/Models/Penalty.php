@@ -84,4 +84,18 @@ class Penalty extends Model
 
         return $penalties ?: [];
     }
+    public function checkPenalty($ma_muon_sach) {
+        // Gọi Stored Procedure CheckPenalty
+        $query = "CALL CheckPenalty(:ma_muon_sach, @penaltyStatus)";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':ma_muon_sach', $ma_muon_sach, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor(); // Đóng cursor để tiếp tục query tiếp theo
+    
+        // Lấy giá trị biến @penaltyStatus
+        $query = "SELECT @penaltyStatus AS 'check'";
+        $stmt = $this->db->query($query);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
 }

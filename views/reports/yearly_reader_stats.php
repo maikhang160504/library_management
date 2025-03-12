@@ -76,18 +76,65 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 </thead>
                 <tbody>
                     <?php foreach ($details as $reader): ?>
-                    <tr>
-                        <td><?php echo $reader['ma_doc_gia']; ?></td>
-                        <td class="text-start"><?php echo $reader['ten_doc_gia']; ?></td>
-                        <td class="fs-5 text-success"><strong><?php echo $reader['so_lan_muon']; ?></strong></td>
-                        <td class="text-start"><?php echo $reader['the_loai_muon_nhieu_nhat']; ?></td>
-                    </tr>
+                        <tr>
+                            <td><?php echo $reader['ma_doc_gia']; ?></td>
+                            <td class="text-start"><?php echo $reader['ten_doc_gia']; ?></td>
+                            <td class="fs-5 text-success"><strong><?php echo $reader['so_lan_muon']; ?></strong></td>
+                            <td class="text-start"><?php echo $reader['the_loai_muon_nhieu_nhat']; ?></td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     </div>
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5 class="card-title text-primary"><i class="bi bi-bar-chart-fill"></i> Số lần Mượn theo Độc Giả</h5>
+            <canvas id="docGiaChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var ctx = document.getElementById('docGiaChart').getContext('2d');
+
+    // Lấy dữ liệu từ PHP
+    var labels = <?= json_encode(array_column($details, 'ten_doc_gia')) ?>; // Tên độc giả
+    var data = <?= json_encode(array_column($details, 'so_lan_muon')) ?>; // Số lần mượn
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Số lần mượn',
+                data: data,
+                backgroundColor: '#4caf50',
+                borderColor: '#388e3c',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số lần mượn'
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

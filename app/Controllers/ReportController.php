@@ -114,8 +114,9 @@ class ReportController extends Controller
         $this->view('reports/export_excel', ['filter' => $filter, 'days' => $days, 'startDate' => $startDate, 'endDate' => $endDate, 'month' => $month, 'year' => $year, 'type' => $type]);
     }
     public function blackList() {
-        $blacklist = $this->borrowModel->getBlackList();
-        $this->view('reports/black_list', ['blacklist' => $blacklist]);
+        $limit = isset($_GET['limit']) && $_GET['limit'] !== 'all' ? intval($_GET['limit']) : null;
+        $blacklist = $this->borrowModel->getBlackList($limit);
+        $this->view('reports/black_list', ['blacklist' => $blacklist, 'limit' => $limit]);
     }
     public function statisticsView()
     {
