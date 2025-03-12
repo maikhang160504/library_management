@@ -134,7 +134,6 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
     </nav>
     <div class="pt-2 ms-2">
             <a href="/books/add" class="btn btn-dark">Thêm sách</a>
-            <a href="/books/statisticsView" class="btn btn-dark">Thống kê</a>
             <form action="/books/export" method="GET" class="d-inline-block">
                 <input type="hidden" name="query" value="<?= htmlspecialchars($searchQuery) ?>">
                 <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
