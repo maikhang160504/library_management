@@ -4,9 +4,7 @@ ob_start();
 ?>
 
 <div class="container mt-4">
-
     <h2 class="mb-4">📊 Báo cáo thống kê</h2>
-
     <div class="row">
         <!-- Thống kê sách mượn trong tháng -->
         <div class="col-md-6 mb-4">
@@ -71,7 +69,7 @@ ob_start();
             <a href="/reports/upcoming-returns" class="text-decoration-none">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-body d-flex align-items-center">
-                        <i class="fas fa-calendar-alt fa-3x text-info me-3"></i> <!-- Icon mới -->
+                        <i class="fas fa-calendar-alt fa-3x text-info me-3"></i> 
                         <div>
                             <h5 class="card-title">Thống kê độc giả sắp đến hạn trả sách</h5>
                             <p class="card-text text-muted">Xem thống kê độc giả sắp đến hạn trả sách.</p>
@@ -84,7 +82,7 @@ ob_start();
             <a href="/reports/least-borrowed-books" class="text-decoration-none">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-body d-flex align-items-center">
-                        <i class="fas fa-book-open fa-3x text-warning me-3"></i> <!-- Icon mới -->
+                        <i class="fas fa-book-open fa-3x text-warning me-3"></i> 
                         <div>
                             <h5 class="card-title">Thống kê Sách ít được mượn</h5>
                             <p class="card-text text-muted">Xem danh sách các sách có số lượt mượn thấp nhất.</p>
@@ -137,8 +135,6 @@ ob_start();
     </div>
 </div>
 
-<!-- Font Awesome -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
 
 <?php
 $content = ob_get_clean();

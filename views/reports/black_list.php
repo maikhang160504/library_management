@@ -37,14 +37,18 @@ if (isset($_GET['export']) && $_GET['export'] == 'blacklist') {
 <div class="container my-4">
     <div class="card shadow-sm mt-4 border-0">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center my-4">
-                <h2 class="card-title text-danger fs-4 fs-md-3">
-                    <i class="bi bi-exclamation-triangle-fill"></i> Danh Sách Đen
+            <div class="d-flex align-items-center justify-content-center position-relative my-4">
+                <a href="/reports" class="btn btn-outline-secondary position-absolute start-0">
+                    <i class="bi bi-arrow-left-circle"></i> Quay lại
+                </a>
+                <h2 class="text-center text-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i> Danh Sách Đen
                 </h2>
-                <a href="?export=blacklist" class="btn btn-danger">
-                    <i class="bi bi-file-earmark-excel-fill"></i> Xuất Excel
+                <a href="?export=excel&month=<?php echo $selectedMonth; ?>&year=<?php echo $selectedYear; ?>" class="btn btn-success position-absolute end-0">
+                <i class="bi bi-file-earmark-excel-fill"></i> Xuất Excel
                 </a>
             </div>
+  
             <div class="table-responsive">
                 <table class="table table-striped table-hover text-center align-middle">
                     <thead class="table-danger">

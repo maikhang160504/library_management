@@ -108,6 +108,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     </div>
 </div>
 
+
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';

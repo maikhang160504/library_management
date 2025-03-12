@@ -7,39 +7,37 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     $selectedMonth = $_GET['month'];
     $selectedYear = $_GET['year'];
     $fileName = "thong_ke_sach_muon_{$selectedMonth}_{$selectedYear}.xlsx";
-    
-  
 
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
     $sheet->setCellValue('A1', 'Mã phiếu mượn')
-          ->setCellValue('B1', 'Mã độc giả')
-          ->setCellValue('C1', 'Mã sách')
-          ->setCellValue('D1', 'Mã tác giả')
-          ->setCellValue('E1', 'Ngày mượn')
-          ->setCellValue('F1', 'Ngày trả dự kiến')
-          ->setCellValue('G1', 'Ngày trả thực tế')
-          ->setCellValue('H1', 'Trạng thái')
-          ->setCellValue('I1', 'Tiền phạt')
-          ->setCellValue('J1', 'Số lần mượn');
-          $headerStyle = [
-            'font' => ['bold' => true],
-            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-            'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
-        ];
-        $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+        ->setCellValue('B1', 'Mã độc giả')
+        ->setCellValue('C1', 'Mã sách')
+        ->setCellValue('D1', 'Mã tác giả')
+        ->setCellValue('E1', 'Ngày mượn')
+        ->setCellValue('F1', 'Ngày trả dự kiến')
+        ->setCellValue('G1', 'Ngày trả thực tế')
+        ->setCellValue('H1', 'Trạng thái')
+        ->setCellValue('I1', 'Tiền phạt');
+    // Bỏ cột "Số lần mượn" (J1)
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:I1')->applyFromArray($headerStyle); // Chỉnh phạm vi từ J1 thành I1
     $row = 2;
     foreach ($reports as $book) {
         $sheet->setCellValue("A$row", $book['ma_phieu_muon'])
-              ->setCellValue("B$row", $book['ma_doc_gia'])
-              ->setCellValue("C$row", $book['ma_sach'])
-              ->setCellValue("D$row", $book['ma_tac_gia'])
-              ->setCellValue("E$row", $book['ngay_muon'])
-              ->setCellValue("F$row", $book['ngay_tra_du_kien'])
-              ->setCellValue("G$row", $book['ngay_tra_thuc_te'])
-              ->setCellValue("H$row", $book['trang_thai'])
-              ->setCellValue("I$row", $book['tien_phat'])
-              ->setCellValue("J$row", $book['so_lan_muon']);
+            ->setCellValue("B$row", $book['ma_doc_gia'])
+            ->setCellValue("C$row", $book['ma_sach'])
+            ->setCellValue("D$row", $book['ma_tac_gia'])
+            ->setCellValue("E$row", $book['ngay_muon'])
+            ->setCellValue("F$row", $book['ngay_tra_du_kien'])
+            ->setCellValue("G$row", $book['ngay_tra_thuc_te'])
+            ->setCellValue("H$row", $book['trang_thai'])
+            ->setCellValue("I$row", $book['tien_phat']);
+        // Bỏ cột "Số lần mượn"
         $row++;
     }
 
@@ -105,32 +103,151 @@ ob_start();
                             <th>Ngày trả thực tế</th>
                             <th>Trạng thái</th>
                             <th>Tiền phạt</th>
-                            <th>Số lần mượn</th>
+                            <!-- Bỏ cột "Số lần mượn" -->
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($reports as $book): ?>
-                        <tr>
-                            <td class="text-center"><?php echo $book['ma_phieu_muon']; ?></td>
-                            <td class="text-center"><?php echo $book['ma_doc_gia']; ?></td>
-                            <td class="text-center"><?php echo $book['ma_sach']; ?></td>
-                            <td class="text-center"><?php echo $book['ma_tac_gia']; ?></td>
-                            <td class="text-center"><?php echo $book['ngay_muon']; ?></td>
-                            <td class="text-center"><?php echo $book['ngay_tra_du_kien']; ?></td>
-                            <td class="text-center"><?php echo $book['ngay_tra_thuc_te']; ?></td>
-                            <td class="text-center"><?php echo $book['trang_thai']; ?></td>
-                            <td class="text-center text-danger fw-bold"><?php echo number_format($book['tien_phat'], 0, ',', '.'); ?> đ</td>
-                            <td class="text-center text-primary">
-                                <strong><?php echo $book['so_lan_muon']; ?></strong>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td class="text-center"><?php echo $book['ma_phieu_muon']; ?></td>
+                                <td class="text-center"><?php echo $book['ma_doc_gia']; ?></td>
+                                <td class="text-center"><?php echo $book['ma_sach']; ?></td>
+                                <td class="text-center"><?php echo $book['ma_tac_gia']; ?></td>
+                                <td class="text-center"><?php echo $book['ngay_muon']; ?></td>
+                                <td class="text-center"><?php echo $book['ngay_tra_du_kien']; ?></td>
+                                <td class="text-center"><?php echo $book['ngay_tra_thuc_te']; ?></td>
+                                <td class="text-center"><?php echo $book['trang_thai']; ?></td>
+                                <td class="text-center text-danger fw-bold"><?php echo number_format($book['tien_phat'], 0, ',', '.'); ?> đ</td>
+                                <!-- Bỏ cột "Số lần mượn" -->
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title text-secondary"><i class="bi bi-bar-chart"></i> Biểu đồ thống kê</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* Thu nhỏ kích thước canvas của biểu đồ */
+    #barChart,
+    #pieChart {
+        max-width: 500px;
+        /* Kích thước tối đa */
+        max-height: 300px;
+        /* Chiều cao tối đa */
+        width: 100%;
+        /* Đảm bảo responsive */
+        height: auto;
+        margin: 0 auto;
+        /* Căn giữa */
+    }
+
+   
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Lấy dữ liệu từ PHP
+    const reports = <?php echo json_encode($reports); ?>;
+
+    // Chuẩn bị dữ liệu cho biểu đồ cột (tổng tiền phạt theo mã sách)
+    const barLabels = reports.map(report => report.ma_sach); // Mã sách làm nhãn
+    const barData = reports.map(report => parseFloat(report.tien_phat) || 0); // Tiền phạt làm dữ liệu
+
+    // Vẽ biểu đồ cột
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: barLabels,
+            datasets: [{
+                label: 'Tiền phạt (đ)',
+                data: barData,
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tiền phạt (đ)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Mã sách'
+                    }
+                }
+            }
+        }
+    });
+
+    // Chuẩn bị dữ liệu cho biểu đồ tròn (tỷ lệ trạng thái)
+    const statusCounts = {};
+    reports.forEach(report => {
+        statusCounts[report.trang_thai] = (statusCounts[report.trang_thai] || 0) + 1;
+    });
+    const pieLabels = Object.keys(statusCounts);
+    const pieData = Object.values(statusCounts);
+
+    // Vẽ biểu đồ tròn
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: pieLabels,
+            datasets: [{
+                label: 'Trạng thái',
+                data: pieData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Tỷ lệ trạng thái phiếu mượn'
+                }
+            }
+        }
+    });
+</script>
 
 <?php
 $content = ob_get_clean();

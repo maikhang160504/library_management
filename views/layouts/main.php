@@ -10,50 +10,95 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
     <!-- Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Thêm thư viện Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #sidebar {
+            width: 60px;
+            min-height: 100vh;
+            transition: width 0.3s;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+            background-color: #343a40;
+        }
+
+        #sidebar:hover {
+            width: 250px;
+            text-align: left;
+        }
+
+        #sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #sidebar .nav-item a {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s, padding-left 0.3s;
+            color: white;
+            height: 50px;
+            /* Đảm bảo chiều cao */
+            width: 100%;
+            /* Đảm bảo chiều rộng */
+        }
+
+        #sidebar .nav-item i {
+            min-width: 40px;
+            text-align: center;
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+
+        #sidebar:hover .nav-item a {
+            justify-content: flex-start;
+            padding-left: 15px;
+        }
+
+        #sidebar .nav-item a:hover {
+            background-color: #495057;
+            padding-left: 20px;
+        }
+
+        #sidebar:hover .nav-item i {
+            transform: translateX(5px);
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="bg-dark text-white py-4 shadow no-print">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="h3 mb-0">Quản lý Thư viện</h1>
-                <nav>
-                    <ul class="list-inline mb-0">
-                        <li class="list-inline-item"><a href="/" class="text-white text-decoration-none hover-effect">Trang chủ</a></li>
-                        <li class="list-inline-item"><a href="/borrows" class="text-white text-decoration-none hover-effect">Quản lý Mượn/Trả Sách</a></li>
-                        <li class="list-inline-item"><a href="/readers" class="text-white text-decoration-none hover-effect">Quản lý độc giả</a></li>
-                        <li class="list-inline-item"><a href="/penalties" class="text-white text-decoration-none hover-effect">Phí phạt</a></li>
-                        <li class="list-inline-item"><a href="/reports" class="text-white text-decoration-none hover-effect">Thống Kê</a></li>
-                    </ul>
-                </nav>
-            </div>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <nav class="bg-dark text-white" id="sidebar">
+            <ul class="nav flex-column mt-4">
+                <li class="nav-item"><a href="/" class="nav-link"><i class="fas fa-home"></i> <span class="ms-2 d-none d-lg-inline">Trang chủ</span></a></li>
+                <li class="nav-item"><a href="/borrows" class="nav-link"><i class="fas fa-book"></i> <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span></a></li>
+                <li class="nav-item"><a href="/readers" class="nav-link"><i class="fas fa-user"></i> <span class="ms-2 d-none d-lg-inline">Quản lý độc giả</span></a></li>
+                <li class="nav-item"><a href="/penalties" class="nav-link"><i class="fas fa-money-bill"></i> <span class="ms-2 d-none d-lg-inline">Phí phạt</span></a></li>
+                <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> <span class="ms-2 d-none d-lg-inline">Thống kê</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="flex-grow-1 p-4" id="content">
+
+            <main>
+                <?php echo $content; ?>
+            </main>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content -->
-    <main class=" my-5">
-        <?php echo $content; ?>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-auto no-print">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2023 Quản lý Thư viện. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS và dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-    <!-- Custom JS -->
-    <script src="/js/scripts.js"></script>
 </body>
 
 </html>
