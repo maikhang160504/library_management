@@ -1,0 +1,84 @@
+
+.auth-container{
+     margin-bottom: 300px;
+     background: rgba(255, 255, 255, 0.2) ;
+     filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.3));
+   }
+   /* .header-border {
+     border: 2px solid black;
+     border-radius: 3px;
+   } */
+   
+   .auth-container h1 {
+     text-align: center;
+     padding-top: 15px;
+     font-size: 36px;
+   }
+   
+   .form-control input::placeholder {
+     color: rgba(0, 0, 0, 0.5);
+     font-size: 16px;
+   }
+   .auth-btn {
+     margin: 0 auto;
+     display: block;
+   }
+   
+   
+   .auth-btn {
+     width: 50% !important; 
+     min-width: 160px; 
+     height: 50px !important; 
+     padding: 10px 10px;
+     font-size: 18px; 
+     border-radius: 3px;
+     background-color: #0078d7;
+     color: white;
+     border: none;
+     cursor: pointer;
+     display: block;
+     text-align: center;
+     margin: 15px auto;
+   }
+   
+   
+   
+   .auth-btn:hover {
+     background-color: #005fa3;
+     color: white;
+   }
+   
+   .auth-container a {
+     text-decoration: none;
+   }
+   
+   .auth-container a:hover {
+     text-decoration: underline;
+   }
+   
+   .input-group-password {
+     margin-top: 5px;
+     width: 92%;
+     position: relative;
+   }
+   
+   .auth-btn {
+     width: 100%;
+     height: 35px;
+     border-radius: 5px;
+     margin-top: 35px;
+     font-size: 18px;
+     background-color: #0078d7;
+     color: white;
+     border: none;
+     cursor: pointer;
+   }
+   
+   .auth-btn:hover {
+     background-color: #005fa3;
+   }
+   
+   .checkbox, .form-check-input {
+     cursor: pointer;
+   }
+   
