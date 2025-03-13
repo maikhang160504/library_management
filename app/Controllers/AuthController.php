@@ -3,8 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\Auth;
-
-class AuthController 
+use App\Core\Controller;
+class AuthController extends Controller
 {
     private $userModel;
 
@@ -18,19 +18,20 @@ class AuthController
 
     public function index()
     {
+        if(isset($_SESSION['user'])){
+            header('Location: /books');
+            exit;
+        }
         if (!isset($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
-
-        require_once __DIR__ . '/../../views/auth/login.php';
+        $this->view('auth/login');
      
     }
 
     public function login()
 {
-    if (session_status() == PHP_SESSION_NONE) {
-        session_start();
-    }
+   
 
     $errors = ['usernameErr' => '', 'passwordErr' => '', 'loginErr' => ''];
 
@@ -38,7 +39,7 @@ class AuthController
         // Kiểm tra CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             $_SESSION['error_message'] = "Xác thực CSRF token thất bại!";
-            header('Location: /login');
+            header('Location: /');
             exit();
         }
 
@@ -56,7 +57,7 @@ class AuthController
             if ($this->userModel->validateUser($username, $password)) {
                 $_SESSION['user'] = $username;
                 unset($_SESSION['csrf_token']);
-                header('Location: /');
+                header('Location: /books');
                 exit();
             } else {
                 $errors['loginErr'] = "Tên đăng nhập hoặc mật khẩu không đúng!";
@@ -64,7 +65,7 @@ class AuthController
         }
 
         $_SESSION['errors'] = $errors;
-        header('Location: /login');
+        header('Location: /');
         exit();
     }
 }
@@ -75,7 +76,7 @@ class AuthController
     {
         session_unset();
         session_destroy();
-        header("Location: /home");
+        header("Location: /");
         exit();
     }
 

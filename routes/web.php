@@ -3,6 +3,7 @@ use Bramus\Router\Router;
 
 $router = new Router();
 
+
 /**
  * Hàm hỗ trợ gọi controller và method từ chuỗi "Controller@method"
  */
@@ -27,30 +28,9 @@ function callControllerMethod($controllerMethod, $params = [])
     call_user_func_array([$controller, $method], $params);
 }
 
-// đang nhập
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-$public_route = ['/login', '/logout'];
-$current_route = $_SERVER['REQUEST_URI'];
-
-if (!in_array($current_route, $public_route) && empty($_SESSION['user'])) {
-    $_SESSION['redirect_url'] = $current_route; // Lưu URL trước khi login
-    header('Location: /login');
-    exit();
-}
-
-
-$router->get('/login', function () {
-    callControllerMethod('AuthController@index');
-});
-$router->post('/login', function () {
-    callControllerMethod('AuthController@login');
-});
-$router->get('/logout', function () {
-    callControllerMethod('AuthController@logout');
-});
-
 
 /**
  * ---------------------------
@@ -58,8 +38,16 @@ $router->get('/logout', function () {
  * ---------------------------
  */
 $router->get('/', function () {
-    callControllerMethod('BookController@index');
+    callControllerMethod('AuthController@index');
 });
+$router->post('/', function () {
+    callControllerMethod('AuthController@login');
+});
+
+$router->get('/logout', function () {
+    callControllerMethod('AuthController@logout');
+});
+
 $router->get('/books', function () {
     callControllerMethod('BookController@index');
 });

@@ -78,12 +78,14 @@
 
         /* Điều chỉnh cho content */
         #content {
-            margin-left: 60px; /* Đảm bảo không bị che bởi sidebar */
+            margin-left: 60px;
+            /* Đảm bảo không bị che bởi sidebar */
             transition: margin-left 0.3s;
         }
 
-        #sidebar:hover ~ #content {
-            margin-left: 250px; /* Khi sidebar mở rộng, content sẽ di chuyển qua phải */
+        #sidebar:hover~#content {
+            margin-left: 250px;
+            /* Khi sidebar mở rộng, content sẽ di chuyển qua phải */
         }
     </style>
 </head>
@@ -91,16 +93,21 @@
 <body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <nav class="bg-dark text-white" id="sidebar">
-            <ul class="nav flex-column mt-4">
-                <li class="nav-item"><a href="/" class="nav-link"><i class="fas fa-home"></i> <span class="ms-2 d-none d-lg-inline">Trang chủ</span></a></li>
-                <li class="nav-item"><a href="/borrows" class="nav-link"><i class="fas fa-book"></i> <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span></a></li>
-                <li class="nav-item"><a href="/readers" class="nav-link"><i class="fas fa-user"></i> <span class="ms-2 d-none d-lg-inline">Quản lý độc giả</span></a></li>
-                <li class="nav-item"><a href="/penalties" class="nav-link"><i class="fas fa-money-bill"></i> <span class="ms-2 d-none d-lg-inline">Phí phạt</span></a></li>
-                <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> <span class="ms-2 d-none d-lg-inline">Thống kê</span></a></li>
-            </ul>
-        </nav>
+        <?php $user = isset($_SESSION['user']) ? $_SESSION['user'] : null; ?>
+        <?php if ($user !== null): ?>
 
+            <nav class="bg-dark text-white" id="<?php echo 'sidebar'; ?>">
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item"><a href="/books" class="nav-link"><i class="fas fa-home"></i> <span class="ms-2 d-none d-lg-inline">Quản lý Sách</span></a></li>
+                    <li class="nav-item"><a href="/borrows" class="nav-link"><i class="fas fa-book"></i> <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span></a></li>
+                    <li class="nav-item"><a href="/readers" class="nav-link"><i class="fas fa-user"></i> <span class="ms-2 d-none d-lg-inline">Quản lý độc giả</span></a></li>
+                    <li class="nav-item"><a href="/penalties" class="nav-link"><i class="fas fa-money-bill"></i> <span class="ms-2 d-none d-lg-inline">Phí phạt</span></a></li>
+                    <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> <span class="ms-2 d-none d-lg-inline">Thống kê</span></a></li>
+                    <li class="nav-item"><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span class="ms-2 d-none d-lg-inline">Đăng xuất</span></a></li>
+                </ul>
+                </ul>
+            </nav>
+        <?php endif; ?>
         <!-- Content Area -->
         <div class="flex-grow-1 p-4" id="content">
             <main>

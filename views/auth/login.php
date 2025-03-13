@@ -12,7 +12,7 @@ unset($_SESSION['errors']);
 
 <body>
     <div class="auth-container container d-flex justify-content-center align-items-center mt-5">
-        <form action="/login" class="border border-2 rounded header-border needs-validation" style="width: 30%;" method="POST" novalidate>
+        <form action="/" class="border border-2 rounded header-border needs-validation" style="width: 30%;" method="POST" novalidate>
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
             <div class="m-3 fw-bold d-flex justify-content-center">
