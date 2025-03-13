@@ -5,14 +5,17 @@ ob_start();
 
 // Lấy lỗi từ session (nếu có)
 $errors = $_SESSION['errors'] ?? ['usernameErr' => '', 'passwordErr' => '', 'loginErr' => ''];
+$oldData = $_SESSION['oldData'] ?? [];
+
 unset($_SESSION['errors']);
+unset($_SESSION['oldData'])
 ?>
 
 <link rel="stylesheet" href="/css/styles.css">
 
-<body>
-    <div class="auth-container container d-flex justify-content-center align-items-center mt-5">
-        <form action="/" class="border border-2 rounded header-border needs-validation" style="width: 30%;" method="POST" novalidate>
+<body class="login-page">
+    <div class="auth-container container d-flex justify-content-center align-items-center mt-5 " >
+    <form action="/" class="auth-container-body border border-2 rounded header-border needs-validation" method="POST" novalidate>
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
             <div class="m-3 fw-bold d-flex justify-content-center">
@@ -38,7 +41,7 @@ unset($_SESSION['errors']);
             <div class="mb-4 mx-3">
                 <input type="text" class="form-control <?php echo !empty($errors['usernameErr']) ? 'is-invalid' : ''; ?>"
                     name="username" placeholder="Enter your username."
-                    value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : (isset($_COOKIE['username']) ? htmlspecialchars($_COOKIE['username']) : ''); ?>" />
+                    value="<?php echo isset($oldData['username']) ? htmlspecialchars($oldData['username']) : (isset($_COOKIE['username']) ? htmlspecialchars($_COOKIE['username']) : ''); ?>" />
                 <div class="invalid-feedback">
                     <?= $errors['usernameErr'] ?>
                 </div>
@@ -46,7 +49,8 @@ unset($_SESSION['errors']);
 
             <div class="input-group-password mb-4 mx-3">
                 <input type="password" class="form-control <?php echo !empty($errors['passwordErr']) ? 'is-invalid' : ''; ?>"
-                    name="password" placeholder="Enter your password." />
+                    name="password" placeholder="Enter your password."
+                    value="<?= htmlspecialchars($oldData['password'] ?? '') ?>" />
                 <div class="invalid-feedback">
                     <?= $errors['passwordErr'] ?>
                 </div>

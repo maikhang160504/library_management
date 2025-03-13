@@ -34,7 +34,6 @@ class AuthController extends Controller
    
 
     $errors = ['usernameErr' => '', 'passwordErr' => '', 'loginErr' => ''];
-
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Kiểm tra CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -56,6 +55,14 @@ class AuthController extends Controller
         if (empty($errors['usernameErr']) && empty($errors['passwordErr'])) {
             if ($this->userModel->validateUser($username, $password)) {
                 $_SESSION['user'] = $username;
+                
+
+                if (isset($_POST['remember-me'])) {
+                    setcookie('username', $username, time() + (30 * 24 * 60 * 60), "/"); 
+                } else {
+                    setcookie('username', "", time() - 3600, "/"); 
+                }
+            
                 unset($_SESSION['csrf_token']);
                 header('Location: /books');
                 exit();
@@ -63,7 +70,7 @@ class AuthController extends Controller
                 $errors['loginErr'] = "Tên đăng nhập hoặc mật khẩu không đúng!";
             }
         }
-
+        $_SESSION['oldData'] = $_POST; 
         $_SESSION['errors'] = $errors;
         header('Location: /');
         exit();
