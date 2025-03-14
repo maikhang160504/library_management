@@ -87,6 +87,7 @@ $router->get('/reports/statisticsView', function() {
 $router->get('/books/exportStatistics', function() {
     callControllerMethod('BookController@exportStatistics');
 });
+
 /**
  * ---------------------------
  * BORROW ROUTES
@@ -159,6 +160,9 @@ $router->get('/reports/export-excel', function () {
 });
 $router->get('/reports/black-list', function () {
     callControllerMethod('ReportController@blackList'); 
+});
+$router->get('/reports/exportExcelStatistic', function(){
+    callControllerMethod('ReportController@exportExcelStatistic');
 });
 /**
  * ---------------------------

@@ -103,13 +103,14 @@
                     <li class="nav-item"><a href="/readers" class="nav-link"><i class="fas fa-user"></i> <span class="ms-2 d-none d-lg-inline">Quản lý độc giả</span></a></li>
                     <li class="nav-item"><a href="/penalties" class="nav-link"><i class="fas fa-money-bill"></i> <span class="ms-2 d-none d-lg-inline">Phí phạt</span></a></li>
                     <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> <span class="ms-2 d-none d-lg-inline">Thống kê</span></a></li>
+                    <li class="nav-item"><a href="/reports/export-excel" class="nav-link"><i class="fas fa-file-excel"></i>  <span class="ms-2 d-none d-lg-inline">Xuất Excel</span></a></li>
                     <li class="nav-item"><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span class="ms-2 d-none d-lg-inline">Đăng xuất</span></a></li>
                 </ul>
                 </ul>
             </nav>
         <?php endif; ?>
         <!-- Content Area -->
-        <div class="flex-grow-1 p-4" id="content">
+        <div class="flex-grow-1 p-4 position-relative" id="content">
             <main>
                 <?php echo $content; ?>
             </main>
@@ -117,7 +118,7 @@
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

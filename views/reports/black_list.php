@@ -17,6 +17,12 @@ if (isset($_GET['export']) && $_GET['export'] == 'blacklist') {
     $sheet->setCellValue('C1', 'Số Lần Bị Phạt');
     $sheet->setCellValue('D1', 'Tổng Tiền Phạt');
 
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
     // Đổ dữ liệu vào Excel
     $row = 2;
     foreach ($blacklist as $reader) {

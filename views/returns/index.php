@@ -59,7 +59,7 @@ $returnsPaginated = array_slice($returns, $offset, $limit);
 
     <!-- Phân trang -->
     <nav>
-        <ul class="pagination justify-content-center">
+        <ul class="pagination justify-content-end">
             <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
                 <a class="page-link" href="?page=<?php echo $page - 1; ?>">Trước</a>
             </li>

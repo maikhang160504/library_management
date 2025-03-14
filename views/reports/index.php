@@ -110,7 +110,7 @@ ob_start();
             <a href="/reports/statisticsView" class="text-decoration-none">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-body d-flex align-items-center">
-                    <i class="bi bi-person-x fa-3x text-danger me-3"></i>
+                    <i class="bi bi-journal-bookmark fa-3x text-warning me-3"></i>
                         <div>
                             <h5 class="card-title">Thống kê sách nhập</h5>
                             <p class="card-text text-muted">Xem số lượng sách được nhập</p>

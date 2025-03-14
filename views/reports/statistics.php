@@ -16,23 +16,77 @@ $data = array_values($categories); // Tổng số sách theo thể loại
 ?>
 <div class="container mt-4">
     <!-- Nút quay lại -->
-    <div class="d-flex justify-content-start mb-3">
-        <a href="/reports" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left-circle"></i> Quay lại
-        </a>
-    </div>
+        <div class="d-flex">
+            <div class="col-5">
+                <a href="/reports" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Quay lại
+                </a>
+            </div>
+            <div class="col-7">
+                <h2 class="text-center mb-4 d-inline-block">Thống kê sách</h2>
+            </div>
+        </div>
 
-    <h2 class="text-start">Thống kê sách theo <?= ($type === 'day') ? 'Ngày' : (($type === 'month') ? 'Tháng' : 'Năm'); ?></h2>
+    
 
     <!-- Form chọn kiểu thống kê (sử dụng POST) -->
-    <form action="/reports/statistics" method="POST" class="d-flex justify-content-center align-items-center mb-3">
-        <select name="type" class="form-select w-auto me-3" onchange="this.form.submit()">
-            <option value="day" <?= $type === 'day' ? 'selected' : '' ?>>Theo Ngày</option>
-            <option value="month" <?= $type === 'month' ? 'selected' : '' ?>>Theo Tháng</option>
-            <option value="year" <?= $type === 'year' ? 'selected' : '' ?>>Theo Năm</option>
-        </select>
-        <a href="/books/exportStatistics?type=<?= $type; ?>" class="btn btn-success">Xuất Excel</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+    <form action="/reports/statistics" method="POST" class="row g-3 mb-0 col-12 d-flex align-items-center">
+        <div class="col-auto">
+            <label for="month" class="col-form-label">Chọn tháng:</label>
+        </div>
+        <div class="col-auto">
+            <select name="month" id="month" class="form-select">
+                <option value="">-- Tất cả tháng --</option>
+                <?php for ($i = 1; $i <= 12; $i++): ?>
+                    <option value="<?= $i ?>" <?= ($month == $i) ? 'selected' : '' ?>>Tháng <?= $i ?></option>
+                <?php endfor; ?>
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <label for="year" class="col-form-label">Chọn năm:</label>
+        </div>
+        <div class="col-auto">
+            <select name="year" id="year" class="form-select">
+                <option value="">-- Tất cả năm --</option>
+                <?php 
+                $currentYear = date('Y');
+                for ($y = $currentYear; $y >= ($currentYear - 10); $y--): ?>
+                    <option value="<?= $y ?>" <?= ($year == $y) ? 'selected' : '' ?>>Năm <?= $y ?></option>
+                <?php endfor; ?>
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <label for="category" class="col-form-label">Thể loại:</label>
+        </div>
+        <div class="col-auto">
+            <select name="category" id="category" class="form-select">
+                <option value="">Tất cả</option>
+                <?php foreach ($categoriesList as $cat): // Sử dụng 1 mảng riêng cho dropdown ?>
+                    <option value="<?= $cat['ma_the_loai'] ?>" <?= (isset($categoryId) && $categoryId == $cat['ma_the_loai']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($cat['ten_the_loai']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </div>
+        <div class="col-auto">
+            <a href="/reports/exportExcelStatistic?month=<?= $month ?>&year=<?= $year ?>&category=<?= $categoryId ?>" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+            </a>
+        </div>
     </form>
+    
+</div>
+
+    </div>
+
+
 
     <!-- Card chứa bảng thống kê chi tiết -->
     <div class="card shadow-sm mb-4">
@@ -46,7 +100,7 @@ $data = array_values($categories); // Tổng số sách theo thể loại
                         <th class="text-start">Tác giả</th>
                         <th class="text-start">Thể loại</th>
                         <th class="text-start">Số lượng</th>
-                        <th class="text-start"><?= ($type === 'day') ? 'Ngày' : (($type === 'month') ? 'Tháng' : 'Năm'); ?></th>
+                        <th class="text-start">Thời gian</th>
                     </tr>
                 </thead>
                 <tbody>
