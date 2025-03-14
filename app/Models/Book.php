@@ -29,8 +29,8 @@ class Book extends Model
 {
     $sql = "SELECT 
                 s.ma_sach,
-                s.ma_tac_gia,       -- Nếu cần cập nhật tác giả, phải SELECT cột này
-                s.ma_the_loai,      -- Nếu cần cập nhật thể loại, cũng SELECT cột này
+                s.ma_tac_gia,      
+                s.ma_the_loai,      
                 s.ten_sach,
                 s.nam_xuat_ban,
                 s.nha_xuat_ban,
@@ -45,7 +45,7 @@ class Book extends Model
     $stmt = $this->db->prepare($sql);
     $stmt->execute(['id' => $id]);
 
-    return $stmt->fetch(PDO::FETCH_ASSOC); // Nếu không có dòng nào, fetch() trả về false
+    return $stmt->fetch(PDO::FETCH_ASSOC); 
 }
 
 public function addBook($data)

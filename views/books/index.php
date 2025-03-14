@@ -163,7 +163,6 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
     });
 });
 
-// Nếu muốn tự động search khi gõ
 function debounce(func, delay) {
     let timeout;
     return function(...args) {
@@ -180,7 +179,6 @@ document.getElementById('bookSearch').addEventListener('keyup', debounce(functio
     }
 }, 300));
 
-// Nếu cần focus lại vào ô tìm kiếm
 window.addEventListener('DOMContentLoaded', function() {
     if (sessionStorage.getItem('shouldFocus') === 'true') {
         const searchInput = document.getElementById('bookSearch');

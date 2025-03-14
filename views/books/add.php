@@ -3,7 +3,6 @@ $errors = $_SESSION['errors'] ?? [];
 $old = $_SESSION['old'] ?? [];
 
 
-// Clear session ngay sau khi lấy dữ liệu!
 unset($_SESSION['errors'], $_SESSION['old']);
 ?>
 
