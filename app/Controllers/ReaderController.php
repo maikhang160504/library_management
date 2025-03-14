@@ -44,53 +44,63 @@ class ReaderController extends Controller
     }
 
 
-public function store()
-{
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $data = [
-            'ten_doc_gia' => trim($_POST['ten_doc_gia']),
-            'ngay_sinh' => trim($_POST['ngay_sinh']),
-            'so_dien_thoai' => trim($_POST['so_dien_thoai'])
-        ];
+    public function store()
+    {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $data = [
+                'ten_doc_gia' => trim($_POST['ten_doc_gia']),
+                'ngay_sinh' => trim($_POST['ngay_sinh']),
+                'so_dien_thoai' => trim($_POST['so_dien_thoai'])
+            ];
 
-        $errors = [];
+            $errors = [];
 
-        if (empty($data['ten_doc_gia'])) {
-            $errors['ten_doc_gia'] = "Tên độc giả không được để trống.";
-        }
+            if (empty($data['ten_doc_gia'])) {
+                $errors['ten_doc_gia'] = "Tên độc giả không được để trống.";
+            }
 
-        if (empty($data['ngay_sinh']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['ngay_sinh'])) {
-            $errors['ngay_sinh'] = "Ngày sinh không hợp lệ.";
-        }
+            if (empty($data['ngay_sinh'])) {
+                $errors['ngay_sinh'] = "Vui lòng nhập ngày sinh.";
+            } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['ngay_sinh'])) {
+                $errors['ngay_sinh'] = "Định dạng ngày sinh không hợp lệ.";
+            } else {
+                $ngay_sinh_timestamp = strtotime($data['ngay_sinh']);
+                $ngay_hien_tai_timestamp = strtotime(date('Y-m-d'));
 
-        if (!preg_match('/^(0\d{9}|\+84\d{9})$/', $data['so_dien_thoai'])) {
-            $errors['so_dien_thoai'] = "Số điện thoại không hợp lệ.";
-        }
+                if ($ngay_sinh_timestamp > $ngay_hien_tai_timestamp) {
+                    $errors['ngay_sinh'] = "Ngày sinh không được lớn hơn ngày hiện tại.";
+                }
+            }
 
-        if ($this->readerModel->checkPhoneExists($data['so_dien_thoai'])) {
-            $errors['so_dien_thoai'] = "Số điện thoại đã tồn tại.";
-        }
 
-        if (!empty($errors)) {
-            $_SESSION['errors'] = $errors;
-            $_SESSION['oldData'] = $data;
-            header("Location: /readers/create");
-            exit;
-        }
+            if (!preg_match('/^(0\d{9}|\+84\d{9})$/', $data['so_dien_thoai'])) {
+                $errors['so_dien_thoai'] = "Số điện thoại không hợp lệ.";
+            }
 
-        $result = $this->readerModel->addReader($data);
+            if ($this->readerModel->checkPhoneExists($data['so_dien_thoai'])) {
+                $errors['so_dien_thoai'] = "Số điện thoại đã tồn tại.";
+            }
 
-        if ($result === true) {
-            $_SESSION['success'] = "Độc giả đã được thêm thành công.";
-            header("Location: /readers");
-            exit;
-        } else {
-            $_SESSION['errors'] = ["Lỗi khi thêm độc giả. Vui lòng thử lại!"];
-            header("Location: /readers/create");
-            exit;
+            if (!empty($errors)) {
+                $_SESSION['errors'] = $errors;
+                $_SESSION['oldData'] = $data;
+                header("Location: /readers/create");
+                exit;
+            }
+
+            $result = $this->readerModel->addReader($data);
+
+            if ($result === true) {
+                $_SESSION['success'] = "Độc giả đã được thêm thành công.";
+                header("Location: /readers");
+                exit;
+            } else {
+                $_SESSION['errors'] = ["Lỗi khi thêm độc giả. Vui lòng thử lại!"];
+                header("Location: /readers/create");
+                exit;
+            }
         }
     }
-}
 
 
 
@@ -102,72 +112,79 @@ public function store()
     }
 
 
-public function update($id)
-{
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $oldReader = $this->readerModel->getReaderById($id);
+    public function update($id)
+    {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $oldReader = $this->readerModel->getReaderById($id);
 
-        if (!$oldReader) {
-            $_SESSION['error'] = "Không tìm thấy độc giả.";
-            header("Location: /readers");
-            exit;
-        }
+            if (!$oldReader) {
+                $_SESSION['error'] = "Không tìm thấy độc giả.";
+                header("Location: /readers");
+                exit;
+            }
 
-        $data = [
-            'ten_doc_gia' => trim($_POST['ten_doc_gia']),
-            'ngay_sinh' => trim($_POST['ngay_sinh']),
-            'so_dien_thoai' => trim($_POST['so_dien_thoai'])
-        ];
+            $data = [
+                'ten_doc_gia' => trim($_POST['ten_doc_gia']),
+                'ngay_sinh' => trim($_POST['ngay_sinh']),
+                'so_dien_thoai' => trim($_POST['so_dien_thoai'])
+            ];
 
-        $errors = [];
+            $errors = [];
 
-        // if ($data['ten_doc_gia'] === $oldReader['ten_doc_gia'] &&
-        //     $data['ngay_sinh'] === $oldReader['ngay_sinh'] &&
-        //     $data['so_dien_thoai'] === $oldReader['so_dien_thoai']) {
-        //     $errors['no_changes'] = "Bạn chưa thay đổi thông tin nào.";
-        // }
+            if (empty($data['ten_doc_gia'])) {
+                $errors['ten_doc_gia'] = "Tên độc giả không được để trống.";
+            }
 
-        if (empty($data['ten_doc_gia'])) {
-            $errors['ten_doc_gia'] = "Tên độc giả không được để trống.";
-        }
 
-        if (empty($data['ngay_sinh']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['ngay_sinh'])) {
-            $errors['ngay_sinh'] = "Ngày sinh không hợp lệ.";
-        }
+            if (empty($data['ngay_sinh'])) {
+                $errors['ngay_sinh'] = "Vui lòng nhập ngày sinh.";
+            } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['ngay_sinh'])) {
+                $errors['ngay_sinh'] = "Định dạng ngày sinh không hợp lệ.";
+            } else {
+                $ngay_sinh_timestamp = strtotime($data['ngay_sinh']);
+                $ngay_hien_tai_timestamp = strtotime(date('Y-m-d'));
 
-        if (!preg_match('/^(0\d{9}|\+84\d{9})$/', $data['so_dien_thoai'])) {
-            $errors['so_dien_thoai'] = "Số điện thoại không hợp lệ.";
-        }
+                if ($ngay_sinh_timestamp > $ngay_hien_tai_timestamp) {
+                    $errors['ngay_sinh'] = "Ngày sinh không được lớn hơn ngày hiện tại.";
+                }
+            }
 
-        if ($data['so_dien_thoai'] !== $oldReader['so_dien_thoai'] &&
-            $this->readerModel->checkPhoneExists($data['so_dien_thoai'])) {
-            $errors['so_dien_thoai'] = "Số điện thoại đã tồn tại.";
-        }
 
-        if (!empty($errors)) {
-            $_SESSION['errors'] = $errors;
-            $_SESSION['oldData'] = $data;
-            header("Location: /readers/edit/$id");
-            exit;
-        }
+            if (!preg_match('/^(0\d{9}|\+84\d{9})$/', $data['so_dien_thoai'])) {
+                $errors['so_dien_thoai'] = "Số điện thoại không hợp lệ.";
+            }
 
-        // Cập nhật dữ liệu
-        $result = $this->readerModel->updateReader($id, $data);
+            if (
+                $data['so_dien_thoai'] !== $oldReader['so_dien_thoai'] &&
+                $this->readerModel->checkPhoneExists($data['so_dien_thoai'])
+            ) {
+                $errors['so_dien_thoai'] = "Số điện thoại đã tồn tại.";
+            }
 
-        if ($result === true) {
-            $_SESSION['success'] = "Độc giả đã được cập nhật thành công.";
-            header("Location: /readers");
-            exit;
-        } else {
-            $_SESSION['errors'] = ["Lỗi khi cập nhật độc giả. Vui lòng thử lại!"];
-            header("Location: /readers/edit/$id");
-            exit;
+            if (!empty($errors)) {
+                $_SESSION['errors'] = $errors;
+                $_SESSION['oldData'] = $data;
+                header("Location: /readers/edit/$id");
+                exit;
+            }
+
+            // Cập nhật dữ liệu
+            $result = $this->readerModel->updateReader($id, $data);
+
+            if ($result === true) {
+                $_SESSION['success'] = "Độc giả đã được cập nhật thành công.";
+                header("Location: /readers");
+                exit;
+            } else {
+                $_SESSION['errors'] = ["Lỗi khi cập nhật độc giả. Vui lòng thử lại!"];
+                header("Location: /readers/edit/$id");
+                exit;
+            }
         }
     }
-}
 
 
-    
+
     public function delete($id)
     {
         $result = $this->readerModel->deleteReader($id);
@@ -204,7 +221,7 @@ public function update($id)
 
     public function search()
     {
-        $keyword = $_GET['keyword'] ?? '';
+        $keyword = $_GET['search'] ?? '';
         $perPage = 10;
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $start = ($currentPage - 1) * $perPage;

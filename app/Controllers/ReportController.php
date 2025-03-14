@@ -74,23 +74,52 @@ class ReportController extends Controller
     }
 
     public function penaltiesStats()
-    {
-        $filter = $_GET['filter'] ?? 'this_month';
-        $penalties = $this->penaltyModel->getPenaltiesByDate($filter) ?? [];
-        $total_penalty = !empty($penalties) ? array_sum(array_column($penalties, 'tien_phat')) : 0;
+{
+    $filter = $_GET['filter'] ?? 'this_month';
+    $currentPage = $_GET['page'] ?? 1; // Trang hiện tại
+    $itemsPerPage = 10; // Số bản ghi mỗi trang
 
-        $this->view('reports/penalties_stats', [
-            'penalties' => $penalties,
-            'filter' => $filter,
-            'total_penalty' => $total_penalty
-        ]);
+    $penalties = $this->penaltyModel->getPenaltiesByDate($filter, $currentPage, $itemsPerPage) ?? [];
+    
+    $total_penalty = !empty($penalties) ? array_sum(array_column($penalties, 'tien_phat')) : 0;
+
+    $totalPenalties = $this->penaltyModel->getTotalPenalties($filter);
+    $totalPages = ceil($totalPenalties / $itemsPerPage);
+
+
+    $penaltySummary = [];
+foreach ($penalties as $penalty) {
+    $maDocGia = $penalty['ma_doc_gia'];
+    if (!isset($penaltySummary[$maDocGia])) {
+        $penaltySummary[$maDocGia] = [
+            'ten_doc_gia' => $penalty['ten_doc_gia'],
+            'tien_phat' => 0
+        ];
     }
+    $penaltySummary[$maDocGia]['tien_phat'] += $penalty['tien_phat'];
+}
 
+$chartLabels = array_column($penaltySummary, 'ten_doc_gia');
+$chartData = array_column($penaltySummary, 'tien_phat');
+
+$this->view('reports/penalties_stats', [
+    'penalties' => $penalties,
+    'filter' => $filter,
+    'total_penalty' => $total_penalty,
+    'totalPages' => $totalPages, 
+    'currentPage' => $currentPage,
+    'chartLabels' => $chartLabels,
+    'chartData' => $chartData
+]);
+}
 
     public function penaltyReport()
     {
+        
         $this->view('reports/penalties_stats');
     }
+
+    
 
     public function upcomingReturns()
     {

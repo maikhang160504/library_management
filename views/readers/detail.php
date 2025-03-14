@@ -7,28 +7,42 @@ $previousPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/'
 ?>
 
 <div class="container">
-    <h2 class="text-center mb-4">Chi tiết Độc giả</h2>
-    <div class="mt-3 mb-3">
-        <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Quay lại
-        </a>
+
+<div class="d-flex align-items-center justify-content-center position-relative my-4">
+    <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-outline-secondary position-absolute start-0">
+        <i class="bi bi-arrow-left-circle"></i> Quay lại
+    </a>
+    <h2 class="text-center"><i class="bi bi-person-lines-fill"></i> Chi tiết Độc giả</h2>
+</div>
+
+<!-- Thông tin cá nhân độc giả -->
+<div class="card mb-4">
+    <div class="card-header bg-light text-primary">
+        <i class="bi bi-person-vcard"></i> Thông tin cá nhân
     </div>
+    <div class="card-body">
+    <p><strong><i class="bi bi-hash text-danger"></i> Mã độc giả:</strong> 
+        <span class="text-dark"><?php echo $reader['ma_doc_gia']; ?></span>
+    </p>
+    <p><strong><i class="bi bi-person text-primary"></i> Tên độc giả:</strong> 
+        <span class="text-success"><?php echo $reader['ten_doc_gia']; ?></span>
+    </p>
+    <p><strong><i class="bi bi-calendar-event text-warning"></i> Ngày sinh:</strong> 
+        <span class="text-dark"><?php echo $reader['ngay_sinh']; ?></span>
+    </p>
+    <p><strong><i class="bi bi-telephone text-info"></i> Số điện thoại:</strong> 
+        <span class="text-dark"><?php echo $reader['so_dien_thoai']; ?></span>
+    </p>
+</div>
 
 
-    <!-- Thông tin cá nhân độc giả -->
-    <div class="card mb-4">
-        <div class="card-header bg-light  text-primary">Thông tin cá nhân</div>
-        <div class="card-body">
-            <p><strong>Mã độc giả:</strong> <?php echo $reader['ma_doc_gia']; ?></p>
-            <p><strong>Tên độc giả:</strong> <?php echo $reader['ten_doc_gia']; ?></p>
-            <p><strong>Ngày sinh:</strong> <?php echo $reader['ngay_sinh']; ?></p>
-            <p><strong>Số điện thoại:</strong> <?php echo $reader['so_dien_thoai']; ?></p>
-        </div>
+<!-- Lịch sử mượn sách -->
+<div class="card">
+    <div class="card-header bg-light text-primary">
+        <i class="bi bi-book-half"></i> Lịch sử mượn sách
     </div>
+</div>
 
-    <!-- Lịch sử mượn sách -->
-    <div class="card">
-        <div class="card-header bg-light text-primary">Lịch sử mượn sách</div>
         <div class="card-body">
             <table class="table table-hover">
                 <thead>

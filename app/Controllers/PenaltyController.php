@@ -19,17 +19,41 @@ class PenaltyController extends Controller
     }
 
     public function index()
-    {
-        $penalties = $this->penaltyModel->getAllPenalties();
-        $this->view('penalties/index', ['penalties' => $penalties]);
-    }
+{
+    $perPage = 10;
+    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $start = ($currentPage - 1) * $perPage;
+
+    $penalties = $this->penaltyModel->getPenaltiesWithPagination($start, $perPage);
+    $totalPenalties = $this->penaltyModel->getTotalPenalties();
+    $totalPages = ceil($totalPenalties / $perPage);
+
+   
+    $this->view('penalties/index', [
+        'penalties' => $penalties,
+        'totalPages' => $totalPages,
+        'currentPage' => $currentPage
+    ]);
+}
+
+   
 
     public function search()
     {
-        $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
-        $penalties = $this->penaltyModel->getAllPenalties($keyword);
-        $this->view('penalties/index', ['penalties' => $penalties]);
+        $keyword = $_GET['search'] ?? '';
+        $perPage = 10;
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $start = ($currentPage - 1) * $perPage;
+    
+        $penalties = $this->penaltyModel->getPenaltiesWithPagination($start, $perPage, $keyword);
+        $totalPenalties = $this->penaltyModel->getTotalPenalties($keyword);
+        $totalPages = ceil($totalPenalties / $perPage);
+    
+        $this->view('penalties/index', [ 
+            'penalties' => $penalties,
+            'totalPages' => $totalPages,
+            'currentPage' => $currentPage
+        ]);
     }
-
     
 }

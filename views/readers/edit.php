@@ -11,13 +11,12 @@ unset($_SESSION['errors']);
 unset($_SESSION['oldData']);
 ?>
 <div class="container">
-    <h2 class="text-center mb-4">Sửa độc giả</h2>
-
-    <div class="mt-3 mb-3">
-        <a href="/readers" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Quay lại
-        </a>
-    </div>
+<div class="d-flex align-items-center justify-content-center position-relative my-4">
+            <a href="/readers" class="btn btn-outline-secondary position-absolute start-0">
+                <i class="bi bi-arrow-left-circle"></i> Quay lại
+            </a>
+            <h2 class="text-center"><i class="bi bi-person-lines-fill"></i> Sửa độc giả</h2>
+        </div>
 
     <!-- Hiển thị lỗi nếu có -->
     <?php if (!empty($_SESSION['errors'])): ?>

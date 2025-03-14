@@ -42,8 +42,8 @@ class AuthController extends Controller
             exit();
         }
 
-        $username = $_POST["username"] ?? '';
-        $password = $_POST["password"] ?? '';
+        $username = $this->test_input($_POST["username"]) ?? '';
+        $password = $this->test_input($_POST["password"]) ?? '';
 
         if (empty($username)) {
             $errors['usernameErr'] = "Vui lòng nhập tên đăng nhập.";
@@ -54,9 +54,7 @@ class AuthController extends Controller
 
         if (empty($errors['usernameErr']) && empty($errors['passwordErr'])) {
             if ($this->userModel->validateUser($username, $password)) {
-                $_SESSION['user'] = $username;
-                
-
+               
                 if (isset($_POST['remember-me'])) {
                     setcookie('username', $username, time() + (30 * 24 * 60 * 60), "/"); 
                 } else {
