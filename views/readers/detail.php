@@ -9,7 +9,7 @@ $previousPage = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/'
 <div class="container">
     <h2 class="text-center mb-4">Chi tiết Độc giả</h2>
     <div class="mt-3 mb-3">
-        <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-secondary">
+        <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Quay lại
         </a>
     </div>

@@ -23,7 +23,7 @@ ob_start();
         <div class="mb-3">
             <form method="GET" action="/penalty/search">
                 <div class="input-group">
-                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã độc giả, mã phiếu mượn, số tiền phạt" />
+                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã độc giả, mã phiếu mượn,..." />
                     <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                 </div>
             </form>

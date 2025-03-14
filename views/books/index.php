@@ -103,7 +103,7 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
                 <td class="text-center"><?php echo $book['ten_the_loai']; ?></td>
                 <td class="text-center"><?php echo $book['so_luong']; ?></td>
                 <td class="text-center">
-                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-dark">Chi tiết</a>
+                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
                 </td>
             </tr>
             <?php endforeach; ?>

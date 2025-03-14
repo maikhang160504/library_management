@@ -254,6 +254,13 @@ public function update()
         $sheet->setCellValue('D1', 'Thể loại');
         $sheet->setCellValue('E1', 'Số lượng');
 
+        $headerStyle = [
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+        ];
+        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+        // Đổ dữ liệu vào Excel
         // Điền dữ liệu sách vào file Excel, bắt đầu từ hàng thứ 2
         $row = 2;
         foreach ($books as $book) {

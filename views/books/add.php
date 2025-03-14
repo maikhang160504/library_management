@@ -53,10 +53,10 @@ unset($_SESSION['errors'], $_SESSION['old']);
                             </div>
                         <?php endforeach; ?>
 
-                        <button type="submit" class="btn btn-custom w-100">Thêm sách</button>
+                        <button type="submit" class="btn  btn-success w-100">Thêm sách</button>
                     </form>
 
-                    <a href="/books" class="btn btn-secondary w-100 mt-2">Quay lại danh sách</a>
+                    <a href="/books" class="btn btn-secondary w-100 mt-2">Hủy</a>
                 </div>
             </div>
         </div>
