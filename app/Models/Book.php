@@ -310,4 +310,47 @@ public function getStatisticsByYear() {
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+public function getStatisticsByMonthYearAndCategory($month = null, $year = null, $categoryId =null)
+{
+    try {
+        $stmt = $this->db->prepare("CALL ThongKeChiTietTheoThangNam(:month, :year, :category)");
+        
+        // Gán giá trị null đúng cách để gọi procedure
+        $month = $month ?: null;
+        $year = $year ?: null;
+        $categoryId = $categoryId ?: null;
+
+        $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+        $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+        $stmt->bindParam(':category', $categoryId, PDO::PARAM_INT);
+
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Giải phóng tài nguyên sau khi gọi procedure xong
+        $stmt->closeCursor();
+
+        return $result;
+    } catch (PDOException $e) {
+        // Xử lý lỗi nếu cần
+        return [];
+    }
+}
+public function getAllCategories()
+{
+    $stmt = $this->db->prepare("SELECT ma_the_loai, ten_the_loai FROM the_loai");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getCategoryById($categoryId)
+{
+    $stmt = $this->db->prepare("SELECT ma_the_loai, ten_the_loai FROM the_loai WHERE ma_the_loai = :id");
+    $stmt->bindParam(':id', $categoryId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
 }

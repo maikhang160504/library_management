@@ -109,7 +109,7 @@
             </nav>
         <?php endif; ?>
         <!-- Content Area -->
-        <div class="flex-grow-1 p-4" id="content">
+        <div class="flex-grow-1 p-4 position-relative" id="content">
             <main>
                 <?php echo $content; ?>
             </main>

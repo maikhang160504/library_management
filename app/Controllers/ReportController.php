@@ -6,6 +6,7 @@ use App\Models\Penalty;
 use App\Core\Controller;
 use App\Models\BorrowBook;
 use App\Models\Book;
+
 class ReportController extends Controller
 {
     private $bookModel;
@@ -122,33 +123,164 @@ class ReportController extends Controller
     {
         $this->view('reports/statisticsView');
     }
-    public function statistics ()
-{
-    // Lấy loại thống kê từ POST; nếu không có, mặc định là 'day'
-    $type = isset($_POST['type']) ? $_POST['type'] : 'day';
-
-    switch ($type) {
-        case 'month':
-            $booksDetail = $this->bookModel->getStatisticsByMonth();
-            break;
-        case 'year':
-            $booksDetail = $this->bookModel->getStatisticsByYear();
-            break;
-        default:
-            $booksDetail = $this->bookModel->getStatisticsByDay();
+    public function statistics()
+    {
+        // Nhận dữ liệu từ form
+        $month = isset($_POST['month']) ? intval($_POST['month']) : null;
+        $year = isset($_POST['year']) ? intval($_POST['year']) : null;
+        $categoryId = isset($_POST['category']) ? intval($_POST['category']) : null;
+    
+        // Lấy danh sách chi tiết sách đã lọc
+        $booksDetail = $this->bookModel->getStatisticsByMonthYearAndCategory($month, $year, $categoryId);
+    
+        // Tổng số lượng sách
+        $total = 0;
+        foreach ($booksDetail as $book) {
+            $total += $book['so_luong'];
+        }
+    
+        // Lấy danh sách thể loại sách từ DB để show dropdown
+        $categoriesList = $this->bookModel->getAllCategories();
+    
+        // Gom nhóm lại theo thể loại để chuẩn bị dữ liệu vẽ biểu đồ
+        $categoryCounts = []; // key = ten_the_loai, value = tổng số lượng
+        foreach ($booksDetail as $book) {
+            $categoryName = $book['ten_the_loai'];
+            if (!isset($categoryCounts[$categoryName])) {
+                $categoryCounts[$categoryName] = 0;
+            }
+            $categoryCounts[$categoryName] += $book['so_luong'];
+        }
+    
+        // Đổ dữ liệu qua view
+        $this->view('reports/statistics', [
+            'booksDetail'     => $booksDetail,
+            'total'           => $total,
+            'month'           => $month,
+            'year'            => $year,
+            'categoryId'      => $categoryId,
+            'categoriesList'  => $categoriesList, // dropdown
+            'chartLabels'     => array_keys($categoryCounts), // chart labels
+            'chartData'       => array_values($categoryCounts), // chart data
+        ]);
     }
+    
 
-    // Tính tổng số lượng sách (cộng các trường so_luong)
-    $total = 0;
-    foreach ($booksDetail as $book) {
-        $total += $book['so_luong'];
+    public function exportExcelStatistic()
+    {
+        $month = isset($_GET['month']) ? intval($_GET['month']) : null;
+        $year = isset($_GET['year']) ? intval($_GET['year']) : null;
+        $categoryId = isset($_GET['category']) ? intval($_GET['category']) : null;
+    
+        // Lấy dữ liệu để export
+        $booksDetail = $this->bookModel->getStatisticsByMonthYearAndCategory($month, $year, $categoryId);
+    
+        // Tạo Spreadsheet mới
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+    
+        // Tiêu đề bảng
+        $sheet->setCellValue('A1', 'Mã sách');
+        $sheet->setCellValue('B1', 'Tên sách');
+        $sheet->setCellValue('C1', 'Tác giả');
+        $sheet->setCellValue('D1', 'Thể loại');
+        $sheet->setCellValue('E1', 'Số lượng');
+        $sheet->setCellValue('F1', 'Thời gian');
+    
+        // Đổ dữ liệu vào file Excel
+        $row = 2;
+        foreach ($booksDetail as $book) {
+            $sheet->setCellValue('A' . $row, $book['ma_sach']);
+            $sheet->setCellValue('B' . $row, $book['ten_sach']);
+            $sheet->setCellValue('C' . $row, $book['ten_tac_gia']);
+            $sheet->setCellValue('D' . $row, $book['ten_the_loai']);
+            $sheet->setCellValue('E' . $row, $book['so_luong']);
+            $sheet->setCellValue('F' . $row, $book['period']);
+            $row++;
+        }
+    
+        // ====== TẠO TÊN FILE LINH HOẠT ======
+        $fileName = "ThongKe_Sach";
+    
+        // Nếu lọc tháng riêng
+        if (!empty($month) && empty($year)) {
+            $fileName .= "_Thang{$month}";
+        }
+    
+        // Nếu lọc năm riêng
+        if (!empty($year) && empty($month)) {
+            $fileName .= "_Nam{$year}";
+        }
+    
+        // Nếu lọc cả tháng và năm
+        if (!empty($month) && !empty($year)) {
+            $fileName .= "_Thang{$month}_Nam{$year}";
+        }
+    
+        // Nếu lọc thể loại riêng
+        if (!empty($categoryId)) {
+            // Lấy tên thể loại theo id
+            $category = $this->bookModel->getCategoryById($categoryId);
+            $categoryName = $category ? $this->sanitizeFileName($category['ten_the_loai']) : "TheLoai{$categoryId}";
+            $fileName .= "_TheLoai_{$categoryName}";
+        }
+    
+        // Nếu KHÔNG có lọc gì, thì chỉ thêm ngày giờ
+        $fileName .= ".xlsx";
+    
+        // ====== DỌN DẸP OUTPUT BUFFER ======
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // ====== TẢI FILE ======
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment;filename=\"{$fileName}\"");
+        header('Cache-Control: max-age=0');
+    
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
     }
+    
 
-    // Gọi view riêng cho thống kê (bạn có thể đặt tên là 'books/statistics')
-    $this->view('reports/statistics', [
-        'booksDetail' => $booksDetail,
-        'total'       => $total,
-        'type'        => $type
-    ]);
-}
+    private function sanitizeFileName($string)
+    {
+        // Bước 1: Chuyển thành không dấu (tự viết)
+        $string = $this->removeVietnameseTones($string);
+    
+        // Bước 2: Chuyển khoảng trắng thành dấu _
+        $string = str_replace(' ', '_', $string);
+    
+        // Bước 3: Xoá ký tự không mong muốn
+        $string = preg_replace('/[^A-Za-z0-9_\-]/', '', $string);
+    
+        return $string;
+    }
+    
+    private function removeVietnameseTones($str)
+    {
+        $unicode = [
+            'a'=>'á|à|ả|ã|ạ|ă|ắ|ặ|ằ|ẳ|ẵ|â|ấ|ầ|ẩ|ẫ|ậ',
+            'd'=>'đ',
+            'e'=>'é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ',
+            'i'=>'í|ì|ỉ|ĩ|ị',
+            'o'=>'ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ',
+            'u'=>'ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự',
+            'y'=>'ý|ỳ|ỷ|ỹ|ỵ',
+            'A'=>'Á|À|Ả|Ã|Ạ|Ă|Ắ|Ặ|Ằ|Ẳ|Ẵ|Â|Ấ|Ầ|Ẩ|Ẫ|Ậ',
+            'D'=>'Đ',
+            'E'=>'É|È|Ẻ|Ẽ|Ẹ|Ê|Ế|Ề|Ể|Ễ|Ệ',
+            'I'=>'Í|Ì|Ỉ|Ĩ|Ị',
+            'O'=>'Ó|Ò|Ỏ|Õ|Ọ|Ô|Ố|Ồ|Ổ|Ỗ|Ộ|Ơ|Ớ|Ờ|Ở|Ỡ|Ợ',
+            'U'=>'Ú|Ù|Ủ|Ũ|Ụ|Ư|Ứ|Ừ|Ử|Ữ|Ự',
+            'Y'=>'Ý|Ỳ|Ỷ|Ỹ|Ỵ',
+        ];
+        foreach($unicode as $nonAccent=>$accent){
+            $str = preg_replace("/($accent)/i", $nonAccent, $str);
+        }
+        return $str;
+    }
+    
+    
 }
