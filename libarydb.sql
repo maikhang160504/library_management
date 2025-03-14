@@ -777,3 +777,31 @@ BEGIN
     ORDER BY period DESC;
 END $$
 DELIMITER ;
+
+
+-- DROP PROCEDURE IF EXISTS ThongKeChiTietTheoThangNam;
+DELIMITER $$
+
+CREATE PROCEDURE ThongKeChiTietTheoThangNam(
+    IN selectedMonth INT,
+    IN selectedYear INT,
+    IN selectedCategoryId INT
+)
+BEGIN
+    SELECT 
+        s.ma_sach,
+        s.ten_sach,
+        tg.ten_tac_gia,
+        tl.ten_the_loai,
+        s.so_luong,
+        DATE(s.ngay_them) AS period
+    FROM sach s
+    INNER JOIN tac_gia tg ON s.ma_tac_gia = tg.ma_tac_gia
+    INNER JOIN the_loai tl ON s.ma_the_loai = tl.ma_the_loai
+    WHERE (selectedMonth IS NULL OR MONTH(s.ngay_them) = selectedMonth)
+      AND (selectedYear IS NULL OR YEAR(s.ngay_them) = selectedYear)
+      AND (selectedCategoryId IS NULL OR s.ma_the_loai = selectedCategoryId)
+    ORDER BY s.ngay_them DESC;
+END $$
+
+DELIMITER ;

@@ -30,7 +30,7 @@ class BookController extends Controller
             : ($_GET['category'] ?? '');
     
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 20; // số bản ghi mỗi trang
+        $limit = 10;
         $offset = ($page - 1) * $limit;
     
         $totalBooks = $this->bookModel->countAllBooks();

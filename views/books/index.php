@@ -42,7 +42,7 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
     <?php endif; ?>
 
     <!-- Phần thống kê -->
-
+</div>
 
 <!-- Header với các nút quản lý -->
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -110,29 +110,31 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
         </tbody>
     </table>
 </div>
-<div class="d-flex justify-content-between">
-    <nav>
-        <ul class="pagination">
-            <?php if ($currentPage > 1): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?= $currentPage - 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">«</a>
-                </li>
-            <?php endif; ?>
+<div class="d-flex justify-content-end">
+    <div class="position-absolute" style="left: 5%; bottom: -5%;">
+        <nav>
+            <ul class="pagination">
+                <?php if ($currentPage > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $currentPage - 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">«</a>
+                    </li>
+                <?php endif; ?>
 
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
-                    <a class="page-link" href="?page=<?= $i ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                        <a class="page-link" href="?page=<?= $i ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
 
-            <?php if ($currentPage < $totalPages): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?= $currentPage + 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">»</a>
-                </li>
-            <?php endif; ?>
-        </ul>
-    </nav>
-    <div class="pt-2 ms-2">
+                <?php if ($currentPage < $totalPages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $currentPage + 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">»</a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </div>
+    <div class="pt-2 ms-2 position-absolute" style="right: 5%; bottom: -3%;">
             <a href="/books/add" class="btn btn-dark">Thêm sách</a>
             <form action="/books/export" method="GET" class="d-inline-block">
                 <input type="hidden" name="query" value="<?= htmlspecialchars($searchQuery) ?>">
@@ -142,7 +144,6 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
         </div>
     </div>
 </div>
-
 <script>
     setTimeout(function(){
     const alertElement = document.querySelector('.alert');
