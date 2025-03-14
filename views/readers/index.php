@@ -11,9 +11,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
 
     // Tiêu đề cột
     $sheet->setCellValue('A1', 'STT');
-    $sheet->setCellValue('A1', 'Mã Độc Giả');
-    $sheet->setCellValue('B1', 'Họ Tên');
-    $sheet->setCellValue('C1', 'Số điện thoại');
+    $sheet->setCellValue('B1', 'Mã Độc Giả');
+    $sheet->setCellValue('C1', 'Họ Tên');
+    $sheet->setCellValue('D1', 'Số điện thoại');
 
     // Định dạng tiêu đề
     $headerStyle = [
@@ -21,17 +21,20 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
         'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
         'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
     ];
-    $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
+    $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
 
     // Đổ dữ liệu vào Excel
     $row = 2;
     $stt =0;
     if (!empty($readers)) {
         foreach ($readers as $reader) {
-            $sheet->setCellValue('A' . $row, $stt++);
-            $sheet->setCellValue('A' . $row, $readers['ma_doc_gia']);
-            $sheet->setCellValue('B' . $row, $readers['ten_doc_gia']);
-            $sheet->setCellValue('C' . $row, $readers['so_dien_thoai']);
+            foreach ($readers as $reader) {
+                $sheet->setCellValue('A' . $row, $stt++);
+                $sheet->setCellValue('B' . $row, $reader['ma_doc_gia']);
+                $sheet->setCellValue('C' . $row, $reader['ten_doc_gia']);
+                $sheet->setCellValue('D' . $row, $reader['so_dien_thoai']);
+                $row++; 
+            }
             
         }
     }
