@@ -3,7 +3,7 @@ $title = "Quản lí phiếu mượn Sách";
 ob_start();
 
 // Thiết lập phân trang
-$limit = 5; // Số phiếu mượn hiển thị trên mỗi trang
+$limit = 8; // Số phiếu mượn hiển thị trên mỗi trang
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
@@ -11,9 +11,10 @@ $offset = ($page - 1) * $limit;
 $filter_status = isset($_GET['status']) ? $_GET['status'] : '';
 $search_name = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-$filteredBorrows = array_filter($borrows, function ($borrow) use ($filter_status, $search_name) {
-    return (empty($filter_status) || $borrow['trang_thai'] === $filter_status) &&
-        (empty($search_name) || stripos($borrow['ten_doc_gia'], $search_name) !== false);
+
+// Lọc theo tên độc giả (nếu có)
+$filteredBorrows = array_filter($borrows, function ($borrow) use ($search_name) {
+    return empty($search_name) || stripos($borrow['ten_doc_gia'], $search_name) !== false;
 });
 
 $totalRecords = count($filteredBorrows);
@@ -57,7 +58,6 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
             <a href="/borrows" class="btn btn-secondary w-50">Xóa bộ lọc</a>
         </div>
     </form>
-
 
     <table class="table table-bordered">
         <thead>

@@ -22,16 +22,19 @@ class BorrowController extends Controller
 
     public function index()
     {
-        // $search = isset($_GET['search']) ? $_GET['search'] : 'all';
-        // $status = isset($_GET['status']) ? $_GET['status'] : 'all';
-        // var_dump($status);
-        // if (!empty($search) || !empty($status)) {
-        //     $borrows = $this->borrowModel->getBorrowsbyStatusandTenDocGia($status, $search);
-        // }else {
-            $borrows = $this->borrowModel->getallBorrows();
-        
+        $filter_status = isset($_GET['status']) ? $_GET['status'] : '';
+    
+        if ($filter_status === 'Đang mượn') {
+            $borrows = $this->borrowModel->getUnreturnedBorrows();
+        } elseif ($filter_status === 'Đã trả') {
+            $borrows = $this->borrowModel->getReturnedBorrows();
+        } else {
+            $borrows = $this->borrowModel->getAllBorrows();
+        }
+    
         $this->view('borrows/index', ['borrows' => $borrows]);
     }
+    
     // Hiển thị form tạo phiếu mượn
     public function create()
     {
@@ -40,11 +43,7 @@ class BorrowController extends Controller
         $this->view('borrows/create', ['readers' => $readers, 'books' => $books]);
     }
 
-    public function showunreturn()
-    {
-        $borrows = $this->borrowModel->getUnreturnedBorrows();
-        $this->view('borrows/index', ['borrows' => $borrows]);
-    }
+   
     // Xử lý tạo phiếu mượn
     public function store()
     {

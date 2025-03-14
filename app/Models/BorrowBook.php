@@ -59,6 +59,13 @@ class BorrowBook extends Model
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getReturnedBorrows()
+    {
+        $query = "CALL LayPhieuMuonDaTra()";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function getallBorrows()
     {
         $query = "SELECT pm.ma_phieu_muon, pm.ma_doc_gia,dg.ten_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai,

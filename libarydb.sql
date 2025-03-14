@@ -350,7 +350,18 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `LayPhieuMuonChuaTra`()
 BEGIN
-    SELECT * FROM phieu_muon WHERE trang_thai = 'Đang mượn';
+    SELECT * FROM phieu_muon pm
+    join doc_gia dg on dg.ma_doc_gia = pm.ma_doc_gia
+    WHERE pm.trang_thai = 'Đang mượn';
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `LayPhieuMuonDaTra`()
+BEGIN
+    SELECT * FROM phieu_muon pm
+    join doc_gia dg on dg.ma_doc_gia = pm.ma_doc_gia
+    WHERE pm.trang_thai = 'Đã trả';
 END$$
 DELIMITER ;
 

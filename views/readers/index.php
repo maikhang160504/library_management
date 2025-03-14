@@ -32,6 +32,9 @@ ob_start();
         <a href="/readers/create" class="btn btn-success">
             <i class="fas fa-plus"></i> Thêm độc giả
         </a>
+        <a href="/readers/create" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Xuất Excel
+        </a>
     </div>
 
     <div class="mb-3">

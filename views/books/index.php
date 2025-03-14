@@ -46,7 +46,7 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
 
 <!-- Header với các nút quản lý -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Danh sách sách</h2>
+    <h2>Quản lý Sách</h2>
     <div class="d-flex justify-content-end ">
         
         
