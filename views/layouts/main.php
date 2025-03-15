@@ -87,6 +87,24 @@
             margin-left: 250px;
             /* Khi sidebar mở rộng, content sẽ di chuyển qua phải */
         }
+
+        #sidebar .logo-container {
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        #sidebar .logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            transition: width 0.3s;
+        }
+
+        #sidebar:hover .logo {
+            width: 100px;
+        }
     </style>
 </head>
 
@@ -96,18 +114,73 @@
         <?php $user = isset($_SESSION['user']) ? $_SESSION['user'] : null; ?>
         <?php if ($user !== null): ?>
 
-            <nav class="bg-dark text-white" id="<?php echo 'sidebar'; ?>">
+            <nav class="bg-dark text-white vh-100" id="sidebar">
                 <ul class="nav flex-column mt-4">
-                    <li class="nav-item"><a href="/books" class="nav-link"><i class="fas fa-home"></i> <span class="ms-2 d-none d-lg-inline">Quản lý Sách</span></a></li>
-                    <li class="nav-item"><a href="/borrows" class="nav-link"><i class="fas fa-book"></i> <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span></a></li>
-                    <li class="nav-item"><a href="/readers" class="nav-link"><i class="fas fa-user"></i> <span class="ms-2 d-none d-lg-inline">Quản lý độc giả</span></a></li>
-                    <li class="nav-item"><a href="/penalties" class="nav-link"><i class="fas fa-money-bill"></i> <span class="ms-2 d-none d-lg-inline">Phí phạt</span></a></li>
-                    <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> <span class="ms-2 d-none d-lg-inline">Thống kê</span></a></li>
-                    <li class="nav-item"><a href="/reports/export-excel" class="nav-link"><i class="fas fa-file-excel"></i>  <span class="ms-2 d-none d-lg-inline">Xuất Excel</span></a></li>
-                    <li class="nav-item"><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span class="ms-2 d-none d-lg-inline">Đăng xuất</span></a></li>
-                </ul>
+                    <!-- Logo -->
+    
+                    <li class="nav-item text-center logo-container">
+                        <img class="logo mx-auto d-block" src="/images/logo.png" alt="Logo">
+                    </li>
+
+
+                    <!-- Quản lý Sách -->
+                    <li class="nav-item py-2">
+                        <a href="/books" class="nav-link text-white">
+                            <i class="fas fa-book-open"></i>
+                            <span class="ms-2 d-none d-lg-inline">Quản lý Sách</span>
+                        </a>
+                    </li>
+
+                    <!-- Quản lý Mượn/Trả -->
+                    <li class="nav-item py-2">
+                        <a href="/borrows" class="nav-link text-white">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span>
+                        </a>
+                    </li>
+
+                    <!-- Quản lý Độc giả -->
+                    <li class="nav-item py-2">
+                        <a href="/readers" class="nav-link text-white">
+                            <i class="fas fa-users"></i>
+                            <span class="ms-2 d-none d-lg-inline">Quản lý Độc giả</span>
+                        </a>
+                    </li>
+
+                    <!-- Phí phạt -->
+                    <li class="nav-item py-2">
+                        <a href="/penalties" class="nav-link text-white">
+                            <i class="fas fa-hand-holding-usd"></i>
+                            <span class="ms-2 d-none d-lg-inline">Phí phạt</span>
+                        </a>
+                    </li>
+
+                    <!-- Thống kê -->
+                    <li class="nav-item py-2">
+                        <a href="/reports" class="nav-link text-white">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="ms-2 d-none d-lg-inline">Thống kê</span>
+                        </a>
+                    </li>
+
+                    <!-- Xuất Excel -->
+                    <li class="nav-item py-2">
+                        <a href="/reports/export-excel" class="nav-link text-white">
+                            <i class="fas fa-file-excel"></i>
+                            <span class="ms-2 d-none d-lg-inline">Xuất Excel</span>
+                        </a>
+                    </li>
+
+                    <!-- Đăng xuất -->
+                    <li class="nav-item py-2">
+                        <a href="/logout" class="nav-link text-danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="ms-2 d-none d-lg-inline">Đăng xuất</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
+
         <?php endif; ?>
         <!-- Content Area -->
         <div class="flex-grow-1 p-4 position-relative" id="content">
