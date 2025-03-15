@@ -156,10 +156,10 @@ $this->view('reports/penalties_stats', [
     {
         $month = isset($_POST['month']) ? intval($_POST['month']) : null;
         $year = isset($_POST['year']) ? intval($_POST['year']) : null;
+        // var_dump($month, $year);
         $categoryId = isset($_POST['category']) ? intval($_POST['category']) : null;
-        $booksDetail = $this->bookModel->getStatisticsByMonthYearAndCategory($month, $year, $categoryId);
-    
- 
+        $booksDetail = $this->bookModel->getStatisticsByMonthYearAndCategory($month, $year, $categoryId); 
+        // var_dump($booksDetail);
         $total = 0;
         foreach ($booksDetail as $book) {
             $total += $book['so_luong'];

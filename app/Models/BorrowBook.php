@@ -105,17 +105,7 @@ class BorrowBook extends Model
     }
     public function getYearlyReaderStatsDetail()
     {
-        $query = "SELECT 
-                    dg.ma_doc_gia, 
-                    dg.ten_doc_gia, 
-                    COUNT(pm.ma_phieu_muon) AS so_lan_muon,
-                    get_top_genre_by_reader(dg.ma_doc_gia) AS the_loai_muon_nhieu_nhat
-                  FROM phieu_muon pm
-                  JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
-                  WHERE YEAR(pm.ngay_muon) = YEAR(CURRENT_DATE)
-                  GROUP BY dg.ma_doc_gia, dg.ten_doc_gia
-                  ORDER BY so_lan_muon DESC;";
-
+        $query = "call ThongKeDocGiaMuonNamChiTiet()";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
