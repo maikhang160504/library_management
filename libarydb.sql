@@ -609,7 +609,7 @@ CREATE TABLE `sach` (
   `nam_xuat_ban` year(4) NOT NULL,
   `nha_xuat_ban` varchar(255) DEFAULT NULL,
   `so_luong` int(11) NOT NULL DEFAULT 0,
-  `ngay_them` date NOT NULL DEFAULT curdate()
+  `ngay_them` date NOT NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -836,6 +836,12 @@ ALTER TABLE `phieu_muon`
 --
 -- Các ràng buộc cho bảng `phieu_tra`
 --
+SELECT ma_ctpm FROM chi_tiet_phieu_muon;
+SELECT ma_ctpm FROM phieu_tra;
+
+DELETE FROM phieu_tra WHERE ma_ctpm NOT IN (SELECT ma_ctpm FROM chi_tiet_phieu_muon);
+
+
 ALTER TABLE `phieu_tra`
   ADD CONSTRAINT `phieu_tra_ibfk_1` FOREIGN KEY (`ma_ctpm`) REFERENCES `chi_tiet_phieu_muon` (`ma_ctpm`) ON DELETE CASCADE;
 
