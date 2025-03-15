@@ -4,6 +4,17 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 if (isset($_GET['export_pdf'])) {
+    // Lấy đường dẫn tuyệt đối của ảnh
+    $imagePath = $_SERVER['DOCUMENT_ROOT'] . "/images/logo_nen.png";
+
+    // Kiểm tra file ảnh tồn tại
+    if (file_exists($imagePath)) {
+        $imageBase64 = "data:image/png;base64," . base64_encode(file_get_contents($imagePath));
+    } else {
+        $imageBase64 = ""; // Tránh lỗi nếu ảnh không tồn tại
+    }
+
+    // Tạo nội dung HTML
     $html = '
     <html lang="vi">
     <head>
@@ -11,7 +22,7 @@ if (isset($_GET['export_pdf'])) {
         <style>
             body { font-family: DejaVu Sans, sans-serif; }
             h2 { text-align: center; color: #d9534f; }
-            .logo { width: 100px; }
+            .logo { width: 100px;}
             .table { width: 100%; border-collapse: collapse; }
             .table, .table th, .table td { border: 1px solid black; }
             .table th, .table td { padding: 8px; text-align: left; }
@@ -20,7 +31,9 @@ if (isset($_GET['export_pdf'])) {
     </head>
     <body>
         <h2>📄 Chi Tiết Phiếu Trả</h2>
-         <img class="logo" src="/images/logo_nen.png" alt="Logo">
+       <div style="text-align: center;">
+    <img style="width: 100px; display: block; margin: 0 auto;" src="' . $imageBase64 . '" alt="Logo">
+</div>
         <p><strong>Mã phiếu trả:</strong> ' . $returnDetail['ma_phieu_tra'] . '</p>
         <p><strong>Độc giả:</strong> ' . $returnDetail['ten_doc_gia'] . '</p>
         <p><strong>Ngày trả thực tế:</strong> ' . $returnDetail['ngay_tra_sach'] . '</p>
@@ -51,19 +64,20 @@ if (isset($_GET['export_pdf'])) {
 
     // Cấu hình Dompdf
     $options = new Options();
-    $options = new Options();
     $options->set('defaultFont', 'DejaVu Sans');
     $options->set('isHtml5ParserEnabled', true);
     $options->set('isRemoteEnabled', true);
+
     $dompdf = new Dompdf($options);
     $dompdf->loadHtml($html);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
-    
+
+    // Xuất file PDF
     $dompdf->stream("Phieu_Tra_" . $returnDetail['ma_phieu_tra'] . ".pdf", ["Attachment" => true]);
-    header("Location: /returns/detail?ma_phieu_muon=" . $returnDetail['ma_phieu_muon']);
     exit;
 }
+
 
 $title = "Chi tiết Phiếu Trả";
 ob_start();

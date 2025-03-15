@@ -8,29 +8,61 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     $options = new Options();
     $options->set('defaultFont', 'DejaVu Sans'); // Hỗ trợ tiếng Việt
     $dompdf = new Dompdf($options);
-
+    $options->set('isRemoteEnabled', true);
+    $imagePath = $_SERVER['DOCUMENT_ROOT'] . "/images/logo_nen.png";
+    $imageBase64 = "data:image/png;base64," . base64_encode(file_get_contents($imagePath));
+    
     ob_start();
-    ?>
-    <!DOCTYPE html>
-    <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <title>Phiếu Mượn</title>
-        <style>
-            body { font-family: DejaVu Sans, sans-serif; font-size: 14px; }
-            .header { text-align: center; margin-bottom: 15px; }
-            .logo { width: 100px; }
-            .title { font-size: 18px; font-weight: bold; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            table, th, td { border: 1px solid black; }
-            th, td { padding: 8px; text-align: left; }
-            .footer { text-align: center; font-size: 12px; margin-top: 20px; }
-        </style>
-    </head>
-    <body>
+?>
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 14px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            width: 100px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+    <div>
         <div class="header">
             <p class="title">Phiếu Mượn Thư Viện</p>
-            <img class="logo" src="/images/logo_nen.png" alt="Logo">
+            <img class="logo" src="<?php echo $imageBase64; ?>" alt="Logo">
+
         </div>
         <p><strong>Mã phiếu mượn:</strong> <?php echo $borrowDetail['ma_phieu_muon']; ?></p>
         <p><strong>Độc giả:</strong> <?php echo $borrowDetail['ten_doc_gia']; ?></p>
@@ -60,22 +92,21 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </body>
-    </html>
-    <?php
+    </div>
+<?php
     $html = ob_get_clean();
     $dompdf->loadHtml($html);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
-    
+
     $dompdf->stream("phieu_muon_{$borrowDetail['ma_phieu_muon']}.pdf", ["Attachment" => true]);
     header("Location: /borrows/detail?ma_phieu_muon=" . $borrowDetail['ma_phieu_muon']);
-    
+    // echo $html;
     exit;
 }
 ?>
 
-<?php 
+<?php
 $title = "Chi tiết Phiếu Mượn";
 ob_start();
 ?>
@@ -141,4 +172,3 @@ ob_start();
 $content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main.php';
 ?>
-
