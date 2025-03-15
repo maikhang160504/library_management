@@ -12,12 +12,11 @@ unset($_SESSION['oldData']);
 ?>
 <div class="container">
     <div class="">
-        <h2 class="text-center mb-4">Thêm độc giả</h2>
-
-        <div class="mt-3 mb-3">
-            <a href="/readers" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Quay lại
+        <div class="d-flex align-items-center justify-content-center position-relative my-4">
+            <a href="/readers" class="btn btn-outline-secondary position-absolute start-0">
+                <i class="bi bi-arrow-left-circle"></i> Quay lại
             </a>
+            <h2 class="text-center"><i class="bi bi-person-lines-fill"></i> Thêm độc giả</h2>
         </div>
 
         <form method="POST" action="/readers/store">
@@ -26,7 +25,7 @@ unset($_SESSION['oldData']);
                 <label for="ten_doc_gia" class="form-label">Tên độc giả</label>
                 <input type="text" class="form-control <?= isset($errors['ten_doc_gia']) ? 'is-invalid' : '' ?>"
                     value="<?= htmlspecialchars($oldData['ten_doc_gia'] ?? '') ?>"
-                    id="ten_doc_gia" name="ten_doc_gia"  placeholder="Nhập tên độc giả">
+                    id="ten_doc_gia" name="ten_doc_gia" placeholder="Nhập tên độc giả">
 
                 <div class="invalid-feedback"><?= $errors['ten_doc_gia'] ?? ''; ?></div>
             </div>
@@ -36,7 +35,7 @@ unset($_SESSION['oldData']);
                 <label for="so_dien_thoai" class="form-label">Số điện thoại</label>
                 <input type="text" class="form-control <?= isset($errors['so_dien_thoai']) ? 'is-invalid' : '' ?>"
                     value="<?= htmlspecialchars($oldData['so_dien_thoai'] ?? '') ?>"
-                    id="so_dien_thoai" name="so_dien_thoai"  placeholder="Nhập số điện thoại">
+                    id="so_dien_thoai" name="so_dien_thoai" placeholder="Nhập số điện thoại">
 
                 <div class="invalid-feedback"><?= $errors['so_dien_thoai'] ?? ''; ?></div>
             </div>
@@ -46,7 +45,7 @@ unset($_SESSION['oldData']);
                 <label for="ngay_sinh" class="form-label">Ngày sinh</label>
                 <input type="date" class="form-control <?= isset($errors['ngay_sinh']) ? 'is-invalid' : '' ?>"
                     value="<?= htmlspecialchars($oldData['ngay_sinh'] ?? '') ?>"
-                    id="ngay_sinh" name="ngay_sinh"  placeholder="Ngày sinh">
+                    id="ngay_sinh" name="ngay_sinh" placeholder="Ngày sinh">
 
                 <div class="invalid-feedback"><?= $errors['ngay_sinh'] ?? ''; ?></div>
             </div>

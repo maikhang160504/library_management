@@ -87,12 +87,11 @@ class BookController extends Controller
         'nam_xuat_ban'  => trim($_POST['nam_xuat_ban'] ?? ''),
         'nha_xuat_ban'  => trim($_POST['nha_xuat_ban'] ?? ''),
         'so_luong'      => trim($_POST['so_luong'] ?? ''),
-        'ngay_them'     => date('Y-m-d') // Ngày thêm sách là ngày hiện tại
+        'ngay_them'     => date('Y-m-d') 
     ];
 
     $errors = [];
 
-    // Validate các trường
     if (empty($data['ten_sach'])) $errors['ten_sach'] = 'Tên sách không được để trống.';
     if (empty($data['ten_tac_gia'])) $errors['ten_tac_gia'] = 'Tên tác giả không được để trống.';
     if (empty($data['ten_the_loai'])) $errors['ten_the_loai'] = 'Thể loại không được để trống.';
@@ -113,7 +112,6 @@ class BookController extends Controller
         $this->redirectBackWithError($errors, $data);
     }
 
-    // Thêm sách
     $result = $this->bookModel->addBook($data);
 
     if ($result) {
@@ -134,7 +132,6 @@ class BookController extends Controller
         exit;
     }
 
-    // controllers/BookController.php
 public function edit()
 {
     $id = $_GET['id'] ?? null;
@@ -160,7 +157,6 @@ public function update()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        // Lấy dữ liệu từ form
         $data = [
             'ma_sach'      => intval($_POST['ma_sach']),
             'ten_sach'     => trim($_POST['ten_sach']),
@@ -171,14 +167,13 @@ public function update()
             'so_luong'     => intval($_POST['so_luong'])
         ];
 
-        // Validate dữ liệu cơ bản
         if (empty($data['ten_sach']) || empty($data['ten_tac_gia']) || empty($data['ten_the_loai'])) {
             $_SESSION['error'] = "Vui lòng nhập đầy đủ thông tin!";
             header("Location: /books/edit?id=" . $data['ma_sach']);
             exit;
         }
 
-        // Gọi model để update
+
         $result = $this->bookModel->updateBook($data);
 
         if ($result) {
@@ -191,7 +186,6 @@ public function update()
         exit;
     }
 
-    // Nếu truy cập không đúng phương thức
     header("Location: /books");
     exit;
 }
@@ -225,14 +219,11 @@ public function update()
     }
 
     public function export() {
-        // Khởi tạo model Book
         $bookModel = new Book();
 
-        // Lấy các tham số lọc từ GET nếu có
         $query    = isset($_GET['query']) ? trim($_GET['query']) : '';
         $category = isset($_GET['category']) ? trim($_GET['category']) : '';
 
-        // Xác định dữ liệu cần xuất dựa vào tham số lọc
         if ($query !== '' && $category !== '') {
             $books = $bookModel->searchBooksInCategory($query, $category);
         } elseif ($query !== '') {
@@ -243,11 +234,9 @@ public function update()
             $books = $bookModel->getAllBooks();
         }
 
-        // Tạo đối tượng Spreadsheet mới
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Đặt tiêu đề cho các cột
         $sheet->setCellValue('A1', 'Mã sách');
         $sheet->setCellValue('B1', 'Tên sách');
         $sheet->setCellValue('C1', 'Tác giả');
@@ -260,8 +249,7 @@ public function update()
             'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
         ];
         $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
-        // Đổ dữ liệu vào Excel
-        // Điền dữ liệu sách vào file Excel, bắt đầu từ hàng thứ 2
+
         $row = 2;
         foreach ($books as $book) {
             $sheet->setCellValue('A' . $row, $book['ma_sach']);
@@ -272,26 +260,21 @@ public function update()
             $row++;
         }
 
-        // Thiết lập header cho file Excel để trình duyệt tải file về
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="books.xlsx"');
         header('Cache-Control: max-age=0');
 
-        // Ghi file Excel ra output
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
         exit;
     }
 
-    // Controller: BookController.php
 
 
 public function exportStatistics()
 {
-    // Lấy kiểu thống kê từ GET, mặc định là 'day'
     $type = $_GET['type'] ?? 'day';
 
-    // Lấy dữ liệu chi tiết thống kê dựa vào kiểu
     if ($type === 'month') {
         $booksDetail = $this->bookModel->getStatisticsByMonth();
     } elseif ($type === 'year') {
@@ -300,22 +283,19 @@ public function exportStatistics()
         $booksDetail = $this->bookModel->getStatisticsByDay();
     }
 
-    // Tính tổng số sách (cộng trường so_luong)
     $total = 0;
     foreach ($booksDetail as $book) {
         $total += $book['so_luong'];
     }
 
-    // Tạo file Excel sử dụng PhpSpreadsheet
     $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
 
-    // Tiêu đề file Excel
+
     $sheet->setCellValue('A1', 'Thống kê sách theo ' . ucfirst($type));
     $sheet->mergeCells('A1:F1');
     $sheet->getStyle('A1')->getFont()->setBold(true);
 
-    // Header bảng
     $sheet->setCellValue('A3', 'Mã sách');
     $sheet->setCellValue('B3', 'Tên sách');
     $sheet->setCellValue('C3', 'Tác giả');
@@ -325,7 +305,6 @@ public function exportStatistics()
     $sheet->setCellValue('F3', $headerLabel);
     $sheet->getStyle('A3:F3')->getFont()->setBold(true);
 
-    // Điền dữ liệu thống kê từ hàng 4
     $rowNum = 4;
     foreach ($booksDetail as $book) {
         $sheet->setCellValue('A' . $rowNum, $book['ma_sach']);
@@ -336,12 +315,11 @@ public function exportStatistics()
         $sheet->setCellValue('F' . $rowNum, $book['period']);
         $rowNum++;
     }
-    // Dòng tổng cộng
+
     $sheet->setCellValue('D' . $rowNum, 'Tổng cộng:');
     $sheet->setCellValue('E' . $rowNum, $total);
     $sheet->getStyle('D' . $rowNum . ':F' . $rowNum)->getFont()->setBold(true);
 
-    // Gửi file Excel ra trình duyệt
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="thong_ke_sach_' . $type . '.xlsx"');
     header('Cache-Control: max-age=0');

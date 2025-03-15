@@ -74,23 +74,52 @@ class ReportController extends Controller
     }
 
     public function penaltiesStats()
-    {
-        $filter = $_GET['filter'] ?? 'this_month';
-        $penalties = $this->penaltyModel->getPenaltiesByDate($filter) ?? [];
-        $total_penalty = !empty($penalties) ? array_sum(array_column($penalties, 'tien_phat')) : 0;
+{
+    $filter = $_GET['filter'] ?? 'this_month';
+    $currentPage = $_GET['page'] ?? 1; // Trang hiện tại
+    $itemsPerPage = 10; // Số bản ghi mỗi trang
 
-        $this->view('reports/penalties_stats', [
-            'penalties' => $penalties,
-            'filter' => $filter,
-            'total_penalty' => $total_penalty
-        ]);
+    $penalties = $this->penaltyModel->getPenaltiesByDate($filter, $currentPage, $itemsPerPage) ?? [];
+    
+    $total_penalty = !empty($penalties) ? array_sum(array_column($penalties, 'tien_phat')) : 0;
+
+    $totalPenalties = $this->penaltyModel->getTotalPenalties($filter);
+    $totalPages = ceil($totalPenalties / $itemsPerPage);
+
+
+    $penaltySummary = [];
+foreach ($penalties as $penalty) {
+    $maDocGia = $penalty['ma_doc_gia'];
+    if (!isset($penaltySummary[$maDocGia])) {
+        $penaltySummary[$maDocGia] = [
+            'ten_doc_gia' => $penalty['ten_doc_gia'],
+            'tien_phat' => 0
+        ];
     }
+    $penaltySummary[$maDocGia]['tien_phat'] += $penalty['tien_phat'];
+}
 
+$chartLabels = array_column($penaltySummary, 'ten_doc_gia');
+$chartData = array_column($penaltySummary, 'tien_phat');
+
+$this->view('reports/penalties_stats', [
+    'penalties' => $penalties,
+    'filter' => $filter,
+    'total_penalty' => $total_penalty,
+    'totalPages' => $totalPages, 
+    'currentPage' => $currentPage,
+    'chartLabels' => $chartLabels,
+    'chartData' => $chartData
+]);
+}
 
     public function penaltyReport()
     {
+        
         $this->view('reports/penalties_stats');
     }
+
+    
 
     public function upcomingReturns()
     {
@@ -125,25 +154,20 @@ class ReportController extends Controller
     }
     public function statistics()
     {
-        // Nhận dữ liệu từ form
         $month = isset($_POST['month']) ? intval($_POST['month']) : null;
         $year = isset($_POST['year']) ? intval($_POST['year']) : null;
         $categoryId = isset($_POST['category']) ? intval($_POST['category']) : null;
-    
-        // Lấy danh sách chi tiết sách đã lọc
         $booksDetail = $this->bookModel->getStatisticsByMonthYearAndCategory($month, $year, $categoryId);
     
-        // Tổng số lượng sách
+ 
         $total = 0;
         foreach ($booksDetail as $book) {
             $total += $book['so_luong'];
         }
     
-        // Lấy danh sách thể loại sách từ DB để show dropdown
         $categoriesList = $this->bookModel->getAllCategories();
     
-        // Gom nhóm lại theo thể loại để chuẩn bị dữ liệu vẽ biểu đồ
-        $categoryCounts = []; // key = ten_the_loai, value = tổng số lượng
+        $categoryCounts = [];
         foreach ($booksDetail as $book) {
             $categoryName = $book['ten_the_loai'];
             if (!isset($categoryCounts[$categoryName])) {
@@ -152,16 +176,15 @@ class ReportController extends Controller
             $categoryCounts[$categoryName] += $book['so_luong'];
         }
     
-        // Đổ dữ liệu qua view
         $this->view('reports/statistics', [
             'booksDetail'     => $booksDetail,
             'total'           => $total,
             'month'           => $month,
             'year'            => $year,
             'categoryId'      => $categoryId,
-            'categoriesList'  => $categoriesList, // dropdown
-            'chartLabels'     => array_keys($categoryCounts), // chart labels
-            'chartData'       => array_values($categoryCounts), // chart data
+            'categoriesList'  => $categoriesList, 
+            'chartLabels'     => array_keys($categoryCounts), 
+            'chartData'       => array_values($categoryCounts), 
         ]);
     }
     
@@ -172,14 +195,11 @@ class ReportController extends Controller
         $year = isset($_GET['year']) ? intval($_GET['year']) : null;
         $categoryId = isset($_GET['category']) ? intval($_GET['category']) : null;
     
-        // Lấy dữ liệu để export
         $booksDetail = $this->bookModel->getStatisticsByMonthYearAndCategory($month, $year, $categoryId);
     
-        // Tạo Spreadsheet mới
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
     
-        // Tiêu đề bảng
         $sheet->setCellValue('A1', 'Mã sách');
         $sheet->setCellValue('B1', 'Tên sách');
         $sheet->setCellValue('C1', 'Tác giả');
@@ -187,7 +207,6 @@ class ReportController extends Controller
         $sheet->setCellValue('E1', 'Số lượng');
         $sheet->setCellValue('F1', 'Thời gian');
     
-        // Đổ dữ liệu vào file Excel
         $row = 2;
         foreach ($booksDetail as $book) {
             $sheet->setCellValue('A' . $row, $book['ma_sach']);
@@ -199,41 +218,32 @@ class ReportController extends Controller
             $row++;
         }
     
-        // ====== TẠO TÊN FILE LINH HOẠT ======
         $fileName = "ThongKe_Sach";
     
-        // Nếu lọc tháng riêng
         if (!empty($month) && empty($year)) {
             $fileName .= "_Thang{$month}";
         }
     
-        // Nếu lọc năm riêng
         if (!empty($year) && empty($month)) {
             $fileName .= "_Nam{$year}";
         }
     
-        // Nếu lọc cả tháng và năm
         if (!empty($month) && !empty($year)) {
             $fileName .= "_Thang{$month}_Nam{$year}";
         }
     
-        // Nếu lọc thể loại riêng
         if (!empty($categoryId)) {
-            // Lấy tên thể loại theo id
             $category = $this->bookModel->getCategoryById($categoryId);
             $categoryName = $category ? $this->sanitizeFileName($category['ten_the_loai']) : "TheLoai{$categoryId}";
             $fileName .= "_TheLoai_{$categoryName}";
         }
-    
-        // Nếu KHÔNG có lọc gì, thì chỉ thêm ngày giờ
+
         $fileName .= ".xlsx";
     
-        // ====== DỌN DẸP OUTPUT BUFFER ======
         if (ob_get_length()) {
             ob_end_clean();
         }
 
-        // ====== TẢI FILE ======
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment;filename=\"{$fileName}\"");
         header('Cache-Control: max-age=0');
@@ -246,13 +256,10 @@ class ReportController extends Controller
 
     private function sanitizeFileName($string)
     {
-        // Bước 1: Chuyển thành không dấu (tự viết)
         $string = $this->removeVietnameseTones($string);
     
-        // Bước 2: Chuyển khoảng trắng thành dấu _
         $string = str_replace(' ', '_', $string);
     
-        // Bước 3: Xoá ký tự không mong muốn
         $string = preg_replace('/[^A-Za-z0-9_\-]/', '', $string);
     
         return $string;

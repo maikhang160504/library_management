@@ -1,9 +1,66 @@
 <?php
 $title = "Danh sách Độc giả";
 ob_start();
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Tiêu đề cột
+    $sheet->setCellValue('A1', 'STT');
+    $sheet->setCellValue('B1', 'Mã Độc Giả');
+    $sheet->setCellValue('C1', 'Họ Tên');
+    $sheet->setCellValue('D1', 'Số điện thoại');
+
+    // Định dạng tiêu đề
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+    ];
+    $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
+
+    // Đổ dữ liệu vào Excel
+    $row = 2;
+    $stt =0;
+    if (!empty($readers)) {
+        foreach ($readers as $reader) {
+            foreach ($readers as $reader) {
+                $sheet->setCellValue('A' . $row, $stt++);
+                $sheet->setCellValue('B' . $row, $reader['ma_doc_gia']);
+                $sheet->setCellValue('C' . $row, $reader['ten_doc_gia']);
+                $sheet->setCellValue('D' . $row, $reader['so_dien_thoai']);
+                $row++; 
+            }
+            
+        }
+    }
+
+
+    // Xuất file Excel
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="danh_sach_doc_gia.xlsx"');
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 ?>
+
 <div class="container">
-    <h2 class="text-center mb-4">Danh sách Độc giả</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Danh sách độc giả</h2>
+        <div>
+            <a href="/readers/create" class="btn btn-success">
+                <i class="fas fa-plus"></i> Thêm độc giả
+            </a>
+            <a href="?export=excel" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Xuất Excel
+            </a>
+        </div>
+    </div>
 
     <?php
     // Hiển thị thông báo thành công
@@ -27,31 +84,23 @@ ob_start();
 
     <?php endif; ?>
 
+    <!-- Tìm kiếm -->
+    <form action="/readers/search" method="GET" class="row g-3 align-items-end mb-3">
+        <div class="col-md-5">
+            <label for="search" class="form-label">Tìm kiếm theo mã, tên, số điện thoại</label>
+            <input type="text" id="search" name="search" class="form-control"
+                placeholder="Nhập từ khóa..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Tìm kiếm
+            </button>
+            <a href="/readers" class="btn btn-secondary">Xóa bộ lọc</a>
+        </div>
+    </form>
 
-    <div class="mb-3">
-        <a href="/readers/create" class="btn btn-success">
-            <i class="fas fa-plus"></i> Thêm độc giả
-        </a>
-        <a href="/readers/create" class="btn btn-success">
-            <i class="fas fa-file-excel"></i> Xuất Excel
-        </a>
-    </div>
 
-    <div class="mb-3">
-        <form method="GET" action="/readers/search">
-            <div class="input-group">
-                <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm theo mã, tên, số điện thoại">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i> Tìm kiếm
-                </button>
-            </div>
-        </form>
-    </div>
 
-    <div>
-        <!-- Nút Quay lại -->
-        <a href="/readers" class="btn btn-secondary mb-3">Quay lại danh sách đầy đủ</a>
-    </div>
 
     <div class="table-responsive">
         <table class="table table-custom table-hover text-center align-middle">
@@ -73,7 +122,7 @@ ob_start();
                     <?php $stt = 1; ?>
                     <?php foreach ($readers as $reader): ?>
                         <tr>
-                        <td><?= $stt++; ?></td>
+                            <td><?= $stt++; ?></td>
                             <td><?php echo $reader['ma_doc_gia']; ?></td>
                             <td><?php echo $reader['ten_doc_gia']; ?></td>
                             <td><?php echo $reader['so_dien_thoai']; ?></td>
@@ -139,22 +188,21 @@ ob_start();
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    var deleteModal = document.getElementById("delete");
-    var deleteForm = document.getElementById("deleteForm");
+    document.addEventListener("DOMContentLoaded", function() {
+        var deleteModal = document.getElementById("delete");
+        var deleteForm = document.getElementById("deleteForm");
 
-    deleteModal.addEventListener("show.bs.modal", function (event) {
-        var button = event.relatedTarget;
-        var readerId = button.getAttribute("data-bs-id");
+        deleteModal.addEventListener("show.bs.modal", function(event) {
+            var button = event.relatedTarget;
+            var readerId = button.getAttribute("data-bs-id");
 
-        // Gán ID vào input ẩn
-        document.getElementById("readerId").value = readerId;
+            // Gán ID vào input ẩn
+            document.getElementById("readerId").value = readerId;
 
-        // Chỉnh sửa action của form để gửi đúng route
-        deleteForm.action = "/readers/delete/" + readerId;
+            // Chỉnh sửa action của form để gửi đúng route
+            deleteForm.action = "/readers/delete/" + readerId;
+        });
     });
-});
-
 </script>
 
 <?php

@@ -53,9 +53,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
 
     // Xuất file Excel
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="thong_ke_khoan_phat.xlsx"');  
+    header('Content-Disposition: attachment;filename="thong_ke_khoan_phat.xlsx"');
     $writer = new Xlsx($spreadsheet);
-    $writer->save('php://output');  
+    $writer->save('php://output');
     exit;
 }
 ?>
@@ -108,7 +108,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                     </thead>
                     <tbody>
                         <?php if (!empty($penalties)) : ?>
-                            <?php 
+                            <?php
                             // Group penalties by borrow ticket ID (ma_phieu_muon)
                             $groupedPenalties = [];
                             foreach ($penalties as $penalty) {
@@ -117,15 +117,15 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                             ?>
                             <?php foreach ($groupedPenalties as $ticketId => $penaltyGroup): ?>
                                 <tr>
-                                    <td class="text-center"><?= $ticketId ?></td>  
+                                    <td class="text-center"><?= $ticketId ?></td>
                                     <td class="text-center"><?= $penaltyGroup[0]['ma_doc_gia'] ?></td>
                                     <td class="text-start fw-medium"><?= $penaltyGroup[0]['ten_doc_gia'] ?></td>
                                     <td class="text-center"><?= date('d/m/Y', strtotime($penaltyGroup[0]['ngay_het_han'])) ?></td>
                                     <td class="text-center"><?= date('d/m/Y', strtotime($penaltyGroup[0]['ngay_tra_sach'])) ?></td>
                                     <td class="text-center text-danger">
-                                        <?php 
+                                        <?php
                                         $totalPenalty = array_sum(array_column($penaltyGroup, 'tien_phat'));
-                                        echo number_format($totalPenalty, 0, ',', '.') . ' VND'; 
+                                        echo number_format($totalPenalty, 0, ',', '.') . ' VND';
                                         ?>
                                     </td>
                                 </tr>
@@ -140,12 +140,31 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 </table>
             </div>
         </div>
+        <?php if ($totalPages > 1 && count($penalties) >= 10): ?>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
+                        <a class="page-link" href="?page=<?= $currentPage - 1 ?>">&laquo;</a>
+                    </li>
+
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?= ($currentPage == $i) ? 'active' : '' ?>">
+                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        </li>
+                    <?php endfor; ?>
+                    <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
+                        <a class="page-link" href="?page=<?= $currentPage + 1 ?>">&raquo;</a>
+                    </li>
+
+                </ul>
+            </nav>
+        <?php endif; ?>
     </div>
 
     <!-- Biểu đồ thống kê -->
     <div class="card shadow-sm mt-4 border-0 no-print">
         <div class="card-body">
-            <h5 class="card-title text-secondary"><i class="bi bi-graph-up"></i> Biểu đồ Thống kê Phạt</h5>
+            <h5 class="card-title text-secondary"><i class="bi bi-graph-up"></i> Biểu đồ Thống kê Phạt theo mã độc giả</h5>
             <canvas id="penaltyChart"></canvas>
         </div>
     </div>
@@ -155,85 +174,68 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
     #penaltyChart {
         max-height: 300px;
     }
-    @media print {
-    .no-print {
-        display: none !important;
-    }
-    .table {
-        border-collapse: collapse;
-        width: 100%;
-        font-size: 14px;
-    }
-    .table th, .table td {
-        border: 1px solid black !important;
-        padding: 8px !important;
-        text-align: center !important;
-    }
-    .table thead {
-        background-color: #000 !important;
-        color: white !important;
-    }
-    body::before {
-        content: "Thống kê Khoản Phạt - <?= $filterText ?> - In lúc: " attr(data-print-time);
-        display: block;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    @page {
-        size: A4 landscape;
-        margin: 20mm;
-    }
-}
 
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid black !important;
+            padding: 8px !important;
+            text-align: center !important;
+        }
+
+        .table thead {
+            background-color: #000 !important;
+            color: white !important;
+        }
+
+        body::before {
+            content: "Thống kê Khoản Phạt - <?= $filterText ?> - In lúc: " attr(data-print-time);
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 20mm;
+        }
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var ctx = document.getElementById('penaltyChart').getContext('2d');
-        var penaltyChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [<?php foreach ($penalties as $penalty) {
-                                echo '"' . addslashes($penalty['ten_doc_gia']) . '",';
-                            } ?>],
-                datasets: [{
-                    label: 'Số tiền phạt',
-                    data: [<?php foreach ($penalties as $penalty) {
-                                echo $penalty['tien_phat'] . ',';
-                            } ?>],
-                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 10000
-                        }
-                    }
-                }
+    var ctx = document.getElementById('penaltyChart').getContext('2d');
+    var penaltyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode($chartLabels); ?>,
+            datasets: [{
+                label: 'Tổng tiền phạt',
+                data: <?php echo json_encode($chartData); ?>,
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
             }
-        });
+        }
     });
-
-    function printReport() {
-    document.body.setAttribute('data-print-time', new Date().toLocaleString());
-    window.print();
-}
-
 </script>
 
 <?php

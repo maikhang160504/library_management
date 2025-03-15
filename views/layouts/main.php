@@ -111,7 +111,7 @@
 <body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <?php $user = isset($_SESSION['user']) ? $_SESSION['user'] : null; ?>
+        <?php $user =  $_SESSION['user'] ?? null; ?>
         <?php if ($user !== null): ?>
 
             <nav class="bg-dark text-white vh-100" id="sidebar">

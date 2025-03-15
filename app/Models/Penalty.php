@@ -85,12 +85,11 @@ class Penalty extends Model
         return $penalties ?: [];
     }
     public function checkPenalty($ma_muon_sach) {
-        // Gọi Stored Procedure CheckPenalty
         $query = "CALL CheckPenalty(:ma_muon_sach, @penaltyStatus)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':ma_muon_sach', $ma_muon_sach, PDO::PARAM_INT);
         $stmt->execute();
-        $stmt->closeCursor(); // Đóng cursor để tiếp tục query tiếp theo
+        $stmt->closeCursor(); 
     
         // Lấy giá trị biến @penaltyStatus
         $query = "SELECT @penaltyStatus AS 'check'";
@@ -98,4 +97,96 @@ class Penalty extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
+    public function searchPenalties($search)
+{
+    $sql = "
+        SELECT 
+            pm.ma_phieu_muon,
+            dg.ma_doc_gia,
+            dg.ten_doc_gia,
+            pm.ngay_tra AS ngay_het_han,  
+            pt.ngay_tra_sach,             
+            pt.tien_phat,                 
+            pm.trang_thai                 
+        FROM phieu_tra pt
+        LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
+        LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
+        LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+        WHERE pt.tien_phat > 0 
+        AND (pm.ma_phieu_muon LIKE :keyword OR dg.ten_doc_gia LIKE :keyword)
+    ";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':keyword', '%' . $search . '%', PDO::PARAM_STR);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+    public function getPenaltiesWithPagination($start, $perPage, $keyword = '')
+{
+    $query = "
+        SELECT 
+            pt.ma_phieu_tra,
+            pm.ma_phieu_muon,
+            dg.ma_doc_gia,
+            dg.ten_doc_gia,
+            pm.ngay_tra AS ngay_het_han,  
+            pt.ngay_tra_sach,             
+            pt.tien_phat,                 
+            pm.trang_thai                 
+        FROM phieu_tra pt
+        LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
+        LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
+        LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+        WHERE pt.tien_phat > 0
+    ";
+
+    if ($keyword) {
+        $query .= " AND (pm.ma_phieu_muon LIKE :keyword OR dg.ten_doc_gia LIKE :keyword)";
+    }
+
+    $query .= " LIMIT :start, :perPage";
+
+    $stmt = $this->db->prepare($query);
+    
+    if ($keyword) {
+        $stmt->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
+    }
+
+    $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+    $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
+    public function getTotalPenalties($keyword = '')
+    {
+        if ($keyword) {
+            $query = "
+            SELECT COUNT(*) 
+            FROM phieu_tra pt
+            LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
+            LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
+            LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+            WHERE dg.ten_doc_gia LIKE :keyword OR pm.ma_phieu_muon LIKE :keyword
+        ";
+        
+
+        } else {
+            $query = "SELECT COUNT(*) FROM doc_gia";
+        }
+
+        $stmt = $this->db->prepare($query);
+        if ($keyword) {
+            $stmt->bindValue(':keyword', "%$keyword%", PDO::PARAM_STR);
+        }
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
 }
