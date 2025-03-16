@@ -98,6 +98,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 <table class="table table-striped table-hover align-middle">
                     <thead class="table-dark text-center">
                         <tr>
+                            <th>STT</th>
                             <th>Mã phiếu mượn</th>
                             <th>Mã Độc Giả</th>
                             <th class="text-start">Tên Độc Giả</th>
@@ -107,6 +108,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                         </tr>
                     </thead>
                     <tbody>
+                    
                         <?php if (!empty($penalties)) : ?>
                             <?php
                             // Group penalties by borrow ticket ID (ma_phieu_muon)
@@ -115,8 +117,13 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                                 $groupedPenalties[$penalty['ma_phieu_muon']][] = $penalty;
                             }
                             ?>
+                            <?php 
+                        $perPage = 10;
+                        $stt = ($currentPage - 1) * $perPage + 1; 
+                    ?>
                             <?php foreach ($groupedPenalties as $ticketId => $penaltyGroup): ?>
                                 <tr>
+                                    <td> <?php echo(htmlspecialchars($stt))?></td>
                                     <td class="text-center"><?= $ticketId ?></td>
                                     <td class="text-center"><?= $penaltyGroup[0]['ma_doc_gia'] ?></td>
                                     <td class="text-start fw-medium"><?= $penaltyGroup[0]['ten_doc_gia'] ?></td>
@@ -129,7 +136,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                                         ?>
                                     </td>
                                 </tr>
+                                <?php $stt++; ?>
                             <?php endforeach; ?>
+                            
                         <?php else: ?>
                             <tr>
                                 <td colspan="6" class="text-center text-muted">Không có dữ liệu tiền phạt.</td> <!-- Adjusted colspan to 6 -->
@@ -140,7 +149,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 </table>
             </div>
         </div>
-        <?php if ($totalPages > 1 && count($penalties) >= 10): ?>
+        <?php if ($totalPages > 1 ): ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                     <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">

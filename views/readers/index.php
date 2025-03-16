@@ -25,7 +25,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
 
     // Đổ dữ liệu vào Excel
     $row = 2;
-    $stt =0;
+    $stt = 0;
     if (!empty($readers)) {
         foreach ($readers as $reader) {
             foreach ($readers as $reader) {
@@ -33,9 +33,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 $sheet->setCellValue('B' . $row, $reader['ma_doc_gia']);
                 $sheet->setCellValue('C' . $row, $reader['ten_doc_gia']);
                 $sheet->setCellValue('D' . $row, $reader['so_dien_thoai']);
-                $row++; 
+                $row++;
             }
-            
         }
     }
 
@@ -106,11 +105,11 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
         <table class="table table-custom table-hover text-center align-middle">
             <thead>
                 <tr>
-                    <th>STT</th>
-                    <th>Mã độc giả</th>
-                    <th>Tên độc giả</th>
-                    <th>Số điện thoại</th>
-                    <th>Hành động</th>
+                    <th style="width:10%">STT</th>
+                    <th style="width:10%">Mã độc giả</th>
+                    <th style="width:30%">Tên độc giả</th>
+                    <th style="width:20%">Số điện thoại</th>
+                    <th style="width:30%">Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,7 +118,10 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                         <td colspan="5" class="text-center">Không có kết quả tìm kiếm.</td>
                     </tr>
                 <?php else: ?>
-                    <?php $stt = 1; ?>
+                    <?php
+                    $perPage = 10;
+                    $stt = ($currentPage - 1) * $perPage + 1; ?>
+
                     <?php foreach ($readers as $reader): ?>
                         <tr>
                             <td><?= $stt++; ?></td>
@@ -128,13 +130,13 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                             <td><?php echo $reader['so_dien_thoai']; ?></td>
                             <!-- <td><?php echo $reader['email']; ?></td> -->
                             <td>
-                                <a href="/readers/detail/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-info mx-2">
+                                <a href="/readers/detail/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-info mx-3 ">
                                     <i class="fas fa-eye"></i> Xem chi tiết
                                 </a>
-                                <a href="/readers/edit/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-warning mx-2">
+                                <a href="/readers/edit/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-warning mx-3">
                                     <i class="fas fa-edit"></i> Sửa
                                 </a>
-                                <a href="/readers/delete/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#delete" data-bs-id="<?php echo $reader['ma_doc_gia']; ?>">
+                                <a href="/readers/delete/<?php echo $reader['ma_doc_gia']; ?>" class="btn btn-sm btn-danger mx-3" data-bs-toggle="modal" data-bs-target="#delete" data-bs-id="<?php echo $reader['ma_doc_gia']; ?>">
                                     <i class=" fas fa-trash-alt"></i> Xóa
                                 </a>
                             </td>

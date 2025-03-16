@@ -124,8 +124,77 @@ class Penalty extends Model
 }
 
 
-    public function getPenaltiesWithPagination($start, $perPage, $keyword = '')
+//     public function getPenaltiesWithPagination($start, $perPage, $keyword = '')
+// {
+//     $query = "
+//         SELECT 
+//             pt.ma_phieu_tra,
+//             pm.ma_phieu_muon,
+//             dg.ma_doc_gia,
+//             dg.ten_doc_gia,
+//             pm.ngay_tra AS ngay_het_han,  
+//             pt.ngay_tra_sach,             
+//             pt.tien_phat,                 
+//             pm.trang_thai                 
+//         FROM phieu_tra pt
+//         LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
+//         LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
+//         LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+//         WHERE pt.tien_phat > 0
+//     ";
+
+//     if ($keyword) {
+//         $query .= " AND (pm.ma_phieu_muon LIKE :keyword OR dg.ten_doc_gia LIKE :keyword)";
+//     }
+
+//     $query .= " LIMIT :start, :perPage";
+
+//     $stmt = $this->db->prepare($query);
+    
+//     if ($keyword) {
+//         $stmt->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
+//     }
+
+//     $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+//     $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+//     $stmt->execute();
+    
+//     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+// }
+
+public function getPenaltiesWithPagination($start, $perPage, $keyword = '')
 {
+    $query = "
+        SELECT DISTINCT pm.ma_phieu_muon
+        FROM phieu_tra pt
+        LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
+        LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
+        LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+        WHERE pt.tien_phat > 0
+    ";
+
+    if ($keyword) {
+        $query .= " AND (pm.ma_phieu_muon LIKE :keyword OR dg.ten_doc_gia LIKE :keyword)";
+    }
+
+    $query .= " ORDER BY pm.ma_phieu_muon DESC LIMIT :start, :perPage";
+
+    $stmt = $this->db->prepare($query);
+    if ($keyword) {
+        $stmt->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
+    }
+    $stmt->bindValue(':start', (int)$start, PDO::PARAM_INT);
+    $stmt->bindValue(':perPage', (int)$perPage, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $maPhieuMuonList = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    if (empty($maPhieuMuonList)) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($maPhieuMuonList), '?'));
+
     $query = "
         SELECT 
             pt.ma_phieu_tra,
@@ -140,29 +209,15 @@ class Penalty extends Model
         LEFT JOIN chi_tiet_phieu_muon ctpm ON pt.ma_ctpm = ctpm.ma_ctpm
         LEFT JOIN phieu_muon pm ON ctpm.ma_phieu_muon = pm.ma_phieu_muon
         LEFT JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
-        WHERE pt.tien_phat > 0
+        WHERE pm.ma_phieu_muon IN ($placeholders)
+        ORDER BY pm.ma_phieu_muon DESC
     ";
 
-    if ($keyword) {
-        $query .= " AND (pm.ma_phieu_muon LIKE :keyword OR dg.ten_doc_gia LIKE :keyword)";
-    }
-
-    $query .= " LIMIT :start, :perPage";
-
     $stmt = $this->db->prepare($query);
-    
-    if ($keyword) {
-        $stmt->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
-    }
+    $stmt->execute($maPhieuMuonList);
 
-    $stmt->bindValue(':start', $start, PDO::PARAM_INT);
-    $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
-    $stmt->execute();
-    
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
-
 
     public function getTotalPenalties($keyword = '')
     {

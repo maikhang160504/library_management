@@ -67,7 +67,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
 </head>
 
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Quản lý phí phạt</h2>
             <div>
@@ -95,20 +95,25 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Mã phiếu mượn</th>
-                        <th>Mã độc giả</th>
-                        <th>Tên độc giả</th>
-                        <th>Ngày hết hạn</th>
-                        <th>Số tiền phạt</th>
-                        <th>Trạng thái thanh toán</th>
-                        <th>Hành động</th>
+                        <th style="width:5%">STT</th>
+                        <th style="width:10%">Mã phiếu mượn</th>
+                        <th style="width:10%">Mã độc giả</th>
+                        <th style="width:15%">Tên độc giả</th>
+                        <th style="width:10%">Ngày hết hạn</th>
+                        <th style="width:10%">Ngày trả thực tế</th>
+                        <th style="width:10%">Số tiền phạt</th>
+                        <th style="width:10%">Thanh toán</th>
+                        <th style="width:10%">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
+                    $perPage = 10;
+                    $stt = ($currentPage - 1) * $perPage + 1; ?>
+                    <?php
                     if (empty($penalties)): ?>
                         <tr>
-                            <td colspan="7" class="text-center">Không có kết quả tìm kiếm.</td>
+                            <td colspan="12" class="text-center">Không có kết quả tìm kiếm.</td>
                         </tr>
                         <?php else:
                         $groupedPenalties = [];
@@ -127,10 +132,12 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                         // Hiển thị chỉ một dòng cho mỗi mã phiếu mượn
                         foreach ($groupedPenalties as $penalty): ?>
                             <tr>
-                                <td><?php echo $penalty['ma_phieu_muon'] ?> </td>
-                                <td><?php echo $penalty['ma_doc_gia'] ?> </td>
-                                <td><?php echo $penalty['ten_doc_gia'] ?></td>
-                                <td><?php echo $penalty['ngay_het_han'] ?></td>
+                                <td><?php echo htmlspecialchars($stt) ?></td>
+                                <td><?php echo htmlspecialchars($penalty['ma_phieu_muon']) ?> </td>
+                                <td><?php echo htmlspecialchars($penalty['ma_doc_gia']) ?> </td>
+                                <td><?php echo htmlspecialchars($penalty['ten_doc_gia']) ?></td>
+                                <td><?php echo htmlspecialchars($penalty['ngay_het_han']) ?></td>
+                                <td><?php echo htmlspecialchars($penalty['ngay_tra_sach']) ?></td>
                                 <td><?= number_format($penalty['tien_phat'], 0, ',', '.') ?> VND</td>
                                 <td>
                                     <?php if ($penalty['trang_thai'] == 'Đã trả'): ?>
@@ -143,6 +150,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                                     <a href="/readers/detail/<?php echo $penalty['ma_doc_gia']; ?>" class="btn btn-info btn-sm">Xem chi tiết</a>
                                 </td>
                             </tr>
+                            <?php $stt++; ?>
                     <?php endforeach;
                     endif; ?>
                 </tbody>
