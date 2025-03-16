@@ -105,17 +105,7 @@ class BorrowBook extends Model
     }
     public function getYearlyReaderStatsDetail()
     {
-        $query = "SELECT 
-                    dg.ma_doc_gia, 
-                    dg.ten_doc_gia, 
-                    COUNT(pm.ma_phieu_muon) AS so_lan_muon,
-                    get_top_genre_by_reader(dg.ma_doc_gia) AS the_loai_muon_nhieu_nhat
-                  FROM phieu_muon pm
-                  JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
-                  WHERE YEAR(pm.ngay_muon) = YEAR(CURRENT_DATE)
-                  GROUP BY dg.ma_doc_gia, dg.ten_doc_gia
-                  ORDER BY so_lan_muon DESC;";
-
+        $query = "call ThongKeDocGiaMuonNamChiTiet()";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -256,5 +246,28 @@ class BorrowBook extends Model
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function renewBorrow($maPhieuMuon, $soNgayGiaHan)
+    {
+        // Lấy ngày trả hiện tại
+        $query = "SELECT ngay_tra FROM phieu_muon WHERE ma_phieu_muon = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$maPhieuMuon]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return false; // Không tìm thấy phiếu mượn
+        }
+
+        $ngayTraCu = $row['ngay_tra'];
+
+        // Cộng thêm số ngày gia hạn
+        $ngayTraMoi = date('Y-m-d', strtotime($ngayTraCu . " +{$soNgayGiaHan} days"));
+
+        // Cập nhật ngày trả mới
+        $updateQuery = "UPDATE phieu_muon SET ngay_tra = ? WHERE ma_phieu_muon = ?";
+        $updateStmt = $this->db->prepare($updateQuery);
+        return $updateStmt->execute([$ngayTraMoi, $maPhieuMuon]);
     }
 }

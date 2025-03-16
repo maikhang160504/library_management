@@ -23,7 +23,7 @@ class BorrowController extends Controller
     public function index()
     {
         $filter_status = isset($_GET['status']) ? $_GET['status'] : '';
-    
+
         if ($filter_status === 'Đang mượn') {
             $borrows = $this->borrowModel->getUnreturnedBorrows();
         } elseif ($filter_status === 'Đã trả') {
@@ -31,10 +31,10 @@ class BorrowController extends Controller
         } else {
             $borrows = $this->borrowModel->getAllBorrows();
         }
-    
+
         $this->view('borrows/index', ['borrows' => $borrows]);
     }
-    
+
     // Hiển thị form tạo phiếu mượn
     public function create()
     {
@@ -43,7 +43,7 @@ class BorrowController extends Controller
         $this->view('borrows/create', ['readers' => $readers, 'books' => $books]);
     }
 
-   
+
     // Xử lý tạo phiếu mượn
     public function store()
     {
@@ -64,10 +64,19 @@ class BorrowController extends Controller
             $result = $this->borrowModel->createBorrow($ma_doc_gia, $ngay_muon, $ngay_tra, $danh_sach_sach);
             // Tạo phiếu mượn
             if ($result['success']) {
+                $_SESSION['alert'] = [
+                    'type' => 'success',
+                    'message' => 'Tạo phiếu mượn thanh công!'
+                ];
                 header('Location: /borrows/detail/' . $result['ma_phieu_muon']);
                 exit();
             } else {
-                echo "Có lỗi xảy ra khi tạo phiếu mượn!";
+                $_SESSION['alert'] = [
+                    'type' => 'danger', 
+                    'message' => $result['message']
+                ];
+                header('Location: /borrows/create');
+                exit();
             }
         }
     }
@@ -82,5 +91,35 @@ class BorrowController extends Controller
         }
 
         $this->view('borrows/show', ['borrowDetail' => $borrowDetail]);
+    }
+    public function renew()
+    {
+        // Lấy dữ liệu từ URL
+        $maPhieuMuon = $_GET['ma_phieu_muon'] ?? null;
+        $soNgayGiaHan = 5; // Mặc định gia hạn 7 ngày
+
+        if ($maPhieuMuon && $soNgayGiaHan > 0) {
+            $success = $this->borrowModel->renewBorrow($maPhieuMuon, $soNgayGiaHan);
+            if ($success) {
+                $_SESSION['alert'] = [
+                    'type' => 'success',
+                    'message' => 'Gia hạn thành công!'
+                ];
+            } else {
+                $_SESSION['alert'] = [
+                    'type' => 'danger',
+                    'message' => 'Gia hạn thất bại!'
+                ];
+            }
+        } else {
+            $_SESSION['alert'] = [
+                'type' => 'danger',
+                'message' => 'Dữ liệu không hợp lệ!'
+            ];
+        }
+
+
+        header("Location: /borrows");
+        exit;
     }
 }

@@ -25,6 +25,14 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
 ?>
 
 <div class="container">
+<?php if (!empty($_SESSION['alert'])) : ?>
+    <div class="alert alert-<?= htmlspecialchars($_SESSION['alert']['type']) ?> alert-dismissible fade show text-start" role="alert">
+        <?= htmlspecialchars($_SESSION['alert']['message']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+    <?php unset($_SESSION['alert']); // Xóa thông báo sau khi hiển thị ?>
+<?php endif; ?>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Danh sách phiếu mượn</h2>
         <div>
@@ -68,7 +76,7 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
                 <th>Ngày mượn</th>
                 <th>Ngày trả</th>
                 <th>Trạng thái</th>
-                <th>Hành động</th>
+                <th style="width: 180px;">Hành động</th>
             </tr>
         </thead>
         <tbody>
@@ -80,13 +88,16 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
                     <td><?php echo $borrow['ngay_muon']; ?></td>
                     <td><?php echo $borrow['ngay_tra']; ?></td>
                     <td><?php echo $borrow['trang_thai']; ?></td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         <a href="/borrows/detail/<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-info btn-sm">
                             <i class="fas fa-eye"></i> Xem chi tiết
                         </a>
                         <?php if ($borrow['trang_thai'] === 'Đang mượn'): ?>
-                            <a href="/returns/return?ma_phieu_muon=<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-success btn-sm">Trả sách</a>
-                        <?php endif; ?>
+                            <a href="/returns/return?ma_phieu_muon=<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-success btn-sm">
+                            <i class="fas fa-undo"></i> Trả sách</a>
+                            <a href="borrows/renew?ma_phieu_muon=<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-warning btn-sm">
+                            <i class="fas fa-sync-alt"></i> Gia Hạn 5 ngày</a>
+                            <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
