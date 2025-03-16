@@ -107,13 +107,13 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                     </tr>
                 </thead>
                 <tbody>
-                <?php 
-                $perPage = 10;
-                $stt = ($currentPage - 1) * $perPage + 1; ?>
+                    <?php
+                    $perPage = 10;
+                    $stt = ($currentPage - 1) * $perPage + 1; ?>
                     <?php
                     if (empty($penalties)): ?>
                         <tr>
-                            <td colspan="7" class="text-center">Không có kết quả tìm kiếm.</td>
+                            <td colspan="12" class="text-center">Không có kết quả tìm kiếm.</td>
                         </tr>
                         <?php else:
                         $groupedPenalties = [];
@@ -132,7 +132,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                         // Hiển thị chỉ một dòng cho mỗi mã phiếu mượn
                         foreach ($groupedPenalties as $penalty): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($stt)?></td>
+                                <td><?php echo htmlspecialchars($stt) ?></td>
                                 <td><?php echo htmlspecialchars($penalty['ma_phieu_muon']) ?> </td>
                                 <td><?php echo htmlspecialchars($penalty['ma_doc_gia']) ?> </td>
                                 <td><?php echo htmlspecialchars($penalty['ten_doc_gia']) ?></td>
@@ -150,7 +150,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                                     <a href="/readers/detail/<?php echo $penalty['ma_doc_gia']; ?>" class="btn btn-info btn-sm">Xem chi tiết</a>
                                 </td>
                             </tr>
-                        <?php $stt++; ?>
+                            <?php $stt++; ?>
                     <?php endforeach;
                     endif; ?>
                 </tbody>
