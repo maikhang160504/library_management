@@ -106,9 +106,7 @@ $router->get('/borrows/detail/(\d+)', function ($id) {
     callControllerMethod('BorrowController@show', [$id]);
 });
 
-$router->get('/borrows/renew', function () {
-    callControllerMethod('BorrowController@renew');
-});
+
 
 
 /**

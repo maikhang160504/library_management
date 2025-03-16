@@ -92,34 +92,5 @@ class BorrowController extends Controller
 
         $this->view('borrows/show', ['borrowDetail' => $borrowDetail]);
     }
-    public function renew()
-    {
-        // Lấy dữ liệu từ URL
-        $maPhieuMuon = $_GET['ma_phieu_muon'] ?? null;
-        $soNgayGiaHan = 5; // Mặc định gia hạn 7 ngày
-
-        if ($maPhieuMuon && $soNgayGiaHan > 0) {
-            $success = $this->borrowModel->renewBorrow($maPhieuMuon, $soNgayGiaHan);
-            if ($success) {
-                $_SESSION['alert'] = [
-                    'type' => 'success',
-                    'message' => 'Gia hạn thành công!'
-                ];
-            } else {
-                $_SESSION['alert'] = [
-                    'type' => 'danger',
-                    'message' => 'Gia hạn thất bại!'
-                ];
-            }
-        } else {
-            $_SESSION['alert'] = [
-                'type' => 'danger',
-                'message' => 'Dữ liệu không hợp lệ!'
-            ];
-        }
-
-
-        header("Location: /borrows");
-        exit;
-    }
+    
 }

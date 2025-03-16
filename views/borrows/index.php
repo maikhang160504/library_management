@@ -95,8 +95,7 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
                         <?php if ($borrow['trang_thai'] === 'Đang mượn'): ?>
                             <a href="/returns/return?ma_phieu_muon=<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-success btn-sm">
                             <i class="fas fa-undo"></i> Trả sách</a>
-                            <a href="borrows/renew?ma_phieu_muon=<?php echo $borrow['ma_phieu_muon']; ?>" class="btn btn-warning btn-sm">
-                            <i class="fas fa-sync-alt"></i> Gia Hạn 5 ngày</a>
+                          
                             <?php endif; ?>
                     </td>
                 </tr>
