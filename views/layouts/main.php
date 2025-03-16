@@ -105,6 +105,11 @@
         #sidebar:hover .logo {
             width: 100px;
         }
+
+        #sidebar .nav-item a.active i {
+            color: #f8d210;
+            /* Màu vàng */
+        }
     </style>
 </head>
 
@@ -117,7 +122,7 @@
             <nav class="bg-dark text-white vh-100" id="sidebar">
                 <ul class="nav flex-column mt-4">
                     <!-- Logo -->
-    
+
                     <li class="nav-item text-center logo-container">
                         <img class="logo mx-auto d-block" src="/images/logo.png" alt="Logo">
                     </li>
@@ -125,7 +130,7 @@
 
                     <!-- Quản lý Sách -->
                     <li class="nav-item py-2">
-                        <a href="/books" class="nav-link text-white">
+                        <a href="/books" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/books') ? 'active' : ''; ?>">
                             <i class="fas fa-book-open"></i>
                             <span class="ms-2 d-none d-lg-inline">Quản lý Sách</span>
                         </a>
@@ -133,7 +138,7 @@
 
                     <!-- Quản lý Mượn/Trả -->
                     <li class="nav-item py-2">
-                        <a href="/borrows" class="nav-link text-white">
+                        <a href="/borrows" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/borrows') ? 'active' : ''; ?>">
                             <i class="fas fa-exchange-alt"></i>
                             <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span>
                         </a>
@@ -141,7 +146,7 @@
 
                     <!-- Quản lý Độc giả -->
                     <li class="nav-item py-2">
-                        <a href="/readers" class="nav-link text-white">
+                        <a href="/readers" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/readers') ? 'active' : ''; ?>">
                             <i class="fas fa-users"></i>
                             <span class="ms-2 d-none d-lg-inline">Quản lý Độc giả</span>
                         </a>
@@ -149,7 +154,7 @@
 
                     <!-- Phí phạt -->
                     <li class="nav-item py-2">
-                        <a href="/penalties" class="nav-link text-white">
+                        <a href="/penalties" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/penalties') ? 'active' : ''; ?>">
                             <i class="fas fa-hand-holding-usd"></i>
                             <span class="ms-2 d-none d-lg-inline">Phí phạt</span>
                         </a>
@@ -157,7 +162,7 @@
 
                     <!-- Thống kê -->
                     <li class="nav-item py-2">
-                        <a href="/reports" class="nav-link text-white">
+                        <a href="/reports" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/reports') ? 'active' : ''; ?>">
                             <i class="fas fa-chart-line"></i>
                             <span class="ms-2 d-none d-lg-inline">Thống kê</span>
                         </a>
@@ -165,7 +170,7 @@
 
                     <!-- Xuất Excel -->
                     <li class="nav-item py-2">
-                        <a href="/reports/export-excel" class="nav-link text-white">
+                        <a href="/reports/export-excel" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/reports/export-excel') ? 'active' : ''; ?>">
                             <i class="fas fa-file-excel"></i>
                             <span class="ms-2 d-none d-lg-inline">Xuất Excel</span>
                         </a>
@@ -173,7 +178,7 @@
 
                     <!-- Đăng xuất -->
                     <li class="nav-item py-2">
-                        <a href="/logout" class="nav-link text-danger">
+                        <a href="/logout" class="nav-link text-white">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="ms-2 d-none d-lg-inline">Đăng xuất</span>
                         </a>
