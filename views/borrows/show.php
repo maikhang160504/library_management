@@ -111,6 +111,14 @@ $title = "Chi tiết Phiếu Mượn";
 ob_start();
 ?>
 <div class="container mt-4">
+<?php if (!empty($_SESSION['alert'])) : ?>
+    <div class="alert alert-<?= htmlspecialchars($_SESSION['alert']['type']) ?> alert-dismissible fade show text-start" role="alert">
+        <?= htmlspecialchars($_SESSION['alert']['message']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+    <?php unset($_SESSION['alert']); // Xóa thông báo sau khi hiển thị ?>
+<?php endif; ?>
+
     <div class="d-flex align-items-center justify-content-center position-relative my-4">
         <a href="/borrows" class="btn btn-outline-secondary position-absolute start-0">
             <i class="bi bi-arrow-left-circle"></i> Quay lại

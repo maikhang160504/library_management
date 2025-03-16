@@ -247,4 +247,27 @@ class BorrowBook extends Model
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function renewBorrow($maPhieuMuon, $soNgayGiaHan)
+    {
+        // Lấy ngày trả hiện tại
+        $query = "SELECT ngay_tra FROM phieu_muon WHERE ma_phieu_muon = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$maPhieuMuon]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return false; // Không tìm thấy phiếu mượn
+        }
+
+        $ngayTraCu = $row['ngay_tra'];
+
+        // Cộng thêm số ngày gia hạn
+        $ngayTraMoi = date('Y-m-d', strtotime($ngayTraCu . " +{$soNgayGiaHan} days"));
+
+        // Cập nhật ngày trả mới
+        $updateQuery = "UPDATE phieu_muon SET ngay_tra = ? WHERE ma_phieu_muon = ?";
+        $updateStmt = $this->db->prepare($updateQuery);
+        return $updateStmt->execute([$ngayTraMoi, $maPhieuMuon]);
+    }
 }

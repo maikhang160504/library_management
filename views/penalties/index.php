@@ -148,7 +148,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                 </tbody>
             </table>
         </div>
-        <?php if ($totalPages > 1 && count($penalties) >= 10): ?>
+        <?php if ($totalPages > 1): ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                     <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
