@@ -14,14 +14,30 @@ class ReturnBook extends Model
     // Lấy tất cả các phiếu trả
     public function getAllReturns()
     {
-        $query = "SELECT pt.ma_phieu_tra, pm.ma_phieu_muon, ctpm.ma_ctpm, pm.ma_doc_gia, pm.ngay_muon, pm.ngay_tra as ngay_tra_du_kien, pt.ngay_tra_sach as ngay_tra_thuc_te
-                    ,pt.tien_phat
-                    FROM phieu_muon pm
-                    JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
-                    join phieu_tra as pt on pt.ma_ctpm = ctpm.ma_ctpm
-                    join doc_gia dg on pm.ma_doc_gia = dg.ma_doc_gia
-                    GROUP BY pm.ma_phieu_muon, pm.ma_doc_gia, pm.ngay_muon, pm.ngay_tra, pm.trang_thai
-                    ORDER BY pt.ma_phieu_tra DESC";
+        $query = "SELECT 
+    pt.ma_phieu_tra, 
+    pm.ma_phieu_muon, 
+    ctpm.ma_ctpm, 
+    pm.ma_doc_gia, 
+    pm.ngay_muon, 
+    pm.ngay_tra AS ngay_tra_du_kien, 
+    pt.ngay_tra_sach AS ngay_tra_thuc_te, 
+    pt.tien_phat 
+FROM phieu_muon pm
+JOIN chi_tiet_phieu_muon ctpm ON pm.ma_phieu_muon = ctpm.ma_phieu_muon
+JOIN phieu_tra pt ON pt.ma_ctpm = ctpm.ma_ctpm
+JOIN doc_gia dg ON pm.ma_doc_gia = dg.ma_doc_gia
+GROUP BY 
+    pt.ma_phieu_tra, 
+    pm.ma_phieu_muon, 
+    ctpm.ma_ctpm, 
+    pm.ma_doc_gia, 
+    pm.ngay_muon, 
+    pm.ngay_tra, 
+    pt.ngay_tra_sach, 
+    pt.tien_phat
+ORDER BY pt.ma_phieu_tra DESC;
+";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
