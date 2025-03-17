@@ -107,7 +107,7 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
     <nav>
         <ul class="pagination justify-content-end">
             <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo $page - 1; ?>&status=<?php echo urlencode($filter_status); ?>&search=<?php echo urlencode($search_name); ?>">Trước</a>
+                <a class="page-link" href="?page=<?php echo $page - 1; ?>&status=<?php echo urlencode($filter_status); ?>&search=<?php echo urlencode($search_name); ?>">«</a>
             </li>
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
@@ -115,7 +115,7 @@ $borrowsPaginated = array_slice($filteredBorrows, $offset, $limit);
                 </li>
             <?php endfor; ?>
             <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo $page + 1; ?>&status=<?php echo urlencode($filter_status); ?>&search=<?php echo urlencode($search_name); ?>">Sau</a>
+                <a class="page-link" href="?page=<?php echo $page + 1; ?>&status=<?php echo urlencode($filter_status); ?>&search=<?php echo urlencode($search_name); ?>">»</a>
             </li>
         </ul>
     </nav>
