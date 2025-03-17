@@ -110,6 +110,10 @@
             color: #f8d210;
             /* Màu vàng */
         }
+        thead {
+            background-color: #343a40;
+            color: white;
+        }
     </style>
 </head>
 
@@ -138,7 +142,7 @@
 
                     <!-- Quản lý Mượn/Trả -->
                     <li class="nav-item py-2">
-                        <a href="/borrows" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/borrows') ? 'active' : ''; ?>">
+                        <a href="/borrows" class="nav-link text-white  <?php echo ($_SERVER['REQUEST_URI'] == '/borrows') || $_SERVER['REQUEST_URI'] == '/returns' ? 'active' : ''; ?>">
                             <i class="fas fa-exchange-alt"></i>
                             <span class="ms-2 d-none d-lg-inline">Quản lý Mượn/Trả</span>
                         </a>

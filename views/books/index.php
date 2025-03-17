@@ -1,7 +1,8 @@
 <?php
 $title = "Danh sách sách";
 ob_start();
-function flash($key) {
+function flash($key)
+{
     if (isset($_SESSION[$key])) {
         $msg = $_SESSION[$key];
         unset($_SESSION[$key]);
@@ -48,12 +49,12 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Quản lý Sách</h2>
     <div class="d-flex justify-content-end ">
-        
-        
+
+
         <div class="dropdown pt-2 ms-3">
-            
+
             <form method="POST" action="/books" id="filterSearchForm" class="mb-3 d-flex">
-            <button type="button" class="btn btn-secondary ms-2" id="resetFilterBtn">Xóa lọc</button>
+                <button type="button" class="btn btn-secondary ms-2" id="resetFilterBtn">Xóa lọc</button>
                 <div class="btn-group me-2">
                     <button class="btn btn-secondary dropdown-toggle ms-3" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <?= htmlspecialchars($selectedCategoryName) ?>
@@ -70,13 +71,13 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
                     </ul>
                     <input type="hidden" name="category" id="filterCategory" value="<?= htmlspecialchars($selectedCategory) ?>">
                 </div>
-                
+
                 <div class="flex-grow-1 ms-3">
-                    <input type="text" name="query" id="bookSearch" class="form-control shadow-none border-dark" 
-                        placeholder="Nhập từ khóa tìm kiếm..." 
+                    <input type="text" name="query" id="bookSearch" class="form-control shadow-none border-dark"
+                        placeholder="Nhập từ khóa tìm kiếm..."
                         value="<?= htmlspecialchars($searchQuery) ?>">
                 </div>
-                
+
             </form>
         </div>
     </div>
@@ -96,123 +97,126 @@ $total = isset($total) ? $total : 0;      // tổng sách theo thống kê
         </thead>
         <tbody id="books-table-body">
             <?php foreach ($books as $book): ?>
-            <tr>
-                <td class="text-center"><?php echo $book['ma_sach']; ?></td>
-                <td class="text-center"><?php echo $book['ten_sach']; ?></td>
-                <td class="text-center"><?php echo $book['ten_tac_gia']; ?></td>
-                <td class="text-center"><?php echo $book['ten_the_loai']; ?></td>
-                <td class="text-center"><?php echo $book['so_luong']; ?></td>
-                <td class="text-center">
-                    <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
-                </td>
-            </tr>
+                <tr>
+                    <td class="text-center"><?php echo $book['ma_sach']; ?></td>
+                    <td class="text-center"><?php echo $book['ten_sach']; ?></td>
+                    <td class="text-center"><?php echo $book['ten_tac_gia']; ?></td>
+                    <td class="text-center"><?php echo $book['ten_the_loai']; ?></td>
+                    <td class="text-center"><?php echo $book['so_luong']; ?></td>
+                    <td class="text-center">
+                        <a href="/books/<?php echo $book['ma_sach']; ?>" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
+                    </td>
+                </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
 <div class="d-flex justify-content-end">
-    <div class="position-absolute" style="left: 5%; bottom: -5%;">
+    <div class="position-absolute start-0 p-3">
         <nav>
             <ul class="pagination">
-                <?php if ($currentPage > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $currentPage - 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">«</a>
-                    </li>
-                <?php endif; ?>
+                <?php if ($totalPages > 1): ?>
+                    <ul class="pagination">
+                       
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?= $currentPage - 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">«</a>
+                            </li>
+                        
 
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=<?= $i ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>"><?= $i ?></a>
-                    </li>
-                <?php endfor; ?>
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
 
-                <?php if ($currentPage < $totalPages): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $currentPage + 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">»</a>
-                    </li>
+
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $currentPage + 1 ?>&query=<?= urlencode($searchQuery) ?>&category=<?= urlencode($selectedCategory) ?>">»</a>
+                        </li>
+
+                    </ul>
                 <?php endif; ?>
             </ul>
         </nav>
     </div>
     <div class="pt-2 ms-2 position-absolute" style="right: 5%; bottom: -3%;">
-            <a href="/books/add" class="btn btn-dark">Thêm sách</a>
-            <form action="/books/export" method="GET" class="d-inline-block">
-                <input type="hidden" name="query" value="<?= htmlspecialchars($searchQuery) ?>">
-                <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
-                <button type="submit" class="btn btn-success">Xuất Excel</button>
-            </form>
-        </div>
+        <a href="/books/add" class="btn btn-dark">Thêm sách</a>
+        <form action="/books/export" method="GET" class="d-inline-block">
+            <input type="hidden" name="query" value="<?= htmlspecialchars($searchQuery) ?>">
+            <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
+            <button type="submit" class="btn btn-success">Xuất Excel</button>
+        </form>
     </div>
 </div>
+</div>
 <script>
-    setTimeout(function(){
-    const alertElement = document.querySelector('.alert');
-    if (alertElement) {
-        alertElement.remove();
-    }
-}, 2000);
-
-document.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', function(e) {
-        e.preventDefault();
-        const categoryId = this.getAttribute('data-category');
-        document.getElementById('filterCategory').value = categoryId;
-        document.getElementById('categoryDropdown').innerText = this.textContent;
-
-        document.getElementById('filterSearchForm').submit();
-    });
-});
-
-function debounce(func, delay) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-}
-
-document.getElementById('bookSearch').addEventListener('keyup', debounce(function(e) {
-    const query = this.value.trim();
-    if (query.length >= 2 || query === "") {
-        sessionStorage.setItem('shouldFocus', 'true');
-        document.getElementById('filterSearchForm').submit();
-    }
-}, 300));
-
-window.addEventListener('DOMContentLoaded', function() {
-    if (sessionStorage.getItem('shouldFocus') === 'true') {
-        const searchInput = document.getElementById('bookSearch');
-        if (searchInput) {
-            searchInput.focus();
-            const val = searchInput.value;
-            searchInput.value = '';
-            searchInput.value = val;
+    setTimeout(function() {
+        const alertElement = document.querySelector('.alert');
+        if (alertElement) {
+            alertElement.remove();
         }
-        sessionStorage.removeItem('shouldFocus');
-    }
-});
-document.getElementById('resetFilterBtn').addEventListener('click', function() {
-    document.getElementById('filterCategory').value = '';
-    document.getElementById('categoryDropdown').innerText = 'Lọc theo thể loại';
+    }, 2000);
 
-    document.getElementById('bookSearch').value = '';
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const categoryId = this.getAttribute('data-category');
+            document.getElementById('filterCategory').value = categoryId;
+            document.getElementById('categoryDropdown').innerText = this.textContent;
 
-    document.getElementById('filterSearchForm').submit();
-});
-document.querySelectorAll('.dropdown-menu a').forEach(item => {
-    item.addEventListener('click', function(e) {
-        e.preventDefault();
-        const selectedType = this.getAttribute('data-type');
-
-        document.getElementById('statTypeInput').value = selectedType;
-
-        document.getElementById('statTypeForm').submit();
+            document.getElementById('filterSearchForm').submit();
+        });
     });
-});
+
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    document.getElementById('bookSearch').addEventListener('keyup', debounce(function(e) {
+        const query = this.value.trim();
+        if (query.length >= 2 || query === "") {
+            sessionStorage.setItem('shouldFocus', 'true');
+            document.getElementById('filterSearchForm').submit();
+        }
+    }, 300));
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('shouldFocus') === 'true') {
+            const searchInput = document.getElementById('bookSearch');
+            if (searchInput) {
+                searchInput.focus();
+                const val = searchInput.value;
+                searchInput.value = '';
+                searchInput.value = val;
+            }
+            sessionStorage.removeItem('shouldFocus');
+        }
+    });
+    document.getElementById('resetFilterBtn').addEventListener('click', function() {
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('categoryDropdown').innerText = 'Lọc theo thể loại';
+
+        document.getElementById('bookSearch').value = '';
+
+        document.getElementById('filterSearchForm').submit();
+    });
+    document.querySelectorAll('.dropdown-menu a').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const selectedType = this.getAttribute('data-type');
+
+            document.getElementById('statTypeInput').value = selectedType;
+
+            document.getElementById('statTypeForm').submit();
+        });
+    });
 </script>
 
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/main.php';
 ?>
-
